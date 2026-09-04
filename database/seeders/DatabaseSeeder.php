@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             'first_name' => env('APP_ADMIN_FIRST_NAME', 'Sim'),
             'email' => env('APP_ADMIN_EMAIL', 'sim.one@example.net'),
             'is_admin' => true,
-            'password' => Hash::make(env('APP_ADMIN_PASSWORD'), '4dminPa55word!!'),
+            'password' => Hash::make(env('APP_ADMIN_PASSWORD', '4dminPa55word!!')),
         ]);
     }
 }
