@@ -3,11 +3,23 @@
     "name": "sfaut/my-portfolios",
     "type": "project",
     "description": "Gestionnaire de portefeuilles et de comptes",
-    "keywords": [],
+    "keywords": [
+        "finance",
+        "portfolio",
+        "accounts"
+    ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Sébastien",
+            "email": "sebastien.faut@gmail.com",
+            "homepage": "https://github.com/sfaut",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^11.31",
+        "laravel/framework": "^12.0",
         "laravel/tinker": "^2.9"
     },
     "require-dev": {
