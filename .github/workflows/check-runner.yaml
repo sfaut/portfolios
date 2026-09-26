@@ -1,0 +1,11 @@
+name: Vérification du runner
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: [self-hosted, production]
+    steps:
+      - run: |
+          whoami
+          php -v
+          php -m | grep -Ei 'pdo_mysql|intl|mbstring|opcache'
+          df -h /var/www
