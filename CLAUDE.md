@@ -8,7 +8,7 @@ Portfolios (dépôt et paquet Composer `sfaut/portfolios`) : gestionnaire de por
 Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regroupent des opérations
 (montants datés).
 
-Pile : PHP 8.4+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
+Pile : PHP 8.5+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
 Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via
 `Number::currency(…, 'EUR', 'fr')`, qui demande l'extension `intl`).
 
