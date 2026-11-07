@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'store.success' => <<<BUFFER
+    'store.success' => <<<'BUFFER'
         Le nouveau portfolio « :name » a bien été créé.
         Vous pouvez maintenant y ajouter des comptes.
         BUFFER,

@@ -2,10 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Operation;
-use App\Models\OperationReport;
-use App\Models\Portfolio;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Scopes\AuthUserParentScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,6 +27,14 @@ class Account extends Model
     protected $casts = [
 
     ];
+
+    /**
+     * Restreint les comptes à ceux des portfolios de l'utilisateur connecté.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AuthUserParentScope('portfolio'));
+    }
 
     public function portfolio(): BelongsTo
     {

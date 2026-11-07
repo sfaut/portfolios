@@ -7,4 +7,4 @@ le {{ $portfolio->deleted_at->format('d/m/Y') }}
 Cordialement,<br>
 <br>
 -- <br>
-MyPortfolios<br>
+Portfolios<br>

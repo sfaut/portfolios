@@ -4,7 +4,6 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
-use App\Jobs\SendPortfolioCreatedMailJob;
 // use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Support\Facades\Route;
 
@@ -52,4 +51,4 @@ Route::controller(ProfileController::class)->middleware('auth')->group(function 
     Route::delete('/profile', 'destroy')->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

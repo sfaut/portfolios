@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "sfaut/my-portfolios",
+    "name": "sfaut/portfolios",
     "type": "project",
     "description": "Gestionnaire de portefeuilles et de comptes",
     "keywords": [

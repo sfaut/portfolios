@@ -16,8 +16,7 @@ class PortfolioCreatedMail extends Mailable implements ShouldQueue
 
     public function __construct(
         public Portfolio $portfolio
-    )
-    {
+    ) {
         //
     }
 
