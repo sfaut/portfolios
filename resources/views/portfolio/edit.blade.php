@@ -9,7 +9,7 @@
 
     <div class="max-w-xl mx-auto space-y-6 pb-6">
 
-        <div class="shadow rounded-md p-6 bg-white">
+        <div class="shadow-sm rounded-md p-6 bg-white">
             <header>
                 <h2 class="text-lg font-semibold">Informations du portfolio</h2>
                 <p class="mt-1 text-sm text-gray-400">Modifiez les informations du portfolio.</p>
@@ -23,7 +23,7 @@
             ])
         </div>
 
-        <div @class(['shadow', 'rounded-md', 'p-6', 'bg-white', 'ring-2', 'ring-red-800'])>
+        <div @class(['shadow-sm', 'rounded-md', 'p-6', 'bg-white', 'ring-2', 'ring-red-800'])>
             <header>
                 <h2 class="text-lg font-semibold">Archivage du portfolio</h2>
                 <p class="mt-1 text-sm text-gray-400">

@@ -23,7 +23,7 @@
 
     <div @class([
         'max-w-xl', 'mx-auto',
-        'shadow', 'rounded-md',
+        'shadow-sm', 'rounded-md',
         'p-6', 'bg-white',
         'ring-2', 'ring-red-800',
         'mt-6',

@@ -35,7 +35,7 @@
 
         <div class="separated-y-2">
             <x-input-label for="delivery_at" value="Date effective"/>
-            <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="mt-1 rounded-md w-full border-1 border-slate-300">
+            <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="mt-1 rounded-md w-full border border-slate-300">
             <x-input-error class="mt-2" :messages="$errors->get('delivery_at')"/>
         </div>
 

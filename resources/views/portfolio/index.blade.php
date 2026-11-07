@@ -29,7 +29,7 @@
 
                 @class([
                     'block', 'flex', 'rounded-md',
-                    'bg-white', 'p-4', 'shadow',
+                    'bg-white', 'p-4', 'shadow-sm',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'hover:scale-102',
                     'items-center',
@@ -54,7 +54,7 @@
             href="{{ route('portfolio.create') }}"
             @class([
                 'block',
-                'rounded-md', 'bg-white', 'shadow', 'hover:shadow-md',
+                'rounded-md', 'bg-white', 'shadow-sm', 'hover:shadow-md',
                 'p-4',
                 'border-2', 'border-dashed', 'border-gray-400',
                 'hover:border-indigo-700', 'hover:text-indigo-700',

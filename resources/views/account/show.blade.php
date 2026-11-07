@@ -23,7 +23,7 @@
         {{ $operations->links('pagination.narrow') }}
     </div>
 
-    <div class="max-w-6xl mx-auto rounded-lg shadow mt-6 mb-6 -overflow-hidden">
+    <div class="max-w-6xl mx-auto rounded-lg shadow-sm mt-6 mb-6 -overflow-hidden">
         <table class="w-full">
             <thead class="bg-gray-100 text-xs font-semibold uppercase tracking-wide">
                 <tr>
