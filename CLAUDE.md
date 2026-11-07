@@ -20,8 +20,8 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   `APP_ADMIN_*`, en commentaire dans les modèles. Une variable présente mais vide l'emporte sur la valeur
   par défaut du seeder (`env()` renvoie `''`) : la laisser en commentaire ou la renseigner.
 - Développement : `composer dev` lance ensemble `php artisan serve`, `php artisan queue:listen`,
-  `php artisan pail` et `npm run dev`. Le worker de file est nécessaire : les mails de portfolio passent
-  par la file `database`.
+  `php artisan pail` et `npm run dev`, par concurrently 10 (Node 22 au moins). Le worker de file est
+  nécessaire : les mails de portfolio passent par la file `database`.
 - Build front : `npm run build` (Node 20.19 ou 22.12 au moins, pour Vite 8).
 - Style : Pint, sans `pint.json` (preset `laravel`), voir « Conventions » ci-dessous.
 - Tests : `php artisan test`, un fichier `vendor/bin/pest tests/Feature/ProfileTest.php`, un test
