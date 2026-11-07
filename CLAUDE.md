@@ -8,8 +8,9 @@ Portfolios (dépôt et paquet Composer `sfaut/portfolios`) : gestionnaire de por
 Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regroupent des opérations
 (montants datés).
 
-Pile : Laravel 12, Blade + Alpine.js + Tailwind CSS 3 (base Breeze), Pest 3, MySQL, Vite. Interface en
-français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via `Number::currency(…, 'EUR', 'fr')`).
+Pile : PHP 8.4+, Laravel 13, Blade + Alpine.js + Tailwind CSS 3 (base Breeze), Pest 5, MySQL, Vite.
+Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via
+`Number::currency(…, 'EUR', 'fr')`, qui demande l'extension `intl`).
 
 ## Commandes
 
@@ -70,6 +71,10 @@ français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via `Number
   de `accounts` ou `operations` demande de recréer ces vues dans une nouvelle migration.
 - `bootstrap/app.php` redéfinit la pile de middlewares globaux sans `ConvertEmptyStringsToNull` : un champ
   vide arrive en `''`, en accord avec les colonnes `description` à valeur par défaut `''`.
+- La session est sérialisée en JSON (`config/session.php`) et le cache ne désérialise aucune classe PHP
+  (`serializable_classes` à `false` dans `config/cache.php`) : n'y ranger que des scalaires et des
+  tableaux. Un objet reviendrait en tableau depuis la session, et en `__PHP_Incomplete_Class` depuis le
+  cache.
 
 ### Appartenance des données
 
