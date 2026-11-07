@@ -19,6 +19,8 @@
     ],
     "require": {
         "php": "^8.2",
+        "ext-intl": "*",
+        "ext-pdo_mysql": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.9"
     },
