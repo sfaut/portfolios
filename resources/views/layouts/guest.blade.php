@@ -13,7 +13,7 @@
             </a>
         </div>
 
-        <h1 class="mt-6 text-4xl tracking-widest drop-shadow-md font-medium text-indigo-800">MyPortfolios</h1>
+        <h1 class="mt-6 text-4xl tracking-widest drop-shadow-md font-medium text-indigo-800">Portfolios</h1>
 
         <div @class([
             'max-w-md', 'w-full',
