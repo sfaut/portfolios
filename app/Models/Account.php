@@ -2,11 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Operation;
-use App\Models\OperationReport;
-use App\Models\Portfolio;
 use App\Models\Scopes\AuthUserParentScope;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

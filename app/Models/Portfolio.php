@@ -2,14 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Account;
-use App\Models\AccountReport;
-use App\Models\Operation;
 use App\Models\Scopes\AuthUserScope;
-use App\Models\User;
 use App\Observers\PortfolioObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AccountRequest;
 use App\Models\Account;
-use App\Models\OperationReport;
 use App\Models\Portfolio;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
@@ -39,8 +37,9 @@ class AccountController extends Controller
         $operations = $account->operationsReport()->paginate(20);
 
         // Go to last page by default
-        if (!request()->has('page')) {
+        if (! request()->has('page')) {
             request()->session()->reflash();
+
             return to_route('account.show', [
                 'account' => $account,
                 'page' => $operations->lastPage(),

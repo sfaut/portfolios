@@ -19,7 +19,7 @@ return new class extends Migration
         });
 
         DB::statement(
-            <<<SQL
+            <<<'SQL'
             CREATE OR REPLACE VIEW account_reports AS
             SELECT ALL
                 a.id, a.name,
@@ -36,7 +36,7 @@ return new class extends Migration
         );
 
         DB::statement(
-            <<<SQL
+            <<<'SQL'
             CREATE OR REPLACE VIEW operation_reports AS
             WITH dataset AS (
                 -- CTE pour calcul du cumul global avant filtrage

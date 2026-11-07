@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Account;
 use App\Models\Scopes\AuthUserParentScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -18,6 +18,6 @@ class SendPortfolioCreatedMailJob implements ShouldQueue
 
     public function handle(): void
     {
-        Mail::to('sebastien.faut@gmail.com')->send(new PortfolioCreatedMail());
+        Mail::to('sebastien.faut@gmail.com')->send(new PortfolioCreatedMail);
     }
 }

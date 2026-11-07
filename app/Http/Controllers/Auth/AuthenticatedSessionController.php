@@ -20,6 +20,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
+
         // return redirect()->intended(route('portfolio.index', absolute: false));
         return to_route('portfolio.index');
     }
@@ -29,6 +30,7 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return to_route('login');
     }
 }

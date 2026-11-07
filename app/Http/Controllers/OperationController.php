@@ -6,7 +6,6 @@ use App\Http\Requests\OperationRequest;
 use App\Models\Account;
 use App\Models\Operation;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class OperationController extends Controller
 {
