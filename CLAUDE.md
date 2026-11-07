@@ -8,7 +8,7 @@ Portfolios (dépôt et paquet Composer `sfaut/portfolios`) : gestionnaire de por
 Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regroupent des opérations
 (montants datés).
 
-Pile : PHP 8.4+, Laravel 13, Blade + Alpine.js + Tailwind CSS 3 (base Breeze), Pest 5, MySQL, Vite.
+Pile : PHP 8.4+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
 Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via
 `Number::currency(…, 'EUR', 'fr')`, qui demande l'extension `intl`).
 
@@ -22,7 +22,7 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Développement : `composer dev` lance ensemble `php artisan serve`, `php artisan queue:listen`,
   `php artisan pail` et `npm run dev`. Le worker de file est nécessaire : les mails de portfolio passent
   par la file `database`.
-- Build front : `npm run build`.
+- Build front : `npm run build` (Node 20.19 ou 22.12 au moins, pour Vite 8).
 - Style : Pint, sans `pint.json` (preset `laravel`), voir « Conventions » ci-dessous.
 - Tests : `php artisan test`, un fichier `vendor/bin/pest tests/Feature/ProfileTest.php`, un test
   `php artisan test --filter="profile page is displayed"`.
@@ -110,8 +110,10 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-alert type="…"`,
   `x-link.primary` / `x-link.secondary` avec `:target`). Pagination par la vue `pagination.narrow`.
-- `tailwind.config.js` définit des couleurs sémantiques (`primary` indigo, `secondary`, `success`,
-  `danger`, `warning`, `info`), utilisées par les composants récents.
+- Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
+  passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
+  gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et des
+  styles de compatibilité qui gardent la couleur de bordure et le curseur des boutons de Tailwind 3.
 
 ### Mails
 

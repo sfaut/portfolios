@@ -37,7 +37,7 @@
                 @class([
                     'border',
                     'grid', 'grid-cols-[1fr_min-content]',
-                    'block', 'bg-white', 'shadow', 'p-4',
+                    'block', 'bg-white', 'shadow-sm', 'p-4',
                     'rounded-md',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',
@@ -73,7 +73,7 @@
             href="{{ route('account.create', $portfolio) }}"
             @class([
                 'col-start-1', 'block',
-                'rounded-md', 'bg-white', 'shadow', 'hover:shadow-md',
+                'rounded-md', 'bg-white', 'shadow-sm', 'hover:shadow-md',
                 'p-4',
                 'border-2', 'border-dashed', 'border-gray-400',
                 'hover:border-indigo-700', 'hover:text-indigo-700',

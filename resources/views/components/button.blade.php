@@ -48,7 +48,7 @@ dark:bg-blue-600
 dark:hover:bg-blue-700
 rounded-lg
 focus:ring-4
-focus:outline-none
+focus:outline-hidden
 focus:ring-blue-300
 dark:focus:ring-blue-800
 -->

@@ -5,7 +5,7 @@
     'abort',
 ])
 
-<div class="max-w-xl mx-auto bg-white p-6 bg-white shadow rounded-lg">
+<div class="max-w-xl mx-auto bg-white p-6 bg-white shadow-sm rounded-lg">
 
     <header>
         <h2 class="text-lg font-semibold">Informations du compte</h2>
@@ -29,7 +29,7 @@
                 id="label"
                 rows="4"
                 name="label"
-                class="resize-none mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                class="resize-none mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-xs"
             >{{ old('label', $account->label ?? '') }}</textarea>
             <x-input-error class="mt-2" :messages="$errors->get('label')"/>
         </div>
