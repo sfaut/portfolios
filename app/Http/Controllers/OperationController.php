@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OperationRequest;
 use App\Models\Account;
 use App\Models\Operation;
-use App\Models\Portfolio;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class OperationController extends Controller
@@ -17,15 +17,20 @@ class OperationController extends Controller
         ]);
     }
 
-    public function store(OperationRequest $request, Portfolio $portfolio, Account $account)
+    /**
+     * Enregistre une nouvelle opération sur le compte, puis revient au compte.
+     *
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective).
+     * @param  Account  $account  Compte qui reçoit l'opération.
+     */
+    public function store(OperationRequest $request, Account $account): RedirectResponse
     {
         $new_operation = $request->validated();
-        // $new_operation['account_id'] = $account->id;
 
         $account->operations()->create($new_operation);
 
-        return to_route('account.show', ['portfolio' => $portfolio, 'account' => $account])
-            ->with(['alert', 'operation.stored']);
+        return to_route('account.show', $account)
+            ->with('alert', 'Opération ajoutée avec succès.');
     }
 
     public function edit(Operation $operation)
