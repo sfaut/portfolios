@@ -181,7 +181,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de
   `OperationController::analyticForm()`, les erreurs de `$errors`, que le composant lit par clef
   (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
-  opérations réparties, avec le détail par axe dans un `<x-tooltip>`.
+  opérations réparties, avec le détail par axe dans un `<x-tooltip>` : pourcentage et part du montant
+  (`AnalyticLine::amountShare()`, même arrondi que le formulaire).
 - `AccountController::show()` redirige vers la dernière page des opérations quand `page` est absent, en
   refaisant le flash de session (`reflash()`) pour garder le message.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
