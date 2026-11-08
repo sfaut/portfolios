@@ -22,6 +22,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (id 1) depuis les quatre variables `APP_ADMIN_*`, lues par `config('app.admin')`. Elles sont
   obligatoires et sans valeur par défaut, pour qu'aucune installation ne garde des identifiants publiés
   avec le code : une valeur absente ou invalide arrête le seed, avec le nom des variables à corriger.
+  Une base qui a déjà un administrateur (`is_admin`) est laissée telle quelle, sans contrôle des
+  variables.
   `config('app.admin.email')` est aussi le destinataire des mails de portfolio.
 - Développement : `composer dev` lance ensemble `php artisan serve`, `php artisan queue:listen`,
   `php artisan pail` et `npm run dev`, par concurrently 10 (Node 22 au moins). Le worker de file est

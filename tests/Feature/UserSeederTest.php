@@ -25,6 +25,15 @@ test('the seeder creates the administrator from the configuration', function () 
         ->and(Hash::check('Un mot de passe sûr', $admin->password))->toBeTrue();
 });
 
+test('the seeder leaves a database that already has an administrator', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    config(['app.admin.password' => '']);
+
+    $this->seed(UserSeeder::class);
+
+    expect(User::sole()->is($admin))->toBeTrue();
+});
+
 test('the seeder refuses a missing or invalid administrator setting', function (string $key, string $value, string $variable) {
     config(["app.admin.{$key}" => $value]);
 
