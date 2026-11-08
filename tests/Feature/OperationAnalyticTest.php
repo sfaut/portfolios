@@ -211,8 +211,13 @@ test('the operations of an account show whether they are split between analytic 
     $response = $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]));
 
     $response->assertOk()
-        ->assertSeeInOrder(['Cours réparti', '2 axes', 'Cours piano 50', 'Cours non réparti'])
-        ->assertSee('Analytique');
+        ->assertSee('Analytique')
+        ->assertSeeInOrder([
+            'Cours réparti', '2 axes',
+            'role="tooltip"', 'Cours piano', '50', 'Cours échecs', '50',
+            'Cours non réparti',
+        ], escape: false);
 
-    expect(substr_count($response->getContent(), '✓'))->toBe(1);
+    expect(substr_count($response->getContent(), '✓'))->toBe(1)
+        ->and(substr_count($response->getContent(), 'role="tooltip"'))->toBe(1);
 });
