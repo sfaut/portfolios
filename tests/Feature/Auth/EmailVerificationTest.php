@@ -44,7 +44,9 @@ test('unverified users are sent to the verification notice from the business pag
 test('unverified users can still reach their profile to correct their address', function () {
     $user = User::factory()->unverified()->create();
 
-    $response = $this->actingAs($user)->get(route('profile.edit'));
+    $response = $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->get(route('profile.edit'));
 
     $response->assertOk();
 });

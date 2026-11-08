@@ -4,6 +4,30 @@ use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 
+beforeEach(function () {
+    $this->withSession(['auth.password_confirmed_at' => time()]);
+});
+
+test('the profile asks to confirm the password first', function () {
+    $this->flushSession();
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/profile');
+
+    $response->assertRedirect(route('password.confirm'));
+});
+
+test('the profile opens once the password is confirmed', function () {
+    $this->flushSession();
+    $user = User::factory()->create();
+    $this->actingAs($user)->get('/profile');
+
+    $response = $this->post(route('password.confirm'), ['password' => 'password']);
+
+    $response->assertRedirect('/profile');
+    $this->get('/profile')->assertOk();
+});
+
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 

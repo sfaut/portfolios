@@ -58,7 +58,7 @@ Route::controller(OperationController::class)->middleware(['auth', 'verified'])-
     Route::delete('/operation/{operation}', 'destroy')->name('operation.destroy');
 });
 
-Route::controller(ProfileController::class)->middleware('auth')->group(function () {
+Route::controller(ProfileController::class)->middleware(['auth', 'password.confirm'])->group(function () {
     Route::get('/profile', 'edit')->name('profile.edit');
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy');
