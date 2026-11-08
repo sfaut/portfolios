@@ -128,8 +128,12 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-alert type="…"`,
   `x-link.primary` / `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs).
-  Toute carte passe par `<x-card>` : slots `title` / `description` pour son en-tête, `danger` pour
-  l'anneau rouge des cartes d'archivage. Pagination par la vue `pagination.narrow`.
+  Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
+  `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
+  teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
+  corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
+  n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau rouge des cartes
+  d'archivage. Pagination par la vue `pagination.narrow`.
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
