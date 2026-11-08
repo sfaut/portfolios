@@ -120,7 +120,7 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.
 - Comptes archivés : `portfolio/show` les liste dans une section « Comptes archivés », sous les comptes
-  actifs. Les routes `account.show`, `account.edit`, `account.update` et `account.restore` (désarchivage,
+  actifs, repliée par défaut (Alpine) et suivie de leur nombre. Les routes `account.show`, `account.edit`, `account.update` et `account.restore` (désarchivage,
   proposé par `account/edit` à la place de l'archivage) portent `->withTrashed()` ; `account.destroy` non.
   Les opérations d'un compte archivé sont en lecture seule : `operation.create` / `store` lient un compte
   non archivé, et `OperationController` répond 404 sur `edit` / `update` / `destroy`. La relation
