@@ -1,32 +1,30 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium">Modification du mot de passe</h2>
-        <p class="mt-1 text-sm text-gray-400">Sécurisez votre compte avec un mot de passe long et difficile à retrouver.</p>
-    </header>
+<x-card>
+    <x-slot:title>Modification du mot de passe</x-slot:title>
+    <x-slot:description>Sécurisez votre compte avec un mot de passe long et difficile à retrouver.</x-slot:description>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 flex flex-col gap-6">
+    <form method="post" action="{{ route('password.update') }}" class="flex flex-col gap-6">
         @csrf
         @method('put')
 
-        <div>
+        <div class="flex flex-col gap-1">
             <x-input-label for="update_password_current_password" value="Mot de passe actuel"/>
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password"/>
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2"/>
+            <x-text-input id="update_password_current_password" name="current_password" type="password" class="w-full" autocomplete="current-password"/>
+            <x-input-error :messages="$errors->updatePassword->get('current_password')"/>
         </div>
 
-        <div>
+        <div class="flex flex-col gap-1">
             <x-input-label for="update_password_password" value="Nouveau mot de passe"/>
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password"/>
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2"/>
+            <x-text-input id="update_password_password" name="password" type="password" class="w-full" autocomplete="new-password"/>
+            <x-input-error :messages="$errors->updatePassword->get('password')"/>
         </div>
 
-        <div>
+        <div class="flex flex-col gap-1">
             <x-input-label for="update_password_password_confirmation" value="Confirmation du nouveau mot de passe"/>
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password"/>
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2"/>
+            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="w-full" autocomplete="new-password"/>
+            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')"/>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-6">
             <x-primary-button>Sauvegarder</x-primary-button>
 
             @if (session('status') === 'password-updated')
@@ -40,4 +38,4 @@
             @endif
         </div>
     </form>
-</section>
+</x-card>
