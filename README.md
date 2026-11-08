@@ -271,21 +271,47 @@ dossier de l'application, compte du serveur web, service PHP-FPM, nombre de vers
 ```bash
 #!/usr/bin/env bash
 #
-# Déploie une version de Portfolios publiée sur GitHub : deploy.sh vX.Y.Z, en root.
+# Déploie une version de Portfolios publiée sur GitHub.
 #
-# L'archive de la release, vérifiée par son empreinte, est décompressée dans releases/vX.Y.Z et
-# reliée au .env et au storage/ partagés. Les migrations et la mise en cache passent sur cette
-# version, puis le lien current bascule vers elle d'un coup. Une version encore présente sur le
-# disque est réactivée sans téléchargement : c'est le retour arrière, les migrations restant en place.
+# Usage, en root :
+#     deploy.sh vX.Y.Z
+#
+# Étapes :
+#     1. Téléchargement de l'archive de la release, construite par la CI, et contrôle de son
+#        empreinte SHA-256.
+#     2. Décompression dans releases/vX.Y.Z, reliée au .env et au storage/ partagés.
+#     3. Migrations de la base et mise en cache (configuration, routes, vues, icônes).
+#     4. Bascule du lien current vers la nouvelle version, d'un coup.
+#     5. Rechargement de PHP-FPM et redémarrage du worker de file.
+#     6. Suppression des versions les plus anciennes.
+#
+# Retour arrière : une version encore présente sur le disque est réactivée sans téléchargement
+# (étapes 3 à 6). Les migrations déjà passées restent en place : l'ancienne version tourne sur le
+# schéma de la nouvelle.
+#
+# Le script s'arrête à la première erreur. Tant que la bascule de l'étape 4 n'a pas eu lieu, la
+# version en service reste celle d'avant.
 
+# -e : arrêt à la première commande en échec ; -u : erreur sur une variable non définie ;
+# -o pipefail : un tube échoue si l'une de ses commandes échoue.
 set -euo pipefail
 
+# --- Paramètres, à adapter au serveur -----------------------------------------------------------------
+
+# Dépôt GitHub dont les releases portent les archives.
 REPOSITORY=sfaut/portfolios
+# Dossier de l'application : il contient deploy.sh, current, releases/ et shared/.
 APP_DIR=/var/www/portfolios
+# Compte du serveur web (PHP-FPM, Nginx), propriétaire des fichiers que l'application écrit.
 APP_USER=www-data
+# Service systemd de PHP-FPM, rechargé après la bascule.
 PHP_FPM_SERVICE=php8.5-fpm
+# Nombre de versions gardées sur le disque, version active comprise, pour revenir en arrière.
 KEEP_RELEASES=5
 
+# --- Contrôles ----------------------------------------------------------------------------------------
+
+# Affiche un message d'erreur et arrête le script.
 fail() {
     echo "deploy.sh : $*" >&2
     exit 1
@@ -293,67 +319,98 @@ fail() {
 
 TAG=${1:-}
 [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "version attendue au format vX.Y.Z (ex. deploy.sh v1.2.0)"
+# root est nécessaire pour changer les propriétaires des fichiers et recharger PHP-FPM.
 [[ $EUID -eq 0 ]] || fail "à lancer en root"
 
 SHARED_DIR=$APP_DIR/shared
 RELEASES_DIR=$APP_DIR/releases
 RELEASE_DIR=$RELEASES_DIR/$TAG
 
+# La configuration se crée à la main avant le premier déploiement (README, « Première installation »).
 [[ -f $SHARED_DIR/.env ]] || fail "$SHARED_DIR/.env manquant (modèle : .env.model-prod)"
 
-# Commande Artisan de la version déployée, sous le compte du serveur web, pour que les fichiers
-# qu'elle écrit (caches, journaux) lui appartiennent.
+# Lance une commande Artisan de la version déployée sous le compte du serveur web : les fichiers
+# qu'elle écrit (caches, journaux) lui appartiennent, et il pourra les réécrire ensuite.
 artisan() {
     runuser --user "$APP_USER" -- php "$RELEASE_DIR/artisan" "$@"
 }
 
-# storage/ partagé entre les versions : journaux, sessions, vues compilées.
+# storage/ est partagé entre les versions : journaux, sessions et vues compilées survivent aux
+# déploiements. Ses sous-dossiers, attendus par Laravel, sont créés au premier passage.
 mkdir --parents "$SHARED_DIR"/storage/{app/private,app/public,framework/{cache/data,sessions,views},logs}
 chown --recursive "$APP_USER:" "$SHARED_DIR/storage"
 mkdir --parents "$RELEASES_DIR"
 
+# --- 1 et 2. Téléchargement et installation de la version ---------------------------------------------
+
 if [[ -d $RELEASE_DIR ]]; then
+    # Version déjà installée (retour arrière, ou relance après une erreur aux étapes suivantes).
     echo "$TAG déjà présente : réactivation."
 else
     archive=portfolios-$TAG.tar.gz
     url=https://github.com/$REPOSITORY/releases/download/$TAG
     download_dir=$(mktemp --directory)
+    # Dossier de décompression provisoire, caché (point initial) et renommé seulement une fois
+    # complet : une installation interrompue ne passe jamais pour une version prête.
     partial_dir=$RELEASES_DIR/.$TAG.partial
+    # Nettoyage à la sortie du script, en succès comme en erreur.
     trap 'rm -rf "$download_dir" "$partial_dir"' EXIT
 
+    # L'archive et son empreinte, ajoutées à la release par la CI. Le dépôt est public : aucun
+    # identifiant n'est nécessaire.
     echo "Téléchargement de $archive…"
     for file in "$archive" "$archive.sha256"; do
         curl --fail --location --silent --show-error --output "$download_dir/$file" "$url/$file" \
             || fail "$file introuvable sur la release $TAG (CI terminée ?)"
     done
+    # Une archive tronquée ou altérée est refusée avant toute décompression.
     (cd "$download_dir" && sha256sum --check --quiet "$archive.sha256") || fail "empreinte invalide pour $archive"
 
-    # Décompressée à côté, puis renommée : une version interrompue ne passe jamais pour complète.
     rm -rf "$partial_dir"
     mkdir "$partial_dir"
+    # --no-same-owner : les fichiers appartiennent à root, quel que soit leur propriétaire dans
+    # l'archive.
     tar --extract --gzip --no-same-owner --file "$download_dir/$archive" --directory "$partial_dir"
+    # La version lit la configuration et écrit dans le storage/ partagés.
     ln --symbolic "$SHARED_DIR/.env" "$partial_dir/.env"
     ln --symbolic "$SHARED_DIR/storage" "$partial_dir/storage"
-    # Le code appartient à root ; le serveur web n'écrit que dans ses caches.
+    # Le code reste à root : le serveur web peut seulement écrire ses caches (bootstrap/cache) et
+    # dans storage/.
     chown --recursive "$APP_USER:" "$partial_dir/bootstrap/cache"
     mv "$partial_dir" "$RELEASE_DIR"
 fi
 
+# --- 3. Migrations et mise en cache -------------------------------------------------------------------
+
+# Passées sur la nouvelle version avant la bascule : en cas d'échec, le site reste sur l'ancienne.
+# Une migration doit donc rester compatible avec la version encore en service.
 echo "Migrations et mise en cache…"
 artisan migrate --force
 artisan optimize
 
-# Bascule atomique : le nouveau lien remplace l'ancien par un renommage.
+# --- 4. Bascule ---------------------------------------------------------------------------------------
+
+# Le nouveau lien est créé à côté, puis renommé sur current : un renommage est atomique, et aucune
+# requête ne trouve current absent ou à moitié créé. La cible est relative (releases/vX.Y.Z), pour
+# que le lien reste juste si APP_DIR est déplacé.
 ln --symbolic --no-dereference --force "releases/$TAG" "$APP_DIR/current.new"
 mv --no-target-directory "$APP_DIR/current.new" "$APP_DIR/current"
+# La date du dossier sert au tri de l'étape 6 : la version active devient la plus récente.
 touch "$RELEASE_DIR"
 
-# PHP-FPM oublie les chemins de l'ancienne version ; le worker de file s'arrête après sa tâche en
-# cours, et systemd le relance sur la nouvelle.
+# --- 5. Rechargement des services ---------------------------------------------------------------------
+
+# PHP-FPM garde en mémoire (OPcache, cache des chemins) des fichiers de l'ancienne version : le
+# rechargement les oublie, sans couper les requêtes en cours.
 systemctl reload "$PHP_FPM_SERVICE"
+# Le worker de file termine sa tâche en cours puis s'arrête ; systemd le relance aussitôt dans
+# current, donc sur la nouvelle version.
 artisan queue:restart
 
-# Seules les dernières versions restent, la version active toujours comprise.
+# --- 6. Nettoyage -------------------------------------------------------------------------------------
+
+# Les versions sont triées de la plus récente à la plus ancienne (date du dossier) ; au-delà des
+# KEEP_RELEASES premières, elles sont supprimées, sauf la version active.
 cd "$RELEASES_DIR"
 ls -1t | tail --lines=+$((KEEP_RELEASES + 1)) | while read -r old_release; do
     [[ $old_release == "$TAG" ]] || rm -rf "$old_release"
