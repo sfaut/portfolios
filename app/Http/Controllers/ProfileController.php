@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -53,7 +54,10 @@ class ProfileController extends Controller
      * Supprime le compte de l'utilisateur, après vérification de son mot de passe, puis le déconnecte.
      *
      * Les clefs étrangères en cascade suppriment avec lui ses portfolios, comptes, opérations et axes
-     * analytiques, archivés compris.
+     * analytiques, archivés compris. Le compte administrateur est refusé : la base garderait sinon ses
+     * données sans administrateur.
+     *
+     * @throws ValidationException
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -62,6 +66,12 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($user->is_admin) {
+            throw ValidationException::withMessages([
+                'password' => 'Le compte administrateur ne peut pas être supprimé.',
+            ])->errorBag('userDeletion');
+        }
 
         Auth::logout();
 

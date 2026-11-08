@@ -138,6 +138,34 @@ test('users can delete their account, with all their data', function () {
     $this->assertDatabaseEmpty('operations');
 });
 
+test('the administrator cannot delete their account', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $response = $this
+        ->actingAs($admin)
+        ->from('/profile')
+        ->delete('/profile', [
+            'password' => 'password',
+        ]);
+
+    $response
+        ->assertSessionHasErrorsIn('userDeletion', ['password' => 'Le compte administrateur ne peut pas être supprimé.'])
+        ->assertRedirect('/profile');
+
+    $this->assertAuthenticatedAs($admin);
+    $this->assertModelExists($admin);
+});
+
+test('the profile of the administrator offers no account deletion', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $response = $this->actingAs($admin)->get('/profile');
+
+    $response
+        ->assertSee('Le compte administrateur ne peut pas être supprimé.')
+        ->assertDontSee('id="delete-user"', escape: false);
+});
+
 test('the correct password must be provided to delete the account', function () {
     $user = User::factory()->create();
 
