@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-xl mx-auto shadow-sm rounded-md bg-white space-y-6 p-6">
+    <div class="max-w-xl mx-auto shadow-sm rounded-md bg-white dark:bg-gray-800 flex flex-col gap-6 p-6">
 
         <header>
             <h2 class="text-lg font-semibold">Informations du portfolio</h2>

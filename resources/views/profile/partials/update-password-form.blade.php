@@ -4,7 +4,7 @@
         <p class="mt-1 text-sm text-gray-400">Sécurisez votre compte avec un mot de passe long et difficile à retrouver.</p>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('password.update') }}" class="mt-6 flex flex-col gap-6">
         @csrf
         @method('put')
 

@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div class="max-w-2xl mx-auto space-y-6 pb-6">
+    <div class="max-w-2xl mx-auto flex flex-col gap-6 pb-6">
 
         @foreach($portfolios as $portfolio)
 
@@ -28,8 +28,8 @@
                 href="{{ route('portfolio.show', $portfolio) }}"
 
                 @class([
-                    'block', 'flex', 'rounded-md',
-                    'bg-white', 'p-4', 'shadow-sm',
+                    'flex', 'rounded-md',
+                    'bg-white', 'dark:bg-gray-800', 'p-4', 'shadow-sm',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'hover:scale-102',
                     'items-center',
@@ -54,11 +54,11 @@
             href="{{ route('portfolio.create') }}"
             @class([
                 'block',
-                'rounded-md', 'bg-white', 'shadow-sm', 'hover:shadow-md',
+                'rounded-md', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'hover:shadow-md',
                 'p-4',
-                'border-2', 'border-dashed', 'border-gray-400',
-                'hover:border-indigo-700', 'hover:text-indigo-700',
-                'text-center', 'text-gray-400',
+                'border-2', 'border-dashed', 'border-gray-400', 'dark:border-gray-600',
+                'hover:border-indigo-700', 'hover:text-indigo-700', 'dark:hover:border-indigo-400', 'dark:hover:text-indigo-400',
+                'text-center', 'text-gray-400', 'dark:text-gray-500',
                 'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',
             ])
         >

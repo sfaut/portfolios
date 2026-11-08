@@ -1,6 +1,6 @@
-<section class="space-y-6">
+<section class="flex flex-col items-start gap-6">
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             Suppression de compte
         </h2>
 
@@ -26,7 +26,7 @@
                 Êtes-vous certain de vouloir supprimer votre compte ?
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Une fois votre compte supprimé, toutes ses ressources et données seront définitivement perdues.
                 Veuillez saisir votre mot de passe pour confirmer la suppression définitive du compte.
             </p>

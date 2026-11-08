@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="---text-[16px] tracking-wide">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="tracking-wide scheme-light-dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -14,7 +14,7 @@
 
         @vite(["resources/css/app.css", "resources/js/app.js"])
     </head>
-    <body class="font-sans font-normal text-gray-700">
+    <body class="font-sans font-normal text-gray-700 dark:text-gray-300">
         {{ $slot }}
     </body>
 </html>

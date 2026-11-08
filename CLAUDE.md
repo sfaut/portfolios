@@ -124,8 +124,16 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   `x-link.primary` / `x-link.secondary` avec `:target`). Pagination par la vue `pagination.narrow`.
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
-  gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et des
-  styles de compatibilité qui gardent la couleur de bordure et le curseur des boutons de Tailwind 3.
+  gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
+  style de base qui garde le curseur des boutons de Tailwind 3. Tailwind trouve seul les classes du
+  projet (vues, `app/`), sans `@source`.
+- Les classes suivent les consignes Tailwind 4 de Boost : toute bordure porte sa couleur (clair et
+  sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
+  classe inexistante ni redondante.
+- Le mode sombre suit le réglage du système : variante `dark:` par défaut de Tailwind
+  (`prefers-color-scheme`), et `scheme-light-dark` sur `<html>` pour les contrôles natifs. Toute vue
+  nouvelle ou modifiée porte ses variantes `dark:`, sur la palette en place : fond de page `gray-900`,
+  surfaces `gray-800`, en-têtes de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
 
 ### Mails
 
