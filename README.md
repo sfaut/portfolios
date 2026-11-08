@@ -623,12 +623,6 @@ done
 echo "Portfolios $TAG déployée."
 ```
 
-### Vérification du serveur
-
-Le workflow GitHub Actions « Vérification du runner » (`.github/workflows/check-runner.yaml`), lancé à
-la main, affiche depuis le runner auto-hébergé de production la version de PHP, les extensions
-attendues et la place disque.
-
 ## Développement
 
 ### Installation

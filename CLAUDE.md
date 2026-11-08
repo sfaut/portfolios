@@ -40,8 +40,6 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   service MySQL) à chaque push sur `master` et à chaque pull request. À la publication d'une release, il
   construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
   ajoute à la release avec son empreinte SHA-256 (`portfolios-vX.Y.Z.tar.gz`, `.sha256`).
-  `.github/workflows/check-runner.yaml`, lancé à la main, vérifie le runner auto-hébergé de production
-  (PHP et ses extensions, disque de `/var/www`).
 - Production : le déploiement est décrit dans `README.md`, seule source du script `deploy.sh` dans le
   dépôt (section « Script de déploiement »). Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
   l'archive de la release dans `/var/www/portfolios/releases/vX.Y.Z`, la relie à `shared/.env` et
