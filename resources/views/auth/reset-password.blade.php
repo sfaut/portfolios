@@ -40,7 +40,7 @@
 
         <!-- Confirm Password -->
         <div class="flex flex-col gap-1">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')"/>
+            <x-input-label for="password_confirmation" value="Confirmation du mot de passe"/>
 
             <x-text-input
                 id="password_confirmation"
@@ -55,7 +55,7 @@
 
         <div class="flex items-center justify-end">
             <x-primary-button>
-                {{ __('Reset Password') }}
+                Réinitialiser le mot de passe
             </x-primary-button>
         </div>
     </form>

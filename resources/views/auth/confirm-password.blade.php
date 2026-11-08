@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+        Cette partie de l'application est protégée : confirmez votre mot de passe pour continuer.
     </div>
 
     <form method="POST" action="{{ route('password.confirm') }}" class="flex flex-col gap-4">
@@ -8,7 +8,7 @@
 
         <!-- Password -->
         <div class="flex flex-col gap-1">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" value="Mot de passe" />
 
             <x-text-input id="password" class="w-full"
                             type="password"
@@ -20,7 +20,7 @@
 
         <div class="flex justify-end">
             <x-primary-button>
-                {{ __('Confirm') }}
+                Confirmer
             </x-primary-button>
         </div>
     </form>

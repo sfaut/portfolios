@@ -1,11 +1,12 @@
 <x-guest-layout>
     <div class="text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+        Avant de continuer, vérifiez votre adresse e-mail en cliquant sur le lien que nous vous avons envoyé.
+        Si vous ne l'avez pas reçu, demandez-en un nouveau.
     </div>
 
     @if (session('status') == 'verification-link-sent')
         <div class="font-medium text-sm text-success-600 dark:text-success-400">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+            Un nouveau lien de vérification vient d'être envoyé à votre adresse e-mail.
         </div>
     @endif
 
@@ -15,7 +16,7 @@
 
             <div>
                 <x-primary-button>
-                    {{ __('Resend Verification Email') }}
+                    Renvoyer le lien de vérification
                 </x-primary-button>
             </div>
         </form>
@@ -24,7 +25,7 @@
             @csrf
 
             <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                {{ __('Log Out') }}
+                Se déconnecter
             </button>
         </form>
     </div>
