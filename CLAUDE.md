@@ -127,7 +127,9 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-alert type="…"`,
-  `x-link.primary` / `x-link.secondary` avec `:target`). Pagination par la vue `pagination.narrow`.
+  `x-link.primary` / `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs).
+  Toute carte passe par `<x-card>` : slots `title` / `description` pour son en-tête, `danger` pour
+  l'anneau rouge des cartes d'archivage. Pagination par la vue `pagination.narrow`.
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
@@ -136,6 +138,11 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Les classes suivent les consignes Tailwind 4 de Boost : toute bordure porte sa couleur (clair et
   sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
   classe inexistante ni redondante.
+- Espacement : le conteneur porte le `gap`, ses enfants n'ont aucune marge. `<main>` porte le padding
+  de la page (`py-6`) ; chaque page range son contenu dans un conteneur unique
+  (`max-w-* mx-auto flex flex-col gap-6`) ; un champ groupe label, saisie et erreur en
+  `flex flex-col gap-1`. Seuls les décalages de positionnement gardent une marge (panneau absolu de
+  `x-dropdown`, panneau de `x-modal`).
 - Thème clair / sombre / système, choisi dans le menu utilisateur (store Alpine `theme`,
   `resources/js/theme.js`) et gardé par navigateur dans le `localStorage` (clef `theme`, absente pour
   « système »). Le choix devient la classe `light` ou `dark` de `<html>`, posée avant le premier rendu
