@@ -218,8 +218,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - `App\Observers\PortfolioObserver` (enregistré dans `Portfolio::booted()`) envoie `PortfolioCreatedMail`
   et `PortfolioDeletedMail` avec deux minutes de délai (`later()`) à l'administrateur
   (`config('app.admin_email')`, variable `APP_ADMIN_EMAIL`), et n'envoie rien si l'adresse est vide. Les
-  mailables implémentent `ShouldQueue`. `SendPortfolioCreatedMailJob` et `MailingController` existent sans
-  être branchés à une route.
+  mailables implémentent `ShouldQueue`.
 
 ===
 
