@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Demande d'un lien de réinitialisation du mot de passe (« Mot de passe oublié ? »).
+ */
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Affiche le formulaire de demande du lien.
      */
     public function create(): View
     {
@@ -20,7 +23,10 @@ class PasswordResetLinkController extends Controller
     }
 
     /**
-     * Handle an incoming password reset link request.
+     * Envoie le lien si un compte correspond à l'adresse.
+     *
+     * La réponse est la même que l'adresse ait un compte ou non, et qu'un lien soit déjà parti ou non :
+     * elle ne dit pas si un compte existe.
      *
      * @throws ValidationException
      */

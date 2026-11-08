@@ -1,5 +1,6 @@
 {{--
-    Connexion : adresse électronique, mot de passe (affichable), « Se souvenir de moi ».
+    Connexion : adresse électronique, mot de passe (affichable), « Se souvenir de moi », puis lien vers
+    l'inscription.
 
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
@@ -23,7 +24,6 @@
             <x-input-error :messages="$errors->get('email')"/>
         </div>
 
-        <!-- Password -->
         <div class="flex flex-col gap-1" x-data="{ passwordVisible: false }">
             <x-input-label for="password" value="Mot de passe"/>
             <div class="relative">
@@ -51,7 +51,6 @@
             <x-input-error :messages="$errors->get('password')"/>
         </div>
 
-        <!-- Remember Me -->
         <div>
             <label for="remember_me" class="inline-flex items-center gap-2">
                 <input type="checkbox" id="remember_me" name="remember" class="rounded-sm dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-xs focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">

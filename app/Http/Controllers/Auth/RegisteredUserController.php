@@ -11,15 +11,28 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Inscription d'un nouvel utilisateur.
+ */
 class RegisteredUserController extends Controller
 {
+    /**
+     * Affiche le formulaire d'inscription.
+     */
     public function create(): View
     {
         return view('auth.register');
     }
 
+    /**
+     * Crée l'utilisateur, lui envoie le lien de vérification de son adresse (événement Registered),
+     * puis le connecte.
+     *
+     * @throws ValidationException
+     */
     public function store(Request $request): RedirectResponse
     {
         Validator::validate(

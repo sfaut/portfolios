@@ -9,22 +9,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Connexion et déconnexion.
+ */
 class AuthenticatedSessionController extends Controller
 {
+    /**
+     * Affiche le formulaire de connexion.
+     */
     public function create(): View
     {
         return view('auth.login');
     }
 
+    /**
+     * Connecte l'utilisateur, avec une nouvelle session, puis ouvre la liste de ses portfolios.
+     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();
 
-        // return redirect()->intended(route('portfolio.index', absolute: false));
         return to_route('portfolio.index');
     }
 
+    /**
+     * Déconnecte l'utilisateur, invalide sa session et renouvelle le jeton CSRF.
+     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

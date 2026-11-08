@@ -1,3 +1,9 @@
+{{--
+    Informations du profil : nom, prénom et adresse, avec l'état de vérification de l'adresse.
+
+    @var \App\Models\User $user Utilisateur connecté.
+    @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
+--}}
 <x-card>
     <x-slot:title>Informations du profil</x-slot:title>
     <x-slot:description>Mettez à jour les informations personnelles de votre compte.</x-slot:description>
@@ -17,6 +23,7 @@
                 type="text"
                 name="last_name"
                 :value="old('last_name', $user->last_name)"
+                autocomplete="family-name"
                 class="w-full"
             />
             <x-input-error :messages="$errors->get('last_name')"/>
@@ -29,6 +36,7 @@
                 type="text"
                 name="first_name"
                 :value="old('first_name', $user->first_name)"
+                autocomplete="given-name"
                 class="w-full"
             />
             <x-input-error :messages="$errors->get('first_name')"/>
@@ -41,6 +49,7 @@
                 type="email"
                 name="email"
                 :value="old('email', $user->email)"
+                autocomplete="username"
                 class="w-full"
             />
             <x-input-error :messages="$errors->get('email')"/>

@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * Profil de l'utilisateur connecté : informations, mot de passe (PasswordController) et suppression du
+ * compte, derrière la confirmation du mot de passe (middleware `password.confirm`).
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Affiche le profil.
+     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
