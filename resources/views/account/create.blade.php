@@ -8,11 +8,20 @@
         </div>
     </x-slot>
 
-    @include('account.partials.form', [
-        'action' => route('account.store', $portfolio),
-        'method' => 'post',
-        'button' => 'Créer',
-        'abort' => route('portfolio.show', $portfolio),
-    ])
+    <div class="max-w-xl mx-auto flex flex-col gap-6">
+
+        <x-card>
+            <x-slot:title>Informations du compte</x-slot:title>
+            <x-slot:description>Renseignez les informations de votre nouveau compte.</x-slot:description>
+
+            @include('account.partials.form', [
+                'action' => route('account.store', $portfolio),
+                'method' => 'post',
+                'button' => 'Créer',
+                'abort' => route('portfolio.show', $portfolio),
+            ])
+        </x-card>
+
+    </div>
 
 </x-app-layout>

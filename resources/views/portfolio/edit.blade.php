@@ -7,13 +7,11 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-xl mx-auto flex flex-col gap-6 pb-6">
+    <div class="max-w-xl mx-auto flex flex-col gap-6">
 
-        <div class="shadow-sm rounded-md p-6 bg-white dark:bg-gray-800">
-            <header>
-                <h2 class="text-lg font-semibold">Informations du portfolio</h2>
-                <p class="mt-1 text-sm text-gray-400">Modifiez les informations du portfolio.</p>
-            </header>
+        <x-card>
+            <x-slot:title>Informations du portfolio</x-slot:title>
+            <x-slot:description>Modifiez les informations du portfolio.</x-slot:description>
 
             @include('portfolio.partials.form', [
                 'action' => route('portfolio.update', $portfolio),
@@ -21,31 +19,27 @@
                 'button' => 'Modifier',
                 'abort' => route('portfolio.show', $portfolio),
             ])
-        </div>
+        </x-card>
 
-        <div @class(['shadow-sm', 'rounded-md', 'p-6', 'bg-white', 'dark:bg-gray-800', 'ring-2', 'ring-red-800', 'dark:ring-red-600'])>
-            <header>
-                <h2 class="text-lg font-semibold">Archivage du portfolio</h2>
-                <p class="mt-1 text-sm text-gray-400">
-                    Le portfolio sera archivé.
-                    Le portfolio, ses comptes et ses opérations ne pourront plus être consultées.
-                    Le portfolio pourra toujours être désarchvé et de nouveau consulté.
-                </p>
-            </header>
+        <x-card danger>
+            <x-slot:title>Archivage du portfolio</x-slot:title>
+            <x-slot:description>
+                Le portfolio sera archivé.
+                Le portfolio, ses comptes et ses opérations ne pourront plus être consultées.
+                Le portfolio pourra toujours être désarchvé et de nouveau consulté.
+            </x-slot:description>
 
-            <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}">
+            <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}" class="flex items-center gap-6">
                 @method('delete')
                 @csrf
 
-                <div class="flex items-center gap-6">
-                    <x-danger-button>
-                        Archiver
-                    </x-danger-button>
-                    <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                </div>
+                <x-danger-button>
+                    Archiver
+                </x-danger-button>
+                <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
             </form>
+        </x-card>
 
-        </div>
     </div>
 
 </x-app-layout>

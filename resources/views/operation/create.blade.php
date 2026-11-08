@@ -16,11 +16,20 @@
         </div>
     </x-slot>
 
-    @include('operation.partials.form', [
-        'action' => route('operation.store', $account),
-        'method' => 'post',
-        'button' => 'Enregistrer',
-        'abort' => route('account.show', $account),
-    ])
+    <div class="max-w-xl mx-auto flex flex-col gap-6">
+
+        <x-card>
+            <x-slot:title>Informations de l'opération</x-slot:title>
+            <x-slot:description>Renseignez les informations de la nouvelle opération.</x-slot:description>
+
+            @include('operation.partials.form', [
+                'action' => route('operation.store', $account),
+                'method' => 'post',
+                'button' => 'Enregistrer',
+                'abort' => route('account.show', $account),
+            ])
+        </x-card>
+
+    </div>
 
 </x-app-layout>
