@@ -174,7 +174,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Répartition analytique du formulaire d'opération : composant Alpine `analyticLines`
   (`resources/js/analytic-lines.js`, enregistré par `Alpine.data()` dans `app.js`), qui ajoute et retire
   les lignes, préremplit une nouvelle ligne du reste jusqu'à 100 % et affiche le total, dans la colonne
-  des pourcentages. Chaque ligne montre aussi sa part du montant, au format de `Number::amount()`, que
+  des pourcentages. Entrée dans un pourcentage ajoute une ligne et en sélectionne le pourcentage, sans
+  envoyer le formulaire. Chaque ligne montre aussi sa part du montant, au format de `Number::amount()`, que
   le composant recalcule en suivant le champ Montant du formulaire, hors de son bloc. La section se
   range sous ce champ, en retrait derrière un filet vertical. Ses données
   (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de

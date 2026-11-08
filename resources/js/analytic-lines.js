@@ -111,6 +111,27 @@ export default function analyticLines({ axes, lines }, errors) {
         },
 
         /**
+         * Enter in a percentage field: adds a line, then selects the percentage of the new line,
+         * ready to be typed over. The form is never sent from there; without a free axis, nothing
+         * happens.
+         */
+        addFromKeyboard() {
+            if (!this.canAdd) {
+                return;
+            }
+
+            this.add();
+
+            this.$nextTick(() => {
+                const fields = this.$root.querySelectorAll('input[name$="[percentage]"]');
+                const field = fields[fields.length - 1];
+
+                field?.focus();
+                field?.select();
+            });
+        },
+
+        /**
          * Removes a line. The server errors are cleared, as the indexes they refer to shift.
          *
          * @param {number} index
