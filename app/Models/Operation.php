@@ -16,7 +16,6 @@ class Operation extends Model
     ];
 
     protected $fillable = [
-        'id',
         'label',
         'amount',
         'delivery_at',
