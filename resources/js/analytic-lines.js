@@ -5,12 +5,13 @@
  * The lines are posted as analytic_lines[i][analytic_axis_id] and analytic_lines[i][percentage].
  * The total is computed in whole hundredths, as OperationRequest does, which has the last word.
  *
- * @param {object} config
- * @param {{id: number, name: string, archived: boolean}[]} config.axes Selectable axes.
- * @param {{analytic_axis_id: string, percentage: string}[]} config.lines Initial lines.
- * @param {Object<string, string[]>} config.errors Server errors, keyed "analytic_lines.<i>.<field>".
+ * @param {object} form Data prepared by OperationController::analyticForm().
+ * @param {{id: number, name: string, archived: boolean}[]} form.axes Selectable axes.
+ * @param {{analytic_axis_id: string, percentage: string}[]} form.lines Initial lines.
+ * @param {Object<string, string[]>} errors Server errors of the form, those of the lines keyed
+ *     "analytic_lines.<i>.<field>".
  */
-export default function analyticLines({ axes, lines, errors }) {
+export default function analyticLines({ axes, lines }, errors) {
     let next_key = 0;
 
     /**
@@ -110,7 +111,7 @@ export default function analyticLines({ axes, lines, errors }) {
          * @param {number} hundredths
          */
         format(hundredths) {
-            return `${(hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %`;
+            return `${(hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}\u00a0%`;
         },
     };
 }

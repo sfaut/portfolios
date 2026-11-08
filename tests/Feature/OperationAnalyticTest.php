@@ -183,3 +183,19 @@ test('the operation form offers to create an analytic axis when the portfolio ha
         ->assertSee("Ce portfolio n'a pas encore d'axe analytique", escape: false)
         ->assertSee(route('analytic-axis.create', $account->portfolio));
 });
+
+test('the operation form gives back the posted analytic lines after a failed validation', function () {
+    $this->actingAs($this->owner)
+        ->from(route('operation.create', $this->account))
+        ->followingRedirects()
+        ->post(route('operation.store', $this->account), [
+            ...lessonOperation([['analytic_axis_id' => $this->chess->id, 'percentage' => '40']]),
+            'label' => '',
+        ])
+        ->assertOk()
+        ->assertSee(
+            // Js::from() writes each double quote as its JSON escape sequence.
+            str_replace('"', '\\'.'u0022', '"lines":[{"analytic_axis_id":'.$this->chess->id.',"percentage":"40"}]'),
+            escape: false,
+        );
+});

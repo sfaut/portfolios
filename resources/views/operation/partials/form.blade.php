@@ -22,22 +22,9 @@
     </div>
 
     {{--
-        Optional analytic breakdown (resources/js/analytic-lines.js). After a failed validation, the
-        posted lines come back, even none; otherwise, the lines of the operation.
+        Optional analytic breakdown (resources/js/analytic-lines.js), from the data prepared by
+        OperationController::analyticForm(). The component picks the errors of its lines by key.
     --}}
-    @php
-        $initial_analytic_lines = session()->hasOldInput() ? array_values((array) old('analytic_lines', [])) : $analytic_lines;
-        $analytic_errors = collect($errors->getBag('default')->getMessages())
-            ->filter(fn (array $messages, string $key): bool => str_starts_with($key, 'analytic_lines.'));
-        $analytic_config = [
-            'axes' => $analytic_axes
-                ->map(fn ($axis): array => ['id' => $axis->id, 'name' => $axis->name, 'archived' => $axis->trashed()])
-                ->values(),
-            'lines' => $initial_analytic_lines,
-            'errors' => (object) $analytic_errors->all(),
-        ];
-    @endphp
-
     <section aria-labelledby="analytic-lines-title" class="flex flex-col gap-3 rounded-md border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex flex-col gap-1">
             <h3 id="analytic-lines-title" class="font-medium text-sm">
@@ -46,14 +33,14 @@
             <p class="text-xs text-gray-500 dark:text-gray-400">Répartissez le montant entre des axes, en pourcentages totalisant 100 %.</p>
         </div>
 
-        @if ($analytic_axes->isEmpty())
+        @if ($analytic_form['axes'] === [])
             <p class="text-sm text-gray-500 dark:text-gray-400">
                 Ce portfolio n'a pas encore d'axe analytique.
                 <a href="{{ route('analytic-axis.create', ($account ?? $operation->account)->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Créer un axe</a>
             </p>
         @else
             <div
-                x-data="analyticLines(@js($analytic_config))"
+                x-data="analyticLines(@js($analytic_form), @js((object) $errors->getBag('default')->getMessages()))"
                 class="flex flex-col gap-3"
             >
                 <template x-for="(line, index) in lines" x-bind:key="line.key">

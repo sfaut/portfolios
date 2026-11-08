@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OperationRequest;
 use App\Models\Account;
 use App\Models\AnalyticAxis;
+use App\Models\AnalyticLine;
 use App\Models\Operation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,8 +24,7 @@ class OperationController extends Controller
     {
         return view('operation.create', [
             'account' => $account,
-            'analytic_axes' => $this->selectableAnalyticAxes($account),
-            'analytic_lines' => [],
+            'analytic_form' => $this->analyticForm($account),
         ]);
     }
 
@@ -32,8 +32,7 @@ class OperationController extends Controller
      * Enregistre une nouvelle opération sur le compte, avec sa répartition analytique, puis revient
      * au compte.
      *
-     * @param  OperationRequest  $request
-     *                                     Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
      * @param  Account  $account  Compte qui reçoit l'opération.
      */
     public function store(OperationRequest $request, Account $account): RedirectResponse
@@ -58,13 +57,7 @@ class OperationController extends Controller
 
         return view('operation.edit', [
             'operation' => $operation,
-            'analytic_axes' => $this->selectableAnalyticAxes($operation->account, $operation),
-            'analytic_lines' => $operation->analyticLines
-                ->map(fn ($line): array => [
-                    'analytic_axis_id' => (string) $line->analytic_axis_id,
-                    'percentage' => $line->percentage,
-                ])
-                ->all(),
+            'analytic_form' => $this->analyticForm($operation->account, $operation),
         ]);
     }
 
@@ -72,8 +65,7 @@ class OperationController extends Controller
      * Enregistre les modifications de l'opération, dont sa répartition analytique, qui remplace la
      * précédente, puis revient au compte.
      *
-     * @param  OperationRequest  $request
-     *                                     Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
      * @param  Operation  $operation  Opération à modifier, d'un compte non archivé (404 sinon).
      */
     public function update(OperationRequest $request, Operation $operation): RedirectResponse
@@ -116,6 +108,42 @@ class OperationController extends Controller
     private function abortIfAccountArchived(Operation $operation): void
     {
         abort_if($operation->account->trashed(), 404);
+    }
+
+    /**
+     * Données de la répartition analytique du formulaire (resources/js/analytic-lines.js) : axes
+     * proposés et lignes initiales. Après une validation échouée, les lignes envoyées reviennent,
+     * même aucune ; sinon, celles de l'opération.
+     *
+     * @param  Account  $account  Compte de l'opération.
+     * @param  Operation|null  $operation  Opération modifiée, null en création.
+     * @return array{
+     *     axes: list<array{id: int, name: string, archived: bool}>,
+     *     lines: list<array{analytic_axis_id: string, percentage: string}>,
+     * }
+     */
+    private function analyticForm(Account $account, ?Operation $operation = null): array
+    {
+        $lines = session()->hasOldInput()
+            ? array_values((array) old('analytic_lines', []))
+            : $operation?->analyticLines
+                ->map(fn (AnalyticLine $line): array => [
+                    'analytic_axis_id' => (string) $line->analytic_axis_id,
+                    'percentage' => $line->percentage,
+                ])
+                ->all() ?? [];
+
+        return [
+            'axes' => $this->selectableAnalyticAxes($account, $operation)
+                ->map(fn (AnalyticAxis $axis): array => [
+                    'id' => $axis->id,
+                    'name' => $axis->name,
+                    'archived' => $axis->trashed(),
+                ])
+                ->values()
+                ->all(),
+            'lines' => $lines,
+        ];
     }
 
     /**
