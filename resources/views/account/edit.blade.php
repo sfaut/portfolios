@@ -56,7 +56,7 @@
                     <form
                         method="post"
                         action="{{ route('account.destroy', $account) }}"
-                        onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
+                        onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?\n\nIl pourra être désarchivé à tout moment depuis « Modifier le compte ».')"
                         class="flex items-center gap-6"
                     >
                         @method('delete')
