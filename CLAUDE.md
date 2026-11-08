@@ -22,7 +22,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   et `php artisan migrate --seed`. Le seeder crée l'administrateur (id 1) depuis les variables
   `APP_ADMIN_*`, en commentaire dans les modèles. Une variable présente mais vide l'emporte sur la valeur
   par défaut du seeder (`env()` renvoie `''`) : la laisser en commentaire ou la renseigner.
-  `APP_ADMIN_EMAIL` est aussi lue par `config('app.admin_email')`, destinataire des mails de portfolio.
+  `APP_ADMIN_EMAIL` est aussi lue par `config('app.admin.email')`, destinataire des mails de portfolio.
 - Développement : `composer dev` lance ensemble `php artisan serve`, `php artisan queue:listen`,
   `php artisan pail` et `npm run dev`, par concurrently 10 (Node 22 au moins). Le worker de file est
   nécessaire : les mails de portfolio passent par la file `database`. L'application répond sur
@@ -217,7 +217,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 - `App\Observers\PortfolioObserver` (enregistré dans `Portfolio::booted()`) envoie `PortfolioCreatedMail`
   et `PortfolioDeletedMail` avec deux minutes de délai (`later()`) à l'administrateur
-  (`config('app.admin_email')`, variable `APP_ADMIN_EMAIL`), et n'envoie rien si l'adresse est vide. Les
+  (`config('app.admin.email')`, variable `APP_ADMIN_EMAIL`), et n'envoie rien si l'adresse est vide. Les
   mailables implémentent `ShouldQueue`.
 
 ===

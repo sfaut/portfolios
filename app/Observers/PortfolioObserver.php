@@ -42,12 +42,12 @@ class PortfolioObserver
     }
 
     /**
-     * Envoie le mail à l'administrateur (`app.admin_email`) avec deux minutes de délai, et ne fait rien
+     * Envoie le mail à l'administrateur (`app.admin.email`) avec deux minutes de délai, et ne fait rien
      * si aucune adresse n'est configurée.
      */
     private function mailAdmin(Mailable $mail): void
     {
-        $admin_email = config('app.admin_email');
+        $admin_email = config('app.admin.email');
 
         if ($admin_email === '') {
             return;
