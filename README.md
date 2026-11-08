@@ -90,6 +90,86 @@ Pile : PHP 8.5, Laravel 13, Blade, Alpine.js, Tailwind CSS 4, MySQL.
 
 Les dossiers `storage/` et `bootstrap/cache/` doivent être accessibles en écriture au serveur web.
 
+### Configuration Nginx
+
+Exemple pour PHP-FPM, avec l'application dans `/var/www/portfolios` et un certificat Let's Encrypt.
+Remplacer `portfolios.example.com` par le domaine du serveur, que `APP_URL` reprend
+(`APP_URL=https://portfolios.example.com`).
+
+```nginx
+# /etc/nginx/sites-available/portfolios
+
+# HTTP : redirection vers HTTPS.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name portfolios.example.com;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name portfolios.example.com;
+    root /var/www/portfolios/public;
+
+    ssl_certificate /etc/letsencrypt/live/portfolios.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/portfolios.example.com/privkey.pem;
+
+    # « always » envoie aussi ces en-têtes avec les réponses d'erreur.
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    index index.php;
+    charset utf-8;
+
+    # Un fichier de public/ est servi tel quel ; toute autre adresse passe par Laravel.
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Fichiers construits par Vite, dont le nom change à chaque build : cache d'un an.
+    location /build/ {
+        expires 1y;
+        access_log off;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    # Seul index.php s'exécute.
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+    }
+
+    # Fichiers cachés (.env, .git…) refusés, hormis .well-known (validation des certificats).
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Obtenir d'abord le certificat, que la configuration référence, avec Certbot, qui le renouvellera
+ensuite seul. Activer alors le site, vérifier la configuration, puis la recharger :
+
+```sh
+certbot certonly --nginx -d portfolios.example.com
+ln --symbolic /etc/nginx/sites-available/portfolios /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+```
+
+L'en-tête `Strict-Transport-Security` (HSTS) oblige les navigateurs à passer par HTTPS pendant un an
+pour ce domaine : le garder seulement une fois HTTPS en place et stable.
+
 ### Mise à jour
 
 ```sh
