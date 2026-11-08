@@ -1,7 +1,6 @@
 import Alpine from "alpinejs";
 import accountSearch from "./account-search";
 import analyticLines from "./analytic-lines";
-import placeCaretAtEndOfAutofocus from "./autofocus";
 import monthPicker from "./month-picker";
 import theme from "./theme";
 
@@ -13,5 +12,3 @@ Alpine.data("analyticLines", analyticLines);
 Alpine.data("monthPicker", monthPicker);
 
 Alpine.start();
-
-placeCaretAtEndOfAutofocus();

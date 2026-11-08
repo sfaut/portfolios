@@ -12,7 +12,7 @@
 
     <div class="flex flex-col gap-1">
         <x-input-label for="name" value="Nom"/>
-        <x-text-input id="name" name="name" class="w-full" maxlength="50" :value="old('name', $analytic_axis->name ?? '')" autofocus/>
+        <x-text-input id="name" name="name" class="w-full" maxlength="50" :value="old('name', $analytic_axis->name ?? '')"/>
         <x-input-error :messages="$errors->get('name')"/>
     </div>
 

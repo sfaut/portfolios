@@ -22,7 +22,7 @@
 
     <div class="flex flex-col gap-1">
         <x-input-label for="label" value="Libellé"/>
-        <x-text-input id="label" name="label" class="w-full" :value="old('label', $operation->label ?? '')" autofocus/>
+        <x-text-input id="label" name="label" class="w-full" :value="old('label', $operation->label ?? '')"/>
         <x-input-error :messages="$errors->get('label')"/>
     </div>
 

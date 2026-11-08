@@ -15,7 +15,7 @@
         <!-- Email Address -->
         <div class="flex flex-col gap-1">
             <x-input-label for="email" value="E-mail"/>
-            <x-text-input id="email" class="w-full" type="email" name="email" :value="old('email')" required autofocus/>
+            <x-text-input id="email" class="w-full" type="email" name="email" :value="old('email')" required/>
             <x-input-error :messages="$errors->get('email')"/>
         </div>
 

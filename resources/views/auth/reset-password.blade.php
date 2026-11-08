@@ -16,7 +16,7 @@
                 name="email"
                 :value="old('email', $request->email)"
                 class="w-full"
-                required autofocus autocomplete="username"
+                required autocomplete="username"
             />
 
             <x-input-error :messages="$errors->get('email')"/>

@@ -30,7 +30,6 @@
             type="password"
             class="w-3/4"
             placeholder="Mot de passe"
-            autofocus
         />
 
         <x-input-error :messages="$errors->userDeletion->get('password')"/>
