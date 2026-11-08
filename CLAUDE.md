@@ -186,7 +186,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
-  style de base qui garde le curseur des boutons de Tailwind 3. Tailwind trouve seul les classes du
+  style de base qui garde le curseur des boutons de Tailwind 3, et les barres de défilement (fines, sans
+  flèches, aux couleurs du thème : pseudo-éléments `::-webkit-scrollbar` pour Chromium et Safari,
+  `scrollbar-width` / `scrollbar-color` pour Firefox seulement, Chromium ignorant les premiers dès que
+  les seconds sont posés). Tailwind trouve seul les classes du
   projet (vues, `app/`), sans `@source`.
 - Les classes suivent les consignes Tailwind 4 de Boost : toute bordure porte sa couleur (clair et
   sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
