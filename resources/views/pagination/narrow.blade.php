@@ -15,6 +15,7 @@
         {{-- First page --}}
         <a
             href="{{ $paginator->url(1) }}"
+            aria-label="Première page"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
                 'p-2', 'bg-white', 'dark:bg-gray-800', 'rounded-l-md',
@@ -26,6 +27,7 @@
         {{-- Previous page --}}
         <a
             href="{{ $paginator->previousPageUrl() }}"
+            aria-label="Page précédente"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
                 'p-2', 'bg-white', 'dark:bg-gray-800',
@@ -42,6 +44,7 @@
         {{-- Next page --}}
         <a
             href="{{ $paginator->nextPageUrl() }}"
+            aria-label="Page suivante"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
                 'p-2', 'bg-white', 'dark:bg-gray-800',
@@ -53,6 +56,7 @@
         <!-- Right double chevron -->
         <a
             href="{{ $paginator->url($paginator->lastPage()) }}"
+            aria-label="Dernière page"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
                 'rounded-r-md', 'p-2', 'bg-white', 'dark:bg-gray-800',
