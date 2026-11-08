@@ -61,7 +61,7 @@
                             <td class="border px-3 py-2 text-center">{{ date('d/m/Y', strtotime($operation->delivery_at)) }}</td>
                             <td class="border px-3 py-2">{{ $operation->label }}</td>
                             <td class="border px-3 py-2 text-right whitespace-nowrap">
-                                {{ Number::format($operation->amount, precision: 2, locale: 'fr') }}
+                                {{ Number::amount($operation->amount) }}
                             </td>
                             <td @class([
                                 'border px-3 py-2 text-right font-semibold whitespace-nowrap',
@@ -69,7 +69,7 @@
                                 'text-emerald-700 dark:text-emerald-400' => $operation->amount_running_sum == 0,
                                 'text-blue-700 dark:text-blue-400' => $operation->amount_running_sum > 0,
                             ])>
-                                {{ Number::format($operation->amount_running_sum, precision: 2, locale: 'fr') }}
+                                {{ Number::amount($operation->amount_running_sum, signed: true) }}
                             </td>
                             <td class="border px-3 py-2 text-center whitespace-nowrap">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
                             @unless ($account->trashed())

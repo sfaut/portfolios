@@ -9,8 +9,11 @@ Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regr
 (montants datés).
 
 Pile : PHP 8.5+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
-Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euros via
-`Number::currency(…, 'EUR', 'fr')`, qui demande l'extension `intl`).
+Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`), extension `intl` requise. Tout montant
+affiché passe par la macro `Number::amount($montant, signed: false, currency: '')` (déclarée dans
+`AppServiceProvider`) : deux décimales en français, signe moins typographique « − » (U+2212) devant un
+négatif, jamais le tiret « - » de `Number::format()` / `Number::currency()` ; `signed` ajoute « + »
+devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ## Commandes
 
