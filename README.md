@@ -167,6 +167,22 @@ nginx -t
 systemctl reload nginx
 ```
 
+Un serveur accessible seulement depuis le réseau local, par une adresse IP privée (192.168.…), ne peut
+pas recevoir de certificat Let's Encrypt. [mkcert](https://github.com/FiloSottile/mkcert) crée alors
+une autorité de certification locale et un certificat pour cette adresse, à fixer par une réservation
+DHCP sur la box :
+
+```sh
+mkcert -install
+mkcert 192.168.0.10
+```
+
+La configuration ci-dessus prend alors l'adresse comme `server_name`, et les fichiers produits
+(`192.168.0.10.pem`, `192.168.0.10-key.pem`) comme `ssl_certificate` / `ssl_certificate_key`. Le
+certificat racine (`rootCA.pem`, dans le dossier donné par `mkcert -CAROOT`) s'installe sur chaque
+appareil qui ouvre l'application ; sa clef (`rootCA-key.pem`) ne quitte jamais le serveur. Le
+certificat dure un peu plus de deux ans, et se renouvelle en relançant `mkcert`.
+
 L'en-tête `Strict-Transport-Security` (HSTS) oblige les navigateurs à passer par HTTPS pendant un an
 pour ce domaine : le garder seulement une fois HTTPS en place et stable.
 
