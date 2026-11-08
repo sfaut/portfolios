@@ -10,8 +10,8 @@
     </div>
 
     <div class="flex flex-col gap-1">
-        <x-input-label for="label" value="Libellé"/>
-        <x-textarea id="label" name="label" class="w-full">{{ old('label', $account->label ?? '') }}</x-textarea>
-        <x-input-error :messages="$errors->get('label')"/>
+        <x-input-label for="description" value="Description"/>
+        <x-textarea id="description" name="description" class="w-full">{{ old('description', $account->description ?? '') }}</x-textarea>
+        <x-input-error :messages="$errors->get('description')"/>
     </div>
 </form>
