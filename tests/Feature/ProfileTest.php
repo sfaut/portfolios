@@ -53,6 +53,25 @@ test('email verification status is unchanged when the email address is unchanged
     $this->assertNotNull($user->refresh()->email_verified_at);
 });
 
+test('users cannot make themselves administrator', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->patch('/profile', [
+            'last_name' => 'User',
+            'first_name' => 'Test',
+            'email' => $user->email,
+            'is_admin' => '1',
+        ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/profile');
+
+    expect($user->refresh()->is_admin)->toBeFalse();
+});
+
 test('account deletion is disabled', function () {
     $user = User::factory()->create();
 
