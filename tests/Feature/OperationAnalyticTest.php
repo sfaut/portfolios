@@ -214,7 +214,7 @@ test('the operations of an account show whether they are split between analytic 
         ->assertSee('Analytique')
         ->assertSeeInOrder([
             'Cours réparti', '2 axes',
-            'role="tooltip"', 'Cours piano', '50', '15,00', 'Cours échecs', '50', '15,00',
+            'role="tooltip"', 'Cours piano', '50', "15,00\u{a0}€", 'Cours échecs', '50', "15,00\u{a0}€",
             'Cours non réparti',
         ], escape: false);
 
@@ -231,5 +231,5 @@ test('the analytic tooltip rounds the part of the amount half away from zero', f
 
     $response = $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]));
 
-    $response->assertOk()->assertSeeInOrder(['Cours piano', '−0,03', 'Cours échecs', '−0,03']);
+    $response->assertOk()->assertSeeInOrder(['Cours piano', "−0,03\u{a0}€", 'Cours échecs', "−0,03\u{a0}€"]);
 });

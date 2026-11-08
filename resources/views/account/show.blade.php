@@ -88,7 +88,7 @@
                                                 @foreach ($operation->analyticLines as $line)
                                                     <span>{{ $line->analyticAxis->name }}</span>
                                                     <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
-                                                    <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount)) }}</span>
+                                                    <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
                                                 @endforeach
                                             </span>
                                         </x-slot:content>
