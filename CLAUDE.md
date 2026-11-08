@@ -119,6 +119,12 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.
+- Comptes archivés : `portfolio/show` les liste dans une section « Comptes archivés », sous les comptes
+  actifs. Les routes `account.show`, `account.edit`, `account.update` et `account.restore` (désarchivage,
+  proposé par `account/edit` à la place de l'archivage) portent `->withTrashed()` ; `account.destroy` non.
+  Les opérations d'un compte archivé sont en lecture seule : `operation.create` / `store` lient un compte
+  non archivé, et `OperationController` répond 404 sur `edit` / `update` / `destroy`. La relation
+  `Operation::account()` inclut les comptes archivés.
 - `AccountController::show()` redirige vers la dernière page des opérations quand `page` est absent, en
   refaisant le flash de session (`reflash()`) pour garder le message.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`

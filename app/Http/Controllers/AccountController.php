@@ -68,6 +68,19 @@ class AccountController extends Controller
             ->with('alert', 'Les modifications sur le compte ont été enregistrées.');
     }
 
+    /**
+     * Désarchive le compte, puis revient au compte.
+     *
+     * @param  Account  $account  Compte archivé à désarchiver.
+     */
+    public function restore(Account $account): RedirectResponse
+    {
+        $account->restore();
+
+        return to_route('account.show', ['account' => $account])
+            ->with('alert', "Le compte « {$account->name} » a été désarchivé.");
+    }
+
     public function destroy(Account $account)
     {
         $account->delete();
