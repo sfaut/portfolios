@@ -111,3 +111,54 @@
     cursor: pointer;
   }
 }
+
+/*
+  Scrollbars: thin, without arrows, with a rounded thumb in the colors of the
+  theme. Chromium and Safari read the ::-webkit-scrollbar pseudo-elements, and
+  ignore them as soon as an element sets scrollbar-width or scrollbar-color:
+  the standard properties are thus kept for the other browsers (Firefox),
+  whose thin scrollbars have no arrows.
+*/
+@layer base {
+  :root {
+    --scrollbar-thumb: var(--color-gray-300);
+    --scrollbar-thumb-hover: var(--color-gray-400);
+
+    @variant dark {
+      --scrollbar-thumb: var(--color-gray-600);
+      --scrollbar-thumb-hover: var(--color-gray-500);
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+    background-color: var(--scrollbar-thumb);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+  }
+}
