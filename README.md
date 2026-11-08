@@ -282,10 +282,12 @@ pour ce domaine : le garder seulement une fois HTTPS en place et stable.
    cours ou en échec, `deploy.sh` ne trouve pas l'archive et s'arrête sans rien changer.
 
 Avant les migrations, `deploy.sh` sauvegarde la base dans `backups/`
-(`portfolios-<date>-<heure>-avant-vX.Y.Z.sql.gz`, dix gardées), par la commande
+(`portfolios.pre-vX.Y.Z.sql.gz`, dix gardées), par la commande
 `php artisan db:dump` de l'application, qui passe par `mysqldump`. La copie est complète : tables et
 données, vues, procédures et fonctions, déclencheurs, événements, jeu de caractères et collation de la
-base. Une sauvegarde en échec ou incomplète arrête le déploiement.
+base. Une sauvegarde en échec ou incomplète arrête le déploiement. Une sauvegarde déjà présente pour
+la même version (déploiement relancé) est gardée, renommée avec la date et l'heure de sa création
+(`portfolios.pre-vX.Y.Z.<date>-<heure>.sql.gz`).
 
 Une sauvegarde supprime puis recrée la base : elle rend exactement l'état copié, sans les tables ou
 objets créés depuis. Elle se restaure, site en maintenance, par un compte MySQL qui a tous les droits
@@ -293,7 +295,7 @@ sur la base (root, ou l'utilisateur `portfolios`) :
 
 ```sh
 runuser --user www-data -- php /var/www/portfolios/current/artisan down
-zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz | mysql
+zcat /var/www/portfolios/backups/portfolios.pre-vX.Y.Z.sql.gz | mysql
 runuser --user www-data -- php /var/www/portfolios/current/artisan up
 ```
 
@@ -306,7 +308,7 @@ seul, à contrôler avant la restauration.
 # Sous-shell : umask 077 (fichier lisible par root seul) ne vaut que pour cette commande.
 (
     umask 077
-    zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz \
+    zcat /var/www/portfolios/backups/portfolios.pre-vX.Y.Z.sql.gz \
         | sed --expression 's/^\(\/\*!40000 DROP DATABASE IF EXISTS \|CREATE DATABASE .*\|USE \)`portfolios`/\1`portfolios_verification`/' \
         > /root/portfolios_verification.sql
 )
@@ -543,7 +545,7 @@ artisan optimize
 # La copie est écrite sous un nom provisoire, puis renommée une fois contrôlée : une sauvegarde
 # interrompue ne passe jamais pour complète. umask 077 la rend lisible par root seul.
 echo "Sauvegarde de la base…"
-backup_file=$BACKUPS_DIR/portfolios-$(date +%Y%m%d-%H%M%S)-avant-$TAG.sql.gz
+backup_file=$BACKUPS_DIR/portfolios.pre-$TAG.sql.gz
 (
     umask 077
     artisan db:dump | gzip > "$backup_file.partial"
@@ -554,6 +556,12 @@ if ! gzip --test "$backup_file.partial" \
     || ! zcat "$backup_file.partial" | tail --lines=1 | grep --quiet '^-- Dump completed'; then
     rm -f "$backup_file.partial"
     fail "sauvegarde de la base incomplète : déploiement arrêté"
+fi
+# Une sauvegarde déjà présente pour cette version (relance après une erreur, nouveau déploiement
+# après un retour arrière) est gardée, renommée avec la date et l'heure de sa création : aucune
+# sauvegarde n'est écrasée.
+if [[ -f $backup_file ]]; then
+    mv "$backup_file" "$BACKUPS_DIR/portfolios.pre-$TAG.$(date --reference="$backup_file" +%Y%m%d-%H%M%S).sql.gz"
 fi
 mv "$backup_file.partial" "$backup_file"
 echo "Sauvegarde : $backup_file"
