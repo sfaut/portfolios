@@ -33,7 +33,7 @@
                         >
                             <div class="text-end">
                                 <span>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</span><br>
-                                <span class="text-xs font-normal text-gray-400">{{ auth()->user()->email }}</span><br>
+                                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span><br>
                             </div>
 
                             <div>
