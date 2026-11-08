@@ -11,7 +11,10 @@
                     {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
                 </div>
             </div>
-            <x-link.secondary :target="route('portfolio.edit', $portfolio)">Modifier le portfolio</x-link.secondary>
+            <div class="flex items-center gap-4">
+                <x-link.secondary :target="route('analytic-axis.index', $portfolio)">Axes analytiques</x-link.secondary>
+                <x-link.secondary :target="route('portfolio.edit', $portfolio)">Modifier le portfolio</x-link.secondary>
+            </div>
         </div>
     </x-slot>
 

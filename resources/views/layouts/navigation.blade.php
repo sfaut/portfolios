@@ -12,7 +12,7 @@
                 </div>
 
                 <div class="hidden gap-8 sm:-my-px sm:flex">
-                    <x-nav-link :href="route('portfolio.index')" :active="request()->routeIs(['portfolio.*', 'account.*', 'operation.*'])">
+                    <x-nav-link :href="route('portfolio.index')" :active="request()->routeIs(['portfolio.*', 'account.*', 'operation.*', 'analytic-axis.*'])">
                         Portfolios
                     </x-nav-link>
                 </div>
