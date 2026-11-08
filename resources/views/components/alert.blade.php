@@ -1,3 +1,10 @@
+{{--
+    Message d'alerte, précédé d'une icône d'information, aux couleurs de son type.
+
+    @var string $type Type du message : info (par défaut), success, warning, danger.
+    @var \Illuminate\View\ComponentSlot $slot Message.
+    @var \Illuminate\View\ComponentAttributeBag $attributes Attributs du bloc.
+--}}
 @props([
     'type' => 'info',
 ])

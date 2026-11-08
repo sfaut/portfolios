@@ -1,3 +1,8 @@
+{{--
+    Connexion : adresse électronique, mot de passe (affichable), « Se souvenir de moi ».
+
+    @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
+--}}
 <x-guest-layout>
 
     <x-auth-session-status :status="session('status')"/>

@@ -1,7 +1,9 @@
 {{--
-    Must be call only from paginator instance
-    $records->links('pagination.narrow')
+    Pagination compacte : première, précédente, page courante, suivante et dernière page.
+    S'appelle depuis un paginateur, $records->links('pagination.narrow') ;
     https://laravel.com/docs/master/pagination
+
+    @var \Illuminate\Contracts\Pagination\LengthAwarePaginator $paginator Paginateur, fourni par links().
 --}}
 @if ($paginator->hasPages())
 

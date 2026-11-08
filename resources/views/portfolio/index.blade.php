@@ -1,3 +1,8 @@
+{{--
+    Liste des portfolios de l'utilisateur, suivie de la carte de création.
+
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Portfolio> $portfolios Portfolios de l'utilisateur.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>
