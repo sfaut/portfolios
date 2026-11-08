@@ -2,6 +2,45 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.3.0 (2026-11-08)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.3.0, qui rend les comptes plus faciles à trouver et les
+opérations plus faciles à lire :
+
+- recherche des comptes d'un portfolio par nom et par mois d'opération ;
+- un nouveau sélecteur de mois ;
+- toutes les opérations d'un compte sur une seule page, au choix ;
+- une répartition analytique plus lisible, avec la part du montant de chaque axe.
+
+### ✨ Nouvelles fonctionnalités
+
+- Recherche des comptes : la page d'un portfolio filtre ses comptes, actifs et archivés, sur leur nom,
+  au fil de la saisie, et sur un mois d'opération. Les deux filtres se cumulent, et un résumé donne le
+  nombre de comptes trouvés.
+- Sélecteur de mois : une année et ses douze mois dans une fenêtre, à la souris comme au clavier. Seuls
+  les mois où le portfolio a des opérations se choisissent.
+- Bouton « Tout » à côté de la pagination des opérations : toutes les opérations d'un compte
+  s'affichent sur une page, avec leur nombre, et la page s'ouvre sur l'opération modifiée. Le choix
+  vaut pour tous les comptes, le temps de la session.
+- Répartition analytique : elle se range sous le montant de l'opération, chaque ligne affiche sa part
+  du montant, et Entrée dans un pourcentage ajoute une ligne. L'infobulle de la liste des opérations
+  donne aussi la part du montant de chaque axe, avec la devise.
+- L'opération qui vient d'être modifiée se distingue du message de confirmation par l'accent indigo
+  de l'interface.
+- Les formulaires ne placent plus le curseur dans un champ à l'ouverture de la page.
+
+### 🐞 Corrections
+
+- Une recherche de compte mal formée dans l'adresse (`?search[]=…`) provoquait une erreur 500 : elle
+  est désormais ignorée.
+
+### ⚙️ Améliorations internes
+
+- L'intégration continue lance aussi les tests JavaScript (`npm run test:js`, par le lanceur intégré
+  à Node).
+
 ## v1.2.0 (2026-11-08)
 
 ### 🚀 Lancement
