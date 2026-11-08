@@ -39,6 +39,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Production : le déploiement est décrit dans `README.md`. Il lance `php artisan optimize`, qui met en
   cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`, sans quoi
   chaque rendu relit les SVG sur le disque).
+- Changelog : `CHANGELOG.md` à la racine, en français, une entrée par version (`## vX.Y.Z (YYYY-MM-DD)`,
+  sections `###` à icône, « 🚀 Lancement » en premier), la plus récente en tête. Les versions v1.0.0 à
+  v1.1.1 y reprennent les notes de leur release GitHub, traduites de l'anglais.
 - Laravel Boost (dépendance de dev) : consignes ajoutées à la fin de ce fichier, skills dans
   `.claude/skills`, serveur MCP `laravel-boost` déclaré dans `.mcp.json`. Ses choix sont dans `boost.json`
   et `config/boost.php`, qui écarte la consigne `deployments` (Laravel Cloud). `php artisan boost:update`
