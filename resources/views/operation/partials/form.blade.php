@@ -40,8 +40,8 @@
         {{--
             Optional analytic breakdown (resources/js/analytic-lines.js), from the data prepared by
             OperationController::analyticForm(). The component picks the errors of its lines by key.
-            The lines and the total share the same columns: axis (grows), percentage, then the slot
-            of the remove button, so that the total sits under the percentages.
+            The lines and the total share the same columns: axis (grows), percentage, part of the
+            amount, then the slot of the remove button, so that the total sits under the percentages.
         --}}
         <section aria-labelledby="analytic-lines-title" class="flex flex-col gap-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
             <div class="flex items-center gap-1.5">
@@ -97,6 +97,11 @@
                                     <span class="text-gray-500 dark:text-gray-400">%</span>
                                 </div>
 
+                                <span
+                                    x-text="formatAmount(lineAmount(line))"
+                                    class="w-24 shrink-0 text-right tabular-nums text-gray-500 dark:text-gray-400"
+                                ></span>
+
                                 <button
                                     type="button"
                                     x-on:click="remove(index)"
@@ -115,30 +120,22 @@
                         </div>
                     </template>
 
-                    <div class="flex items-center gap-2">
-                        <div class="flex min-w-0 grow items-center justify-between gap-3">
-                            <x-secondary-button x-on:click="add()" x-bind:disabled="! canAdd">
-                                Ajouter une ligne analytique
-                            </x-secondary-button>
-
-                            <p
-                                x-show="lines.length > 0"
-                                x-bind:class="complete ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'"
-                                class="flex items-center gap-3"
-                                aria-live="polite"
-                            >
-                                <span
-                                    x-show="! complete"
-                                    x-text="total < 10000 ? `reste ${format(10000 - total)}\u00a0%` : `excédent ${format(total - 10000)}\u00a0%`"
-                                    class="text-xs"
-                                ></span>
-                                <span class="font-semibold">Total</span>
-                                <span class="sr-only" x-text="`${format(total)}\u00a0%`"></span>
-                            </p>
-                        </div>
+                    <div x-show="lines.length > 0" class="flex items-center gap-2">
+                        <p
+                            x-bind:class="complete ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'"
+                            class="flex min-w-0 grow items-center justify-end gap-3 whitespace-nowrap"
+                            aria-live="polite"
+                        >
+                            <span
+                                x-show="! complete"
+                                x-text="total < 10000 ? `reste ${format(10000 - total)}\u00a0%` : `excédent ${format(total - 10000)}\u00a0%`"
+                                class="text-xs"
+                            ></span>
+                            <span class="font-semibold">Total</span>
+                            <span class="sr-only" x-text="`${format(total)}\u00a0%`"></span>
+                        </p>
 
                         <div
-                            x-show="lines.length > 0"
                             x-bind:class="complete ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'"
                             class="flex shrink-0 items-center gap-1 font-semibold"
                             aria-hidden="true"
@@ -147,7 +144,14 @@
                             <span>%</span>
                         </div>
 
+                        <span class="w-24 shrink-0" aria-hidden="true"></span>
                         <span class="size-9 shrink-0" aria-hidden="true"></span>
+                    </div>
+
+                    <div>
+                        <x-secondary-button x-on:click="add()" x-bind:disabled="! canAdd">
+                            Ajouter une ligne analytique
+                        </x-secondary-button>
                     </div>
                 </div>
             @endif
