@@ -9,6 +9,6 @@ class MailingController extends Controller
 {
     public function sendPortfolioCreatedMail()
     {
-        Mail::to('sebastien.faut@gmail.com')->send(new PortfolioCreatedMail);
+        Mail::to(config('app.admin_email'))->send(new PortfolioCreatedMail);
     }
 }
