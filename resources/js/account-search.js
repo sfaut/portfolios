@@ -3,7 +3,7 @@
  * in which the account has at least one operation.
  *
  * Typing shows the spinner at once and, after a short pause, fetches the page with the filters
- * from the server; choosing a month fetches it at once. The server answers ajax requests with
+ * from the server; choosing a month (x-month-picker, bound to "month") fetches it at once. The server answers ajax requests with
  * the "accounts" fragment alone. The fragment replaces the results ($refs.results), and its summary ([data-summary]) goes to the status next
  * to the filters ($refs.summary). The filters are kept in the URL, so that a reload shows them
  * again.
@@ -24,6 +24,13 @@ export default function accountSearch(search, month) {
         month,
         loading: false,
         failed: false,
+
+        /**
+         * Fetches the accounts again as soon as the month changes.
+         */
+        init() {
+            this.$watch("month", () => this.refresh());
+        },
 
         /**
          * Fetches the accounts matching the filters and shows them.

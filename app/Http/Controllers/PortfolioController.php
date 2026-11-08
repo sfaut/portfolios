@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PortfolioRequest;
 use App\Models\Operation;
 use App\Models\Portfolio;
+use App\View\Components\MonthPicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -59,7 +60,7 @@ class PortfolioController extends Controller
         $months = $portfolio->operationMonths();
         $month = $request->string('month')->value();
 
-        if (! array_key_exists($month, $months)) {
+        if (! in_array($month, $months, true)) {
             $month = '';
         }
 
@@ -89,7 +90,7 @@ class PortfolioController extends Controller
                 default => 'portfolio.search.empty.both',
             }, [
                 'search' => $search,
-                'month' => Str::lower($months[$month] ?? ''),
+                'month' => $month === '' ? '' : Str::lower(MonthPicker::monthLabel($month)),
             ]);
         }
 
