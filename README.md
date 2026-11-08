@@ -61,7 +61,8 @@ version qui suit v1.1.1.
   `php8.5-mysql` et `php8.5-mbstring` viennent du dépôt d'Ondřej Surý.
 - MySQL 8.0 ou plus récent : les vues de l'application utilisent des fonctions de fenêtrage et la
   collation `utf8mb4_0900_ai_ci`.
-- Nginx, `curl`, systemd et `mysqldump` (client MySQL, installé avec le serveur MySQL).
+- Nginx, `curl`, systemd et `mysqldump` (client MySQL, installé avec le serveur MySQL), dont se sert
+  la sauvegarde de la base.
 - Un serveur SMTP pour les mails (réinitialisation du mot de passe, mails à l'administrateur).
 
 Les commandes qui suivent se lancent en root ; PHP-FPM et Nginx tournent sous le compte `www-data`.
@@ -75,7 +76,12 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    CREATE DATABASE portfolios CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
    CREATE USER 'portfolios'@'localhost' IDENTIFIED BY '<mot de passe>';
    GRANT ALL PRIVILEGES ON portfolios.* TO 'portfolios'@'localhost';
+   GRANT SHOW_ROUTINE ON *.* TO 'portfolios'@'localhost';
    ```
+
+   `SHOW_ROUTINE` (MySQL 8.0.20 ou plus récent) permet à la sauvegarde de `deploy.sh` de copier les
+   procédures et fonctions de la base créées par un autre compte ; sans lui, la sauvegarde échoue et
+   le déploiement s'arrête.
 
 2. Créer `/var/www/portfolios/deploy.sh` avec le contenu de la section « Script de déploiement »
    ci-dessous, puis le réserver à root :
@@ -262,12 +268,18 @@ pour ce domaine : le garder seulement une fois HTTPS en place et stable.
    ```
 
 Avant les migrations, `deploy.sh` sauvegarde la base dans `backups/`
-(`portfolios-<date>-<heure>-avant-vX.Y.Z.sql.gz`, dix gardées) ; une sauvegarde en échec arrête le
-déploiement. Une sauvegarde se restaure, site en maintenance, par :
+(`portfolios-<date>-<heure>-avant-vX.Y.Z.sql.gz`, dix gardées), par la commande
+`php artisan db:dump` de l'application, qui passe par `mysqldump`. La copie est complète : tables et
+données, vues, procédures et fonctions, déclencheurs, événements, jeu de caractères et collation de la
+base. Une sauvegarde en échec ou incomplète arrête le déploiement.
+
+Une sauvegarde supprime puis recrée la base : elle rend exactement l'état copié, sans les tables ou
+objets créés depuis. Elle se restaure, site en maintenance, par un compte MySQL qui a tous les droits
+sur la base (root, ou l'utilisateur `portfolios`) :
 
 ```sh
 runuser --user www-data -- php /var/www/portfolios/current/artisan down
-zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz | mysql portfolios
+zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz | mysql
 runuser --user www-data -- php /var/www/portfolios/current/artisan up
 ```
 
@@ -381,7 +393,7 @@ TAG=${1:-}
 [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "version attendue au format vX.Y.Z (ex. deploy.sh v1.2.0)"
 # root est nécessaire pour changer les propriétaires des fichiers et recharger PHP-FPM.
 [[ $EUID -eq 0 ]] || fail "à lancer en root"
-# Outil de sauvegarde de l'étape 4, fourni avec le client MySQL.
+# Outil de sauvegarde de l'étape 4 (commande db:dump), fourni avec le client MySQL.
 command -v mysqldump > /dev/null || fail "mysqldump introuvable (paquet du client MySQL)"
 
 SHARED_DIR=$APP_DIR/shared
@@ -413,7 +425,7 @@ artisan() {
     runuser --user "$APP_USER" -- php "$RELEASE_DIR/artisan" "$@"
 }
 
-# Dossier de travail, lisible par root seul (téléchargements, accès à la base), et dossier de
+# Dossier de travail, lisible par root seul (téléchargements), et dossier de
 # décompression provisoire, caché (point initial) et renommé seulement une fois complet : une
 # installation interrompue ne passe jamais pour une version prête. Les deux sont supprimés à la sortie
 # du script, en succès comme en erreur.
@@ -472,46 +484,25 @@ artisan optimize
 
 # --- 4. Sauvegarde de la base -------------------------------------------------------------------------
 
-# Les accès à la base sont lus par Laravel lui-même, qui interprète le .env (guillemets, variables) ;
-# PHP tourne sous le compte du serveur web, seul autorisé à lire le .env. Il écrit une valeur par
-# ligne : base, hôte, port, utilisateur, mot de passe.
+# La commande db:dump de l'application copie la base par mysqldump : copie complète (tables, données,
+# vues, procédures, déclencheurs, événements) qui recrée la base à la restauration. Elle tourne sous le
+# compte du serveur web, seul autorisé à lire le .env, et écrit la copie sur sa sortie, que root
+# compresse ici dans backups/.
+# La copie est écrite sous un nom provisoire, puis renommée une fois contrôlée : une sauvegarde
+# interrompue ne passe jamais pour complète. umask 077 la rend lisible par root seul.
 echo "Sauvegarde de la base…"
-runuser --user "$APP_USER" -- php -r '
-    require $argv[1]."/vendor/autoload.php";
-    $app = require $argv[1]."/bootstrap/app.php";
-    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-    $db = config("database.connections.".config("database.default"));
-    echo implode("\n", [$db["database"], $db["host"], $db["port"], $db["username"], $db["password"]]), "\n";
-' "$RELEASE_DIR" > "$work_dir/database"
-mapfile -t database < "$work_dir/database"
-
-# Le mot de passe passe par un fichier d'options de MySQL, dans le dossier de travail de root, et non
-# par la ligne de commande, que tout compte du serveur peut lire (ps). Les valeurs sont entre
-# guillemets, leurs « \ » et « " » échappés.
-quote() {
-    local backslash='\' quote_char='"'
-    local value=${1//"$backslash"/"$backslash$backslash"}
-    printf '"%s"' "${value//"$quote_char"/"$backslash$quote_char"}"
-}
-{
-    echo "[client]"
-    echo "host=$(quote "${database[1]}")"
-    echo "port=$(quote "${database[2]}")"
-    echo "user=$(quote "${database[3]}")"
-    echo "password=$(quote "${database[4]:-}")"
-} > "$work_dir/mysql.cnf"
-
-# --single-transaction : copie cohérente sans bloquer l'application (InnoDB) ;
-# --routines, --triggers : procédures et déclencheurs avec les tables (les vues y sont d'office) ;
-# --no-tablespaces : évite le privilège PROCESS, qu'un utilisateur dédié à la base n'a pas.
-# La copie est écrite sous un nom provisoire, puis renommée : une sauvegarde interrompue ne passe
-# jamais pour complète. umask 077 la rend lisible par root seul.
 backup_file=$BACKUPS_DIR/portfolios-$(date +%Y%m%d-%H%M%S)-avant-$TAG.sql.gz
 (
     umask 077
-    mysqldump --defaults-extra-file="$work_dir/mysql.cnf" --single-transaction --routines --triggers \
-        --no-tablespaces "${database[0]}" | gzip > "$backup_file.partial"
+    artisan db:dump | gzip > "$backup_file.partial"
 ) || { rm -f "$backup_file.partial"; fail "sauvegarde de la base en échec : déploiement arrêté"; }
+# Contrôle : fichier gzip intègre, et copie menée à son terme (mysqldump la termine par
+# « -- Dump completed »).
+if ! gzip --test "$backup_file.partial" \
+    || ! zcat "$backup_file.partial" | tail --lines=1 | grep --quiet '^-- Dump completed'; then
+    rm -f "$backup_file.partial"
+    fail "sauvegarde de la base incomplète : déploiement arrêté"
+fi
 mv "$backup_file.partial" "$backup_file"
 echo "Sauvegarde : $backup_file"
 

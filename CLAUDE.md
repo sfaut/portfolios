@@ -43,12 +43,17 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Production : le déploiement est décrit dans `README.md`, seule source du script `deploy.sh` dans le
   dépôt (section « Script de déploiement »). Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
   l'archive de la release dans `/var/www/portfolios/releases/vX.Y.Z`, la relie à `shared/.env` et
-  `shared/storage`, lance `optimize`, sauvegarde la base (`mysqldump`, dans `backups/`), lance
+  `shared/storage`, lance `optimize`, sauvegarde la base (`php artisan db:dump`, compressée dans `backups/`), lance
   `migrate --force`, puis bascule le lien `current`. Au premier lancement, il crée `shared/.env` depuis
   `.env.model-prod` de la version, avec une `APP_KEY` générée, et s'arrête. `optimize`
   met en cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`,
   sans quoi chaque rendu relit les SVG sur le disque). Une migration doit rester compatible avec la
   version précédente, qui peut revenir par `deploy.sh` sur le schéma migré.
+- Sauvegarde : `php artisan db:dump` (`App\Console\Commands\DumpDatabase`) écrit sur la sortie standard
+  une copie complète de la base MySQL par `mysqldump` (routines, déclencheurs, événements, `DROP` puis
+  `CREATE DATABASE`). Les accès lui passent par un fichier d'options temporaire, jamais par la ligne de
+  commande. Le compte MySQL a besoin du privilège `SHOW_ROUTINE` pour copier les routines d'un autre
+  compte.
 - Changelog : `CHANGELOG.md` à la racine, en français, une entrée par version (`## vX.Y.Z (YYYY-MM-DD)`,
   sections `###` à icône, « 🚀 Lancement » en premier), la plus récente en tête. Les versions v1.0.0 à
   v1.1.1 y reprennent les notes de leur release GitHub, traduites de l'anglais.
