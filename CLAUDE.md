@@ -140,6 +140,12 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
   n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau et le titre rouges des
   cartes d'archivage et de suppression. Pagination par la vue `pagination.narrow`.
+- Toute confirmation passe par `<x-dialog id="…">`, sans `confirm()` JavaScript : un `<dialog>` natif
+  mis en page comme `<x-card>` (mêmes slots, `danger`). Le bouton de la carte l'ouvre sans script par
+  l'API Invoker Commands (`type="button" commandfor="<id>" command="show-modal"`), « Annuler » le ferme
+  (`command="close"`), comme Échap ou un clic hors de la boîte (`closedby="any"`). Le formulaire de
+  l'action est dans le pied de la boîte ; `show` l'ouvre au chargement (erreurs de validation, par
+  Alpine).
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
@@ -152,7 +158,7 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   de la page (`py-6`) ; chaque page range son contenu dans un conteneur unique
   (`max-w-* mx-auto flex flex-col gap-6`) ; un champ groupe label, saisie et erreur en
   `flex flex-col gap-1`. Seuls les décalages de positionnement gardent une marge (panneau absolu de
-  `x-dropdown`, panneau de `x-modal`).
+  `x-dropdown`, centrage `m-auto` de `x-dialog`).
 - Thème clair / sombre / système, choisi dans le menu utilisateur (store Alpine `theme`,
   `resources/js/theme.js`) et gardé par navigateur dans le `localStorage` (clef `theme`, absente pour
   « système »). Le choix devient la classe `light` ou `dark` de `<html>`, posée avant le premier rendu

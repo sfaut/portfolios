@@ -53,20 +53,28 @@
                 </x-slot:description>
 
                 <x-slot:footer>
-                    <form
-                        method="post"
-                        action="{{ route('account.destroy', $account) }}"
-                        onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?\n\nIl pourra être désarchivé à tout moment depuis « Modifier le compte ».')"
-                        class="flex items-center gap-6"
-                    >
+                    <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                    <x-danger-button type="button" commandfor="archive-account" command="show-modal">Archiver</x-danger-button>
+                </x-slot:footer>
+            </x-card>
+
+            <x-dialog id="archive-account" danger>
+                <x-slot:title>Archiver le compte « {{ $account->name }} » ?</x-slot:title>
+                <x-slot:description>
+                    Il pourra être désarchivé à tout moment depuis « Modifier le compte ».
+                </x-slot:description>
+
+                <x-slot:footer>
+                    <button type="button" commandfor="archive-account" command="close" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</button>
+
+                    <form method="post" action="{{ route('account.destroy', $account) }}">
                         @method('delete')
                         @csrf
 
-                        <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                        <x-danger-button>Archiver</x-danger-button>
+                        <x-danger-button>Archiver le compte</x-danger-button>
                     </form>
                 </x-slot:footer>
-            </x-card>
+            </x-dialog>
         @endif
 
     </div>

@@ -35,15 +35,28 @@
             </x-slot:description>
 
             <x-slot:footer>
-                <form method="post" action="{{ route('operation.destroy', $operation) }}" class="flex items-center gap-6">
+                <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-danger-button type="button" commandfor="delete-operation" command="show-modal">Supprimer</x-danger-button>
+            </x-slot:footer>
+        </x-card>
+
+        <x-dialog id="delete-operation" danger>
+            <x-slot:title>Supprimer l'opération « {{ $operation->label }} » ?</x-slot:title>
+            <x-slot:description>
+                La suppression est définitive : le solde du compte sera recalculé sans cette opération.
+            </x-slot:description>
+
+            <x-slot:footer>
+                <button type="button" commandfor="delete-operation" command="close" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</button>
+
+                <form method="post" action="{{ route('operation.destroy', $operation) }}">
                     @method('delete')
                     @csrf
 
-                    <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                    <x-danger-button>Supprimer</x-danger-button>
+                    <x-danger-button>Supprimer l'opération</x-danger-button>
                 </form>
             </x-slot:footer>
-        </x-card>
+        </x-dialog>
 
     </div>
 
