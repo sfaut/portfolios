@@ -54,7 +54,7 @@
             />
             <x-input-error :messages="$errors->get('email')"/>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            @if (! $user->hasVerifiedEmail())
                 <p class="text-sm text-gray-800 dark:text-gray-200">
                     Votre adresse e-mail n'est pas vérifiée.
 
