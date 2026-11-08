@@ -57,7 +57,7 @@ Pile : PHP 8.5, Laravel 13, Blade, Alpine.js, Tailwind CSS 4, MySQL.
    ```
 
 3. Copier `.env.example-production` vers `.env`, puis y renseigner au moins `APP_URL`, les accès à la
-   base (`DB_*`) et au serveur de mail (`MAIL_*`), et l'administrateur (`APP_ADMIN_*`, à décommenter).
+   base (`DB_*`) et au serveur de mail (`MAIL_*`), et l'administrateur (`APP_ADMIN_*`, obligatoires).
    Générer ensuite la clef de l'application :
 
    ```sh
@@ -70,8 +70,10 @@ Pile : PHP 8.5, Laravel 13, Blade, Alpine.js, Tailwind CSS 4, MySQL.
    php artisan migrate --seed --force
    ```
 
-   Une fois l'administrateur créé, `APP_ADMIN_PASSWORD` peut quitter le `.env`. `APP_ADMIN_EMAIL` y
-   reste : c'est l'adresse qui reçoit les mails de portfolio, qui ne partent pas sans elle.
+   Le seed vérifie les quatre variables `APP_ADMIN_*` : il s'arrête, en les nommant, si l'une manque ou
+   n'est pas valide (adresse, mot de passe de 8 caractères au moins). Une fois l'administrateur créé,
+   `APP_ADMIN_PASSWORD` peut être vidée. `APP_ADMIN_EMAIL` reste : c'est l'adresse qui reçoit les mails
+   de portfolio, qui ne partent pas sans elle.
 
 5. Mettre en cache la configuration, les routes, les vues et les icônes :
 

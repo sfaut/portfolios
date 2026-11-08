@@ -56,16 +56,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Administrator Email Address
+    | Administrator
     |--------------------------------------------------------------------------
     |
-    | Address of the administrator, which receives the portfolio creation and
-    | deletion mails. The seeder also gives it to the administrator account.
-    | Left empty, these mails are not sent.
+    | Account of the administrator, created by the seeder. Its address also
+    | receives the portfolio creation and deletion mails, which are not sent
+    | when it is empty.
     |
     */
 
-    'admin_email' => env('APP_ADMIN_EMAIL', ''),
+    'admin' => [
+        'last_name' => env('APP_ADMIN_LAST_NAME', ''),
+        'first_name' => env('APP_ADMIN_FIRST_NAME', ''),
+        'email' => env('APP_ADMIN_EMAIL', ''),
+        'password' => env('APP_ADMIN_PASSWORD', ''),
+    ],
 
     /*
     |--------------------------------------------------------------------------

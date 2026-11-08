@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 test('creating and archiving a portfolio mail the administrator', function () {
-    config(['app.admin_email' => 'admin@example.net']);
+    config(['app.admin.email' => 'admin@example.net']);
     Mail::fake();
     $portfolio = User::factory()->create()->portfolios()->create(['name' => 'Portfolio']);
 
@@ -17,7 +17,7 @@ test('creating and archiving a portfolio mail the administrator', function () {
 });
 
 test('no mail is sent without an administrator address', function () {
-    config(['app.admin_email' => '']);
+    config(['app.admin.email' => '']);
     Mail::fake();
     $portfolio = User::factory()->create()->portfolios()->create(['name' => 'Portfolio']);
 
