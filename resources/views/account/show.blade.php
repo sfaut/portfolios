@@ -58,13 +58,18 @@
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 text-sm">
                     @forelse ($operations as $operation)
+                        {{-- L'opération qui vient d'être modifiée ressort en indigo, l'accent de l'interface, avec un repère à gauche : le vert reste au message de confirmation. --}}
                         <tr
+                            @if ($operation->id === session('updated_operation_id')) aria-current="true" @endif
                             @class([
                                 'hover:bg-yellow-100', 'dark:hover:bg-yellow-900/30',
-                                'bg-success-200 dark:bg-success-900/60' => ($operation->id === session('updated_operation_id'))
+                                'bg-primary-50 dark:bg-primary-950/60' => ($operation->id === session('updated_operation_id')),
                             ])
                         >
-                            <td class="border px-3 py-2 text-right">{{ $operation->id }}</td>
+                            <td @class([
+                                'border', 'px-3', 'py-2', 'text-right',
+                                'shadow-[inset_4px_0_0_var(--color-primary-600)] dark:shadow-[inset_4px_0_0_var(--color-primary-400)]' => ($operation->id === session('updated_operation_id')),
+                            ])>{{ $operation->id }}</td>
                             <td class="border px-3 py-2 text-center">{{ date('d/m/Y', strtotime($operation->delivery_at)) }}</td>
                             <td class="border px-3 py-2">{{ $operation->label }}</td>
                             <td class="border px-3 py-2 text-right whitespace-nowrap">
