@@ -119,9 +119,29 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    Le seed vérifie les quatre variables `APP_ADMIN_*` : il s'arrête, en les nommant, si l'une manque ou
    n'est pas valide (adresse, mot de passe de 8 caractères au moins). Une fois l'administrateur créé,
    `APP_ADMIN_PASSWORD` peut être vidée. `APP_ADMIN_EMAIL` reste : c'est l'adresse qui reçoit les mails
-   de portfolio, qui ne partent pas sans elle.
+   de portfolio, qui ne partent pas sans elle. Relancé sur une base qui a déjà un administrateur, le
+   seed la laisse telle quelle et le signale.
 
 5. Installer le worker de file, le certificat, puis Nginx, décrits dans les sections suivantes.
+
+### Installation sur une base existante
+
+Une base qui contient déjà les données d'une installation précédente de Portfolios se reprend telle
+quelle, en suivant la première installation avec ces différences :
+
+- Étape 1 : garder la base, sans la recréer. Seuls l'utilisateur MySQL et ses droits sont à créer, s'ils
+  n'existent pas déjà (`SHOW_ROUTINE` compris).
+- Étape 3 : `deploy.sh` génère une nouvelle clef `APP_KEY`. Elle chiffre les cookies, dont celui de
+  session : avec la nouvelle clef, chaque utilisateur doit se reconnecter, et les cases « Se souvenir
+  de moi » sont perdues ; les données de la base ne dépendent pas de la clef. Pour garder les
+  connexions, remplacer la clef générée par celle de l'ancienne installation, à condition qu'elle n'ait
+  jamais été publiée (dépôt, sauvegarde partagée…) : une clef connue de tiers permet de forger des
+  cookies.
+- Avant l'étape 4 : arrêter l'ancienne installation, son worker de file compris. Deux workers sur la
+  même table `jobs`, l'un sur l'ancien code, enverraient des mails au hasard de l'un ou de l'autre.
+- Étape 4 : `deploy.sh` sauvegarde la base, puis ne passe que les migrations qui manquent, d'après la
+  table `migrations` ; la sauvegarde permet de revenir à l'état d'avant. Le seed ne crée rien si la base
+  a déjà un administrateur.
 
 ### Worker de file
 
