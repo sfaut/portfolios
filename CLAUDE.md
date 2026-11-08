@@ -90,6 +90,13 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   seule `AccountReport` / `OperationReport`. L'affichage les utilise (`Portfolio::accountsReport()`,
   `Account::operationsReport()`) ; les écritures passent par `Account` / `Operation`. Changer les colonnes
   de `accounts` ou `operations` demande de recréer ces vues dans une nouvelle migration.
+- Analytique : un portfolio a des axes (`AnalyticAxis`, table `analytic_axes`, nom unique dans le
+  portfolio, archivés par `SoftDeletes`) ; une ligne analytique (`AnalyticLine`) attribue à un axe une
+  part en pourcentage (deux décimales) d'une opération. Les lignes d'une opération sont facultatives ;
+  présentes, elles portent des axes distincts et totalisent exactement 100 %, contrôle fait en centièmes
+  entiers par `OperationRequest::after()`. Une modification d'opération remplace ses lignes. Un axe
+  archivé ne se choisit plus, sauf sur une opération qui l'utilise déjà, et reste affiché sur ses
+  lignes (`AnalyticLine::analyticAxis()` inclut les archivés).
 - `bootstrap/app.php` redéfinit la pile de middlewares globaux sans `ConvertEmptyStringsToNull` : un champ
   vide arrive en `''`, en accord avec les colonnes `description` à valeur par défaut `''`.
 - La session est sérialisée en JSON (`config/session.php`) et le cache ne désérialise aucune classe PHP
@@ -102,7 +109,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Le cloisonnement entre utilisateurs repose sur des portées globales, en chaîne :
   `App\Models\Scopes\AuthUserScope` (`where user_id = auth()->id()`) sur `Portfolio`, puis
   `App\Models\Scopes\AuthUserParentScope` sur `Account` (relation `portfolio`) et `Operation` (relation
-  `account`), qui exige un parent visible, archivé ou non. La liaison de modèle des routes renvoie donc
+  `account`), qui exige un parent visible, archivé ou non ; de même `AnalyticAxis` (relation `portfolio`)
+  et `AnalyticLine` (relation `operation`, parent sans `SoftDeletes`, que la portée accepte). La liaison de modèle des routes renvoie donc
   404 pour la donnée d'un autre utilisateur. Il n'y a ni policy ni gate, et les `authorize()` des
   FormRequests renvoient `true`.
 - Un nouveau modèle rattaché à un portfolio reçoit la même portée (`AuthUserParentScope` vers son parent).
@@ -116,7 +124,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Toutes les routes métier sont dans `routes/web.php`, sous le middleware `auth` ; `routes/auth.php`
   (Breeze) y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
-  Noms de route : `portfolio.*`, `account.*`, `operation.*`, `profile.*`. La page d'accueil après
+  Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
+  analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`, liée depuis
+  `portfolio/show`), faute de page parent qui l'accueille ; `edit`, `update` et `restore` portent
+  `->withTrashed()`, comme pour les comptes. La page d'accueil après
   connexion est `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
   La suppression de compte utilisateur (`ProfileController::destroy()`) est désactivée et répond 501.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
@@ -128,6 +139,13 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les opérations d'un compte archivé sont en lecture seule : `operation.create` / `store` lient un compte
   non archivé, et `OperationController` répond 404 sur `edit` / `update` / `destroy`. La relation
   `Operation::account()` inclut les comptes archivés.
+- Répartition analytique du formulaire d'opération : composant Alpine `analyticLines`
+  (`resources/js/analytic-lines.js`, enregistré par `Alpine.data()` dans `app.js`), qui ajoute et retire
+  les lignes, préremplit une nouvelle ligne du reste jusqu'à 100 % et affiche le total. Ses données
+  (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de
+  `OperationController::analyticForm()`, les erreurs de `$errors`, que le composant lit par clef
+  (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
+  opérations réparties, détail au survol (`OperationReport::analyticBreakdown()`).
 - `AccountController::show()` redirige vers la dernière page des opérations quand `page` est absent, en
   refaisant le flash de session (`reflash()`) pour garder le message.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
