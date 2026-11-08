@@ -37,11 +37,17 @@
         OperationController::analyticForm(). The component picks the errors of its lines by key.
     --}}
     <section aria-labelledby="analytic-lines-title" class="flex flex-col gap-3 rounded-md border border-gray-200 dark:border-gray-700 p-4">
-        <div class="flex flex-col gap-1">
-            <h3 id="analytic-lines-title" class="font-medium text-sm">
-                Répartition analytique <span class="font-normal text-gray-500 dark:text-gray-400">(facultative)</span>
-            </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Répartissez le montant entre des axes, en pourcentages totalisant 100 %.</p>
+        <div class="flex items-center gap-1.5">
+            <h3 id="analytic-lines-title" class="font-medium text-sm">Répartition analytique</h3>
+
+            <x-tooltip class="text-gray-400 hover:text-indigo-700 dark:text-gray-500 dark:hover:text-indigo-400">
+                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"/>
+                </svg>
+                <span class="sr-only">Aide</span>
+
+                <x-slot:content>Répartissez le montant entre des axes, en pourcentages totalisant 100 %.</x-slot:content>
+            </x-tooltip>
         </div>
 
         @if ($analytic_form['axes'] === [])
