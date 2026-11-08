@@ -43,11 +43,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ### Tests
 
-- Les tests tournent sur la base du `.env` : `portfolios_dev` en local, qui sert de base de développement
-  et de test. `tests/Pest.php` applique `RefreshDatabase` à `tests/Feature`, donc chaque lancement vide
-  cette base ; `php artisan db:seed` recrée ensuite l'administrateur. Pour lancer les tests sans toucher à
-  ses données, créer une base vide et la passer par le shell (`DB_DATABASE=<base> php artisan test`), une
-  variable d'environnement l'emportant sur le `.env`.
+- Les tests ont leur propre base, `portfolios_test`, fixée par `phpunit.xml` (`DB_DATABASE`) sur la
+  connexion MySQL du `.env`, et à créer à l'installation, sur le modèle de `portfolios_dev`
+  (`CREATE DATABASE portfolios_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`).
+  `tests/Pest.php` applique `RefreshDatabase` à `tests/Feature`, qui vide cette base à chaque lancement
+  (`migrate:fresh`) ; la base de développement n'est pas touchée. Une variable passée par le shell
+  l'emporte sur `phpunit.xml` (`DB_DATABASE=<base> php artisan test`), `force` n'y étant pas activé.
 - Les tests demandent MySQL, à cause des vues créées par les migrations (`CREATE OR REPLACE VIEW`,
   fonctions de fenêtrage), et le manifeste Vite (`npm run build`) pour les vues Blade.
 - `mockery/mockery` reste nécessaire sans aucune doublure dans les tests : `RefreshDatabase` lance
