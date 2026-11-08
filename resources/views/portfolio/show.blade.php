@@ -9,7 +9,7 @@
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var string $search Recherche sur le nom des comptes, vide sans recherche.
     @var string $month Mois d'opération retenu (« 2026-11 »), vide sans filtre de mois.
-    @var list<string> $months Mois où le portfolio a des opérations (« 2026-11 »), du plus récent au plus ancien.
+    @var \App\Support\MonthRestriction $month_restriction Mois choisissables : ceux où le portfolio a des opérations.
     @var bool $filtered Si un filtre au moins est actif.
     @var string $summary Nombre de comptes trouvés sur le total du portfolio, vide sans filtre.
     @var string $empty_message Message affiché quand les filtres ne trouvent aucun compte.
@@ -90,10 +90,10 @@
                     </button>
                 </div>
 
-                @if ($months !== [])
+                @if ($month_restriction->allow !== [])
                     <x-month-picker
                         name="month"
-                        :months="$months"
+                        :restriction="$month_restriction"
                         :value="$month"
                         label="Mois d'opération"
                         placeholder="Tous les mois"

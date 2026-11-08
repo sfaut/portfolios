@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\MonthRestriction;
 use App\View\Components\MonthPicker;
 
 test('the month picker sends its selection in the fields of its mode', function (string $mode, string $value, array $fields) {
@@ -16,7 +17,7 @@ test('the month picker sends its selection in the fields of its mode', function 
 ]);
 
 test('the month picker normalizes its selection and labels it', function (string $mode, mixed $value, mixed $selection, string $label) {
-    $picker = new MonthPicker(name: 'period', label: 'Période', mode: $mode, value: $value, months: null, min: '2025-01', max: '2026-12');
+    $picker = new MonthPicker(name: 'period', label: 'Période', mode: $mode, value: $value, restriction: new MonthRestriction(min: '2025-01', max: '2026-12'));
 
     expect($picker->selection)->toBe($selection)
         ->and($picker->triggerLabel)->toBe($label)
@@ -33,10 +34,33 @@ test('the month picker normalizes its selection and labels it', function (string
     'range, empty' => ['range', null, ['start' => '', 'end' => ''], ''],
 ]);
 
-test('the month picker keeps only the given months, and takes its bounds from them', function () {
-    $picker = new MonthPicker(name: 'month', label: 'Mois', value: '2026-10', months: ['2026-11', '2025-03', 'x']);
+test('the month picker labels a selection as the JavaScript component does', function (string $mode, string|array $value, string $label) {
+    $picker = new MonthPicker(name: 'period', label: 'Période', mode: $mode, value: $value);
 
-    expect($picker->config)->toMatchArray(['months' => ['2025-03', '2026-11'], 'min' => '2025-03', 'max' => '2026-11', 'value' => '']);
+    expect($picker->triggerLabel)->toBe($label);
+})->with(fn (): array => array_map(
+    fn (array $case): array => [$case['mode'], $case['value'], $case['label']],
+    json_decode(file_get_contents(dirname(__DIR__).'/fixtures/month-picker-labels.json'), associative: true, flags: JSON_THROW_ON_ERROR),
+));
+
+test('the month picker drops the initial months its restriction forbids', function (string $mode, mixed $value, mixed $selection) {
+    $restriction = new MonthRestriction(allow: ['2025-01/2025-06', '2026-11'], deny: ['2025-03']);
+    $picker = new MonthPicker(name: 'period', label: 'Période', mode: $mode, value: $value, restriction: $restriction);
+
+    expect($picker->selection)->toBe($selection);
+})->with([
+    'single, black list' => ['single', '2025-03', ''],
+    'single, out of the white list' => ['single', '2026-10', ''],
+    'multiple' => ['multiple', ['2026-11', '2025-03', '2025-07', '2025-02'], ['2025-02', '2026-11']],
+    'range, forbidden end' => ['range', ['start' => '2025-02', 'end' => '2025-03'], ['start' => '2025-02', 'end' => '']],
+    'range, around a forbidden month' => ['range', ['start' => '2025-02', 'end' => '2025-04'], ['start' => '2025-02', 'end' => '2025-04']],
+]);
+
+test('the month picker sends a copy of its restriction to the browser, free without restriction', function () {
+    $restriction = new MonthRestriction(allow: ['2025-01/2025-06'], deny: ['2025-03']);
+
+    expect((new MonthPicker(name: 'month', label: 'Mois', restriction: $restriction))->config['restriction'])->toBe($restriction->toArray())
+        ->and((new MonthPicker(name: 'month', label: 'Mois'))->config['restriction'])->toBe(['min' => '', 'max' => '', 'allow' => null, 'deny' => []]);
 });
 
 test('the month picker falls back on the single mode', function () {

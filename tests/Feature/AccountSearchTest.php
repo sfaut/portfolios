@@ -101,21 +101,25 @@ test('the month filter offers the months of the operations', function () {
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-10']));
 
     $response->assertOk()
-        ->assertSee('\u0022months\u0022:[\u00222025-12\u0022,\u00222026-10\u0022,\u00222026-11\u0022]', escape: false)
+        ->assertSee('\u0022allow\u0022:[[\u00222025-12\u0022,\u00222025-12\u0022],[\u00222026-10\u0022,\u00222026-10\u0022],[\u00222026-11\u0022,\u00222026-11\u0022]]', escape: false)
         ->assertSee('<input type="hidden" name="month" value="2026-10"', escape: false)
         ->assertSee('Octobre 2026');
 });
 
-test('a month without operation in the portfolio is ignored', function () {
+test('a month refused by the month restriction is ignored', function (mixed $month) {
     addOperationTo('Compte courant', '2026-10-31');
 
-    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-09']));
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => $month]));
 
     $response->assertOk()
         ->assertSee('Livret Épargne')
         ->assertSee('<h3>Créer un compte</h3>', escape: false)
         ->assertDontSee('sur 4');
-});
+})->with([
+    'without operation' => ['2026-09'],
+    'malformed' => ['2026-10-01'],
+    'list' => [['2026-10']],
+]);
 
 test('the search and the month filter add up', function () {
     addOperationTo('Compte courant', '2026-10-31');

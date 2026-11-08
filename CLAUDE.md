@@ -35,7 +35,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Build front : `npm run build` (Node 20.19 ou 22.12 au moins, pour Vite 8).
 - Style : Pint, sans `pint.json` (preset `laravel`), voir « Conventions » ci-dessous.
 - Tests : `php artisan test`, un fichier `vendor/bin/pest tests/Feature/ProfileTest.php`, un test
-  `php artisan test --filter="profile page is displayed"`.
+  `php artisan test --filter="profile page is displayed"`. Tests JavaScript : `npm run test:js`, par le
+  lanceur intégré à Node (`node:test`, sans dépendance), sur `tests/js/**/*.test.js` ; ils ne portent
+  que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`). Les cas que PHP
+  et JavaScript doivent appliquer à l'identique sont dans `tests/fixtures/*.json`, lus par les deux.
 - GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests sur un
   service MySQL) à chaque push sur `master` et à chaque pull request. À la publication d'une release, il
   construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
@@ -168,7 +171,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `search`, `whereLike` aux jokers échappés, insensible à la casse et aux accents par la collation) et
   sur le mois (paramètre `month`, « 2026-11 » : comptes ayant au moins une opération dans le mois, par
   `delivery_at`). Les deux se cumulent. Le mois se choisit par `<x-month-picker>`, limité aux mois où
-  le portfolio a des opérations (`Portfolio::operationMonths()`) ; un autre mois est ignoré.
+  le portfolio a des opérations : le contrôleur en fait la liste blanche d'une `MonthRestriction`,
+  passée au composant, et ignore un mois qu'elle refuse (filtre en GET, sans erreur).
   Le composant Alpine `accountSearch` (`resources/js/account-search.js`) interroge la même route après
   300 ms de pause (aussitôt pour le mois), avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
   fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
@@ -212,10 +216,18 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Safari et Firefox sur ordinateur n'affichent qu'en champ texte : un déclencheur à l'allure d'un
   champ, et un popover « une année, douze mois » placé comme `<x-tooltip>`. Trois modes : `single`
   (« 2026-11 », champ `name`), `multiple` (liste, champs `name[]`) et `range` (`start` / `end`,
-  champs `name[start]` / `name[end]`) ; `min` / `max` bornent les mois, `months` les restreint. La
-  classe normalise la valeur et calcule le libellé initial, que le JavaScript recalcule à
-  l'identique ; le parent lie la sélection par `x-model` (`x-modelable`). Clavier : flèches entre mois
-  choisissables, Page préc. / suiv. pour l'année, Début / Fin, Échap.
+  champs `name[start]` / `name[end]`). Saisie libre par défaut, ou restreinte par
+  `:restriction` (`App\Support\MonthRestriction`) : bornes `min` / `max`, liste blanche `allow` et
+  liste noire `deny`, combinables, de mois (« 2026-11 ») et de plages en intervalle ISO 8601
+  (« 2025-01/2025-06 ») ; en mode `range`, seules les bornes de la plage doivent être autorisées.
+  La restriction, construite par le serveur, est la seule source de vérité : le composant en envoie
+  une copie au navigateur, qui ne sert qu'à griser les mois interdits, et la règle
+  `App\Rules\MonthSelection`, avec la même restriction, contrôle la valeur reçue (détails dans le
+  docblock de `MonthPicker`). La règle et le libellé sont écrits en PHP et en JavaScript
+  (`resources/js/month-picker-rules.js`), testés sur les mêmes cas. La classe normalise la valeur
+  initiale et calcule le libellé initial ; le parent lie la sélection par `x-model`
+  (`x-modelable`). Clavier : flèches entre mois choisissables, Page préc. / suiv. pour l'année,
+  Début / Fin, Échap.
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
