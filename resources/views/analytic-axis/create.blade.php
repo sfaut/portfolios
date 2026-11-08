@@ -1,3 +1,8 @@
+{{--
+    Création d'un axe analytique.
+
+    @var \App\Models\Portfolio $portfolio Portfolio qui recevra l'axe.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>

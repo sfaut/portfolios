@@ -1,4 +1,8 @@
-{{-- Tableau d'axes analytiques ($analytic_axes, avec analytic_lines_count), actifs ou archivés. --}}
+{{--
+    Tableau d'axes analytiques, actifs ou archivés.
+
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $analytic_axes Axes à lister, avec analytic_lines_count.
+--}}
 <div class="overflow-hidden rounded-md shadow-sm">
     <table class="w-full **:border-gray-200 dark:**:border-gray-700">
         <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">

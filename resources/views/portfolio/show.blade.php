@@ -1,3 +1,10 @@
+{{--
+    Portfolio et ses comptes : comptes actifs, puis comptes archivés dans une section repliée.
+
+    @var \App\Models\Portfolio $portfolio Portfolio affiché.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $accounts Comptes actifs.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $archived_accounts Comptes archivés.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">

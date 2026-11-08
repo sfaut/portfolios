@@ -1,3 +1,9 @@
+{{--
+    Compte et ses opérations, paginées, avec leur solde cumulé et leur repère analytique.
+
+    @var \App\Models\Account $account Compte affiché, archivé ou non.
+    @var \Illuminate\Pagination\LengthAwarePaginator<int, \App\Models\OperationReport> $operations Opérations de la page, avec leurs lignes analytiques.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">

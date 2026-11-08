@@ -1,3 +1,10 @@
+{{--
+    Formulaire d'un axe analytique, partagé par create et edit.
+
+    @var string $action URL d'envoi du formulaire.
+    @var string $method Méthode HTTP (post, put).
+    @var \App\Models\AnalyticAxis|null $analytic_axis Axe modifié, absent en création.
+--}}
 <form id="analytic-axis-form" method="post" action="{{ $action }}" class="flex flex-col gap-6">
 
     @method($method)

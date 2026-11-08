@@ -1,3 +1,8 @@
+{{--
+    Modification d'un axe analytique, avec son archivage ou, s'il est archivé, son désarchivage.
+
+    @var \App\Models\AnalyticAxis $analytic_axis Axe modifié, archivé ou non.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>

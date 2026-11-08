@@ -1,3 +1,14 @@
+{{--
+    Formulaire d'une opération, partagé par create et edit, avec sa répartition analytique facultative.
+
+    @var string $action URL d'envoi du formulaire.
+    @var string $method Méthode HTTP (post, put).
+    @var \App\Models\Account|null $account Compte de l'opération, en création.
+    @var \App\Models\Operation|null $operation Opération modifiée, en modification.
+    @var array{axes: list<array{id: int, name: string, archived: bool}>, lines: list<array{analytic_axis_id: string, percentage: string}>} $analytic_form
+        Axes proposés et lignes initiales (OperationController::analyticForm()).
+    @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation ; celles des lignes vont au composant Alpine.
+--}}
 <form
     id="operation-form"
     method="post"

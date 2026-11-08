@@ -1,3 +1,10 @@
+{{--
+    Liste des axes analytiques d'un portfolio : axes actifs, puis axes archivés dans une section repliée.
+
+    @var \App\Models\Portfolio $portfolio Portfolio des axes.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $analytic_axes Axes actifs, avec analytic_lines_count.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $archived_analytic_axes Axes archivés, avec analytic_lines_count.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>
