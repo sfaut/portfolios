@@ -106,12 +106,12 @@ export default function analyticLines({ axes, lines }, errors) {
         },
 
         /**
-         * Hundredths of percent written in French, "33,5 %".
+         * Hundredths of percent written in French, without the percent sign: "33,5".
          *
          * @param {number} hundredths
          */
         format(hundredths) {
-            return `${(hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}\u00a0%`;
+            return (hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
         },
     };
 }
