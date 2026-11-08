@@ -136,10 +136,12 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   par le script en ligne de `layouts/empty`. `resources/css/app.css` redéfinit la variante `dark:`
   (`@custom-variant`) : la classe `dark` l'active, la classe `light` l'écarte, et sans classe le système
   décide (`prefers-color-scheme`) ; chaque règle `dark:` sort donc en double dans le CSS. `<html>` porte
-  `scheme-light dark:scheme-dark` pour les contrôles natifs. Les pages d'erreur
-  (`resources/views/errors`, CSS en ligne) suivent le système seul. Toute vue nouvelle ou modifiée
-  porte ses variantes `dark:`, sur la palette en place : fond de page `gray-900`, surfaces `gray-800`,
-  en-têtes de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
+  `scheme-light dark:scheme-dark` pour les contrôles natifs. Les pages d'erreur passent par
+  `resources/views/errors/minimal.blade.php`, dans la mise en page invité, et suivent donc le thème
+  choisi. Si leur rendu échoue (manifeste Vite absent…), Laravel répond hors débogage par sa page brute
+  de secours. Toute vue nouvelle ou modifiée porte ses variantes `dark:`, sur la palette en place :
+  fond de page `gray-900`, surfaces `gray-800`, en-têtes de tableau `gray-700`, texte `gray-300`,
+  accents `indigo-400`.
 
 ### Mails
 
