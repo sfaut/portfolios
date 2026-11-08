@@ -1,9 +1,22 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="tracking-wide scheme-light-dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="tracking-wide scheme-light dark:scheme-dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        {{-- Applies the theme chosen in the user menu before the first paint (resources/js/theme.js). --}}
+        <script>
+            try {
+                const theme = localStorage.getItem('theme');
+
+                if (theme === 'light' || theme === 'dark') {
+                    document.documentElement.classList.add(theme);
+                }
+            } catch {
+                //
+            }
+        </script>
 
         <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC">
 
