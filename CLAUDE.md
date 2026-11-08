@@ -34,11 +34,19 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Style : Pint, sans `pint.json` (preset `laravel`), voir « Conventions » ci-dessous.
 - Tests : `php artisan test`, un fichier `vendor/bin/pest tests/Feature/ProfileTest.php`, un test
   `php artisan test --filter="profile page is displayed"`.
-- GitHub Actions : `.github/workflows/check-runner.yaml`, lancé à la main, vérifie le runner auto-hébergé
-  de production (PHP et ses extensions, disque de `/var/www`).
-- Production : le déploiement est décrit dans `README.md`. Il lance `php artisan optimize`, qui met en
-  cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`, sans quoi
-  chaque rendu relit les SVG sur le disque).
+- GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests sur un
+  service MySQL) à chaque push sur `master` et à chaque pull request. À la publication d'une release, il
+  construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
+  ajoute à la release avec son empreinte SHA-256 (`portfolios-vX.Y.Z.tar.gz`, `.sha256`).
+  `.github/workflows/check-runner.yaml`, lancé à la main, vérifie le runner auto-hébergé de production
+  (PHP et ses extensions, disque de `/var/www`).
+- Production : le déploiement est décrit dans `README.md`, seule source du script `deploy.sh` dans le
+  dépôt (section « Script de déploiement »). Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
+  l'archive de la release dans `/var/www/portfolios/releases/vX.Y.Z`, la relie à `shared/.env` et
+  `shared/storage`, lance `migrate --force` et `optimize`, puis bascule le lien `current`. `optimize`
+  met en cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`,
+  sans quoi chaque rendu relit les SVG sur le disque). Une migration doit rester compatible avec la
+  version précédente, qui peut revenir par `deploy.sh` sur le schéma migré.
 - Changelog : `CHANGELOG.md` à la racine, en français, une entrée par version (`## vX.Y.Z (YYYY-MM-DD)`,
   sections `###` à icône, « 🚀 Lancement » en premier), la plus récente en tête. Les versions v1.0.0 à
   v1.1.1 y reprennent les notes de leur release GitHub, traduites de l'anglais.
