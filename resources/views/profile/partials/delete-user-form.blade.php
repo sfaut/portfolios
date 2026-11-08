@@ -1,4 +1,4 @@
-<x-card>
+<x-card danger>
     <x-slot:title>Suppression de compte</x-slot:title>
     <x-slot:description>
         Une fois votre compte supprimé, toutes ses ressources et données seront définitivement perdues.
