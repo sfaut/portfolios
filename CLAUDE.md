@@ -82,7 +82,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - `mockery/mockery` reste nécessaire sans aucune doublure dans les tests : `RefreshDatabase` lance
   `migrate:fresh` par `artisan()`, qui simule la sortie de la console avec Mockery.
 - `tests/Feature/OwnershipTest.php` vérifie le cloisonnement entre utilisateurs, route par route : une
-  nouvelle route sur un portfolio, un compte ou une opération s'y ajoute.
+  nouvelle route sur un portfolio, un compte ou une opération s'y ajoute, dans le jeu de l'autre
+  utilisateur (404) et dans celui des invités (redirection vers la connexion). Il vérifie aussi qu'une
+  clef inattendue du formulaire (`user_id`, `portfolio_id`, `account_id`) ne déplace aucune donnée
+  chez un autre utilisateur.
 
 ## Conventions
 
