@@ -229,6 +229,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   initiale et calcule le libellé initial ; le parent lie la sélection par `x-model`
   (`x-modelable`). Clavier : flèches entre mois choisissables, Page préc. / suiv. pour l'année,
   Début / Fin, Échap.
+  Tout bouton à deux états passe par `<x-toggle-button name="…" :pressed="…">` (bouton poussoir) :
+  un bouton d'envoi qui porte `aria-pressed` et envoie l'état opposé (`name=1` pour l'enfoncer,
+  `name=0` pour le relâcher), dans un formulaire GET, sans JavaScript. Relâché, il a l'allure blanche
+  des boutons de pagination ; enfoncé, il passe en indigo plein avec une ombre intérieure, par les
+  variantes `aria-pressed:`.
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
