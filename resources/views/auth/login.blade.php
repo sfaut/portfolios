@@ -17,7 +17,6 @@
                 type="email"
                 name="email"
                 :value="old('email')"
-                autofocus
                 autocomplete="username"
                 class="w-full"
             />

@@ -245,9 +245,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
   n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau et le titre rouges des
   cartes d'archivage et de suppression. Pagination par la vue `pagination.narrow`.
-- Le champ qui reçoit le focus au chargement porte `autofocus` ; `resources/js/autofocus.js` place
-  alors le curseur en fin de valeur, au premier focus seulement, pour compléter la valeur actuelle
-  d'un formulaire de modification.
+- Aucun champ ne porte `autofocus` par défaut : il s'ajoute au cas par cas, quand un formulaire le
+  demande.
 - Toute confirmation passe par `<x-dialog id="…">`, sans `confirm()` JavaScript : un `<dialog>` natif
   mis en page comme `<x-card>` (mêmes slots, `danger`). Le bouton de la carte l'ouvre sans script par
   l'API Invoker Commands (`type="button" commandfor="<id>" command="show-modal"`), « Annuler » le ferme
