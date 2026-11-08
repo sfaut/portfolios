@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PortfolioRequest;
 use App\Models\Portfolio;
+use Illuminate\View\View;
 
 class PortfolioController extends Controller
 {
@@ -31,10 +32,17 @@ class PortfolioController extends Controller
             ->with('message', trans('portfolio.store.success', ['name' => $data['name']]));
     }
 
-    public function show(Portfolio $portfolio)
+    /**
+     * Affiche le portfolio, ses comptes actifs puis ses comptes archivés.
+     *
+     * @param  Portfolio  $portfolio  Portfolio à afficher.
+     */
+    public function show(Portfolio $portfolio): View
     {
         return view('portfolio.show', [
             'portfolio' => $portfolio,
+            'accounts' => $portfolio->accountsReport,
+            'archived_accounts' => $portfolio->accountsReport()->onlyTrashed()->get(),
         ]);
     }
 

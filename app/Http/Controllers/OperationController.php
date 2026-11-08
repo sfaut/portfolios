@@ -6,6 +6,7 @@ use App\Http\Requests\OperationRequest;
 use App\Models\Account;
 use App\Models\Operation;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class OperationController extends Controller
 {
@@ -32,15 +33,30 @@ class OperationController extends Controller
             ->with('alert', 'Opération ajoutée avec succès.');
     }
 
-    public function edit(Operation $operation)
+    /**
+     * Affiche le formulaire de modification de l'opération.
+     *
+     * @param  Operation  $operation  Opération à modifier, d'un compte non archivé (404 sinon).
+     */
+    public function edit(Operation $operation): View
     {
+        $this->abortIfAccountArchived($operation);
+
         return view('operation.edit', [
             'operation' => $operation,
         ]);
     }
 
-    public function update(OperationRequest $request, Operation $operation)
+    /**
+     * Enregistre les modifications de l'opération, puis revient au compte.
+     *
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective).
+     * @param  Operation  $operation  Opération à modifier, d'un compte non archivé (404 sinon).
+     */
+    public function update(OperationRequest $request, Operation $operation): RedirectResponse
     {
+        $this->abortIfAccountArchived($operation);
+
         $data = $request->validated();
         $operation->update($data);
 
@@ -49,11 +65,30 @@ class OperationController extends Controller
             ->with('updated_operation_id', $operation->id);
     }
 
-    public function destroy(Operation $operation)
+    /**
+     * Supprime l'opération, puis revient au compte.
+     *
+     * @param  Operation  $operation  Opération à supprimer, d'un compte non archivé (404 sinon).
+     */
+    public function destroy(Operation $operation): RedirectResponse
     {
+        $this->abortIfAccountArchived($operation);
+
         $operation->delete();
 
         return to_route('account.show', $operation->account)
             ->with('alert', 'Opération supprimée avec succès');
+    }
+
+    /**
+     * Interrompt la requête par une 404 quand le compte de l'opération est archivé : ses opérations
+     * sont alors en lecture seule, comme la création, dont la liaison de modèle écarte les comptes
+     * archivés.
+     *
+     * @param  Operation  $operation  Opération dont le compte est contrôlé.
+     */
+    private function abortIfAccountArchived(Operation $operation): void
+    {
+        abort_if($operation->account->trashed(), 404);
     }
 }

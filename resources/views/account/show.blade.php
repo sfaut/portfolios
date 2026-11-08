@@ -20,8 +20,17 @@
             </x-alert>
         @endif
 
-        <div class="flex justify-between">
-            <x-link.primary :target="route('operation.create', $account)">Écrire une opération</x-link.primary>
+        @if ($account->trashed())
+            <x-alert type="warning">
+                Ce compte est archivé : ses opérations sont en lecture seule.
+                Il peut être désarchivé depuis « Modifier le compte ».
+            </x-alert>
+        @endif
+
+        <div @class(['flex', 'justify-between' => ! $account->trashed(), 'justify-end' => $account->trashed()])>
+            @unless ($account->trashed())
+                <x-link.primary :target="route('operation.create', $account)">Écrire une opération</x-link.primary>
+            @endunless
             {{ $operations->links('pagination.narrow') }}
         </div>
 
@@ -35,7 +44,9 @@
                         <th class="border px-3 py-2 whitespace-nowrap">Montant (€)</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Solde (€)</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Horodatage création</th>
-                        <th class="border px-3 py-2">Action</th>
+                        @unless ($account->trashed())
+                            <th class="border px-3 py-2">Action</th>
+                        @endunless
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 text-sm">
@@ -61,21 +72,23 @@
                                 {{ Number::format($operation->amount_running_sum, precision: 2, locale: 'fr') }}
                             </td>
                             <td class="border px-3 py-2 text-center whitespace-nowrap">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
-                            <td class="border px-3 py-2 text-center">
-                                <a
-                                    href="{{ route('operation.edit', $operation) }}"
-                                    @class([
-                                        'text-xs', 'font-semibold', 'uppercase', 'text-indigo-700', 'dark:text-indigo-400',
-                                        'no-underline', 'hover:underline',
-                                    ])
-                                >
-                                    Modifier
-                                </a>
-                            </td>
+                            @unless ($account->trashed())
+                                <td class="border px-3 py-2 text-center">
+                                    <a
+                                        href="{{ route('operation.edit', $operation) }}"
+                                        @class([
+                                            'text-xs', 'font-semibold', 'uppercase', 'text-indigo-700', 'dark:text-indigo-400',
+                                            'no-underline', 'hover:underline',
+                                        ])
+                                    >
+                                        Modifier
+                                    </a>
+                                </td>
+                            @endunless
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-4 text-center">
+                            <td colspan="{{ $account->trashed() ? 6 : 7 }}" class="p-4 text-center">
                                 Pas encore d'opérations.<br>
                                 Mais ça ne saurait tarder...<br>
                             </td>

@@ -26,28 +26,48 @@
             </x-slot:footer>
         </x-card>
 
-        <x-card danger>
-            <x-slot:title>Archivage du compte</x-slot:title>
-            <x-slot:description>
-                Toutes les opérations du compte seront également archivées.
-                Le compte et ses opérations pourront être désarchivés.
-            </x-slot:description>
+        @if ($account->trashed())
+            <x-card>
+                <x-slot:title>Désarchivage du compte</x-slot:title>
+                <x-slot:description>
+                    Le compte est archivé : ses opérations sont en lecture seule.
+                    Une fois désarchivé, il retrouve sa place parmi les comptes du portfolio.
+                </x-slot:description>
 
-            <x-slot:footer>
-                <form
-                    method="post"
-                    action="{{ route('account.destroy', $account) }}"
-                    onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
-                    class="flex items-center gap-6"
-                >
-                    @method('delete')
-                    @csrf
+                <x-slot:footer>
+                    <form method="post" action="{{ route('account.restore', $account) }}" class="flex items-center gap-6">
+                        @method('patch')
+                        @csrf
 
-                    <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                    <x-danger-button>Archiver</x-danger-button>
-                </form>
-            </x-slot:footer>
-        </x-card>
+                        <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                        <x-primary-button>Désarchiver</x-primary-button>
+                    </form>
+                </x-slot:footer>
+            </x-card>
+        @else
+            <x-card danger>
+                <x-slot:title>Archivage du compte</x-slot:title>
+                <x-slot:description>
+                    Toutes les opérations du compte seront également archivées.
+                    Le compte et ses opérations pourront être désarchivés.
+                </x-slot:description>
+
+                <x-slot:footer>
+                    <form
+                        method="post"
+                        action="{{ route('account.destroy', $account) }}"
+                        onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
+                        class="flex items-center gap-6"
+                    >
+                        @method('delete')
+                        @csrf
+
+                        <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                        <x-danger-button>Archiver</x-danger-button>
+                    </form>
+                </x-slot:footer>
+            </x-card>
+        @endif
 
     </div>
 

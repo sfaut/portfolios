@@ -31,9 +31,10 @@ Route::controller(AccountController::class)->middleware(['auth'])->group(functio
     Route::get('/portfolio/{portfolio}/account/create', 'create')->name('account.create');
     Route::post('/portfolio/{portfolio}/account', 'store')->name('account.store');
 
-    Route::get('/account/{account}/show', 'show')->name('account.show');
-    Route::get('/account/{account}/edit', 'edit')->name('account.edit');
-    Route::put('/account/{account}', 'update')->name('account.update');
+    Route::get('/account/{account}/show', 'show')->name('account.show')->withTrashed();
+    Route::get('/account/{account}/edit', 'edit')->name('account.edit')->withTrashed();
+    Route::put('/account/{account}', 'update')->name('account.update')->withTrashed();
+    Route::patch('/account/{account}/restore', 'restore')->name('account.restore')->withTrashed();
     Route::delete('/account/{account}', 'destroy')->name('account.destroy');
 });
 

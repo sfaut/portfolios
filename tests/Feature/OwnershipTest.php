@@ -37,6 +37,7 @@ test('users cannot reach the data of another user', function (string $method, st
     ['get', 'account.show', 'account'],
     ['get', 'account.edit', 'account'],
     ['put', 'account.update', 'account'],
+    ['patch', 'account.restore', 'account'],
     ['delete', 'account.destroy', 'account'],
     ['get', 'operation.create', 'account'],
     ['post', 'operation.store', 'account'],

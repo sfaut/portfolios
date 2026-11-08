@@ -30,8 +30,13 @@ class Operation extends Model
         static::addGlobalScope(new AuthUserParentScope('account'));
     }
 
+    /**
+     * Compte de l'opération, archivé ou non.
+     *
+     * @return BelongsTo<Account, $this>
+     */
     public function account(): BelongsTo
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo(Account::class)->withTrashed();
     }
 }
