@@ -52,8 +52,16 @@
             <span
                 x-text="display || placeholder"
                 x-bind:class="{ 'text-gray-400 dark:text-gray-500': display === '' }"
-                @class(['truncate', 'text-gray-400 dark:text-gray-500' => $triggerLabel === ''])
+                @class(['grow', 'truncate', 'text-gray-400 dark:text-gray-500' => $triggerLabel === ''])
             >{{ $triggerLabel !== '' ? $triggerLabel : $placeholder }}</span>
+            <span
+                x-show="empty"
+                @style(['display: none' => $triggerLabel !== ''])
+                class="flex shrink-0 items-center pr-2 text-gray-400 dark:text-gray-500"
+                aria-hidden="true"
+            >
+                <x-lucide-chevron-down class="size-4"/>
+            </span>
         </button>
 
         <button
@@ -66,14 +74,6 @@
         >
             <x-lucide-x class="size-4" aria-hidden="true"/>
         </button>
-        <span
-            x-show="empty"
-            @style(['display: none' => $triggerLabel !== ''])
-            class="pointer-events-none flex shrink-0 items-center px-3 text-gray-400 dark:text-gray-500"
-            aria-hidden="true"
-        >
-            <x-lucide-chevron-down class="size-4"/>
-        </span>
     </div>
 
     <div
