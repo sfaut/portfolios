@@ -76,7 +76,7 @@
                         x-on:input="loading = true"
                         x-on:input.debounce.300ms="refresh()"
                         x-on:keydown.escape.prevent="clear()"
-                        class="w-full px-9 [&::-webkit-search-cancel-button]:hidden"
+                        class="w-full px-9 text-sm [&::-webkit-search-cancel-button]:hidden"
                     />
                     <button
                         type="button"
@@ -98,6 +98,7 @@
                         label="Mois d'opération"
                         placeholder="Tous les mois"
                         x-model="month"
+                        class="text-sm"
                     />
                 @endif
                 <span
