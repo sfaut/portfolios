@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Scopes\AuthUserParentScope;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * Axe analytique d'un portfolio, entre lesquels se répartit le montant d'une opération.
+ *
+ * L'archivage passe par SoftDeletes : un axe archivé ne se choisit plus pour une nouvelle ligne,
+ * mais reste affiché sur les opérations qui l'utilisent.
+ */
+class AnalyticAxis extends Model
+{
+    use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    protected $table = 'analytic_axes';
+
+    /**
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
+    /**
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'description',
+        'portfolio_id',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $attributes = [
+        'description' => '',
+    ];
+
+    /**
+     * Restreint les axes à ceux des portfolios de l'utilisateur connecté.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AuthUserParentScope('portfolio'));
+    }
+
+    /**
+     * Portfolio de l'axe.
+     *
+     * @return BelongsTo<Portfolio, $this>
+     */
+    public function portfolio(): BelongsTo
+    {
+        return $this->belongsTo(Portfolio::class);
+    }
+
+    /**
+     * Lignes analytiques des opérations réparties sur l'axe.
+     *
+     * @return HasMany<AnalyticLine, $this>
+     */
+    public function analyticLines(): HasMany
+    {
+        return $this->hasMany(AnalyticLine::class);
+    }
+}
