@@ -2,14 +2,13 @@
     'disabled' => false,
 ])
 
+{{-- The type defaults to "text"; a type given by the caller replaces it. --}}
 <input
-
-    type="text"
 
     @disabled($disabled)
 
     {{
-        $attributes->class([
+        $attributes->merge(['type' => 'text'])->class([
             'border-gray-300',
             'dark:border-gray-700',
             'rounded-md',
