@@ -18,9 +18,12 @@
             @include('account.partials.form', [
                 'action' => route('account.update', $account),
                 'method' => 'put',
-                'button' => 'Modifier',
-                'abort' => route('account.show', $account),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="account-form">Modifier</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
         <x-card danger>
@@ -30,20 +33,20 @@
                 Le compte et ses opérations pourront être désarchivés.
             </x-slot:description>
 
-            <form
-                method="post"
-                action="{{ route('account.destroy', $account) }}"
-                onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
-                class="flex items-center gap-6"
-            >
-                @method('delete')
-                @csrf
+            <x-slot:footer>
+                <form
+                    method="post"
+                    action="{{ route('account.destroy', $account) }}"
+                    onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
+                    class="flex items-center gap-6"
+                >
+                    @method('delete')
+                    @csrf
 
-                <x-danger-button>
-                    Archiver
-                </x-danger-button>
-                <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-            </form>
+                    <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                    <x-danger-button>Archiver</x-danger-button>
+                </form>
+            </x-slot:footer>
         </x-card>
 
     </div>

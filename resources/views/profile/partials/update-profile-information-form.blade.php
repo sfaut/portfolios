@@ -6,7 +6,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="flex flex-col gap-6">
+    <form id="update-profile-information-form" method="post" action="{{ route('profile.update') }}" class="flex flex-col gap-6">
         @method('patch')
         @csrf
 
@@ -62,19 +62,19 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-6">
-
-            <x-primary-button>Sauvegarder</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm"
-                >Sauvegardé</p>
-            @endif
-        </div>
     </form>
+
+    <x-slot:footer>
+        @if (session('status') === 'profile-updated')
+            <p
+                x-data="{ show: true }"
+                x-show="show"
+                x-transition
+                x-init="setTimeout(() => show = false, 2000)"
+                class="text-sm"
+            >Sauvegardé</p>
+        @endif
+
+        <x-primary-button form="update-profile-information-form">Sauvegarder</x-primary-button>
+    </x-slot:footer>
 </x-card>

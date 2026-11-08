@@ -20,9 +20,12 @@
             @include('operation.partials.form', [
                 'action' => route('operation.update', $operation),
                 'method' => 'put',
-                'button' => 'Modifier',
-                'abort' => route('account.show', $operation->account),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="operation-form">Modifier</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
         <x-card danger>
@@ -31,15 +34,15 @@
                 La suppression de l'opération est définitive et irréversible.
             </x-slot:description>
 
-            <form method="post" action="{{ route('operation.destroy', $operation) }}" class="flex items-center gap-6">
-                @method('delete')
-                @csrf
+            <x-slot:footer>
+                <form method="post" action="{{ route('operation.destroy', $operation) }}" class="flex items-center gap-6">
+                    @method('delete')
+                    @csrf
 
-                <x-danger-button>
-                    Supprimer
-                </x-danger-button>
-                <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-            </form>
+                    <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                    <x-danger-button>Supprimer</x-danger-button>
+                </form>
+            </x-slot:footer>
         </x-card>
 
     </div>

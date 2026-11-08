@@ -3,23 +3,28 @@
 ])
 
 {{--
-    Card of the pages: a surface whose children are spaced by gap, never by margins.
-    The optional "title" and "description" slots make its header; "danger" adds a red ring.
+    Card of the pages, in three sections separated by rules: a header (optional "title" and
+    "description" slots), a body (the default slot, left out when empty) and a footer (optional
+    "footer" slot, for the actions). A button of the footer reaches a form of the body through
+    its "form" attribute. "danger" adds a red ring and a red title.
 --}}
 <section
     {{
         $attributes->class([
-            'flex', 'flex-col', 'gap-6',
-            'rounded-md', 'bg-white', 'dark:bg-gray-800',
-            'p-6', 'shadow-sm',
+            'flex', 'flex-col', 'overflow-hidden',
+            'divide-y', 'divide-gray-200', 'dark:divide-gray-700',
+            'rounded-md', 'bg-white', 'dark:bg-gray-800', 'shadow-sm',
             'ring-2 ring-red-800 dark:ring-red-600' => $danger,
         ])
     }}
 >
     @if (isset($title) || isset($description))
-        <header class="flex flex-col gap-1">
+        <header class="flex flex-col gap-1 px-6 py-5">
             @isset($title)
-                <h2 class="text-lg font-semibold">{{ $title }}</h2>
+                <h2 @class([
+                    'text-lg', 'font-semibold',
+                    'text-red-800 dark:text-red-400' => $danger,
+                ])>{{ $title }}</h2>
             @endisset
 
             @isset($description)
@@ -28,5 +33,23 @@
         </header>
     @endif
 
-    {{ $slot }}
+    @if ($slot->hasActualContent())
+        <div class="flex flex-col gap-6 p-6">
+            {{ $slot }}
+        </div>
+    @endif
+
+    @isset($footer)
+        <footer
+            {{
+                $footer->attributes->class([
+                    'flex', 'flex-wrap', 'items-center', 'justify-end', 'gap-6',
+                    'bg-gray-50', 'dark:bg-gray-900/40',
+                    'px-6', 'py-4',
+                ])
+            }}
+        >
+            {{ $footer }}
+        </footer>
+    @endisset
 </section>

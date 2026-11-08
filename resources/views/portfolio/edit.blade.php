@@ -16,9 +16,12 @@
             @include('portfolio.partials.form', [
                 'action' => route('portfolio.update', $portfolio),
                 'method' => 'put',
-                'button' => 'Modifier',
-                'abort' => route('portfolio.show', $portfolio),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="portfolio-form">Modifier</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
         <x-card danger>
@@ -29,15 +32,15 @@
                 Le portfolio pourra toujours être désarchvé et de nouveau consulté.
             </x-slot:description>
 
-            <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}" class="flex items-center gap-6">
-                @method('delete')
-                @csrf
+            <x-slot:footer>
+                <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}" class="flex items-center gap-6">
+                    @method('delete')
+                    @csrf
 
-                <x-danger-button>
-                    Archiver
-                </x-danger-button>
-                <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-            </form>
+                    <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                    <x-danger-button>Archiver</x-danger-button>
+                </form>
+            </x-slot:footer>
         </x-card>
 
     </div>

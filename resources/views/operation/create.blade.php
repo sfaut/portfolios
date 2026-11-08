@@ -20,9 +20,12 @@
             @include('operation.partials.form', [
                 'action' => route('operation.store', $account),
                 'method' => 'post',
-                'button' => 'Enregistrer',
-                'abort' => route('account.show', $account),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="operation-form">Enregistrer</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
     </div>

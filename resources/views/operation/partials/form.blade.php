@@ -1,4 +1,5 @@
 <form
+    id="operation-form"
     method="post"
     action="{{ $action }}"
     class="flex flex-col gap-6"
@@ -24,10 +25,5 @@
         <x-input-label for="delivery_at" value="Date effective"/>
         <x-text-input type="date" id="delivery_at" name="delivery_at" class="w-full" :value="old('delivery_at', $operation->delivery_at ?? date('Y-m-d'))"/>
         <x-input-error :messages="$errors->get('delivery_at')"/>
-    </div>
-
-    <div class="flex items-center gap-6">
-        <x-primary-button>{{ $button }}</x-primary-button>
-        <a href="{{ $abort }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
     </div>
 </form>
