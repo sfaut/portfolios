@@ -156,15 +156,23 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ### HTTP et vues
 
-- Toutes les routes métier sont dans `routes/web.php`, sous le middleware `auth` ; `routes/auth.php`
-  (Breeze) y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
+- Toutes les routes métier sont dans `routes/web.php`, sous les middlewares `auth` et `verified` ;
+  `routes/auth.php` (Breeze) y est inclus. `User` implémente `MustVerifyEmail` : l'inscription envoie un
+  lien de vérification, et une adresse non vérifiée mène à la page `verification.notice`. Le profil
+  reste hors de `verified`, pour corriger une adresse mal saisie ; une nouvelle adresse y perd sa
+  vérification et reçoit un lien. Il passe en revanche par `password.confirm` : le mot de passe est
+  redemandé au-delà de trois heures (`auth.password_timeout`), et un test du profil pose
+  `auth.password_confirmed_at` dans la session. L'envoi des mails d'auth est synchrone : `MAIL_FROM_ADDRESS` doit
+  être renseignée, sans quoi l'inscription répond 500 (`phpunit.xml` en fixe une pour les tests). Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
   Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`, liée depuis
   `portfolio/show`), faute de page parent qui l'accueille ; `edit`, `update` et `restore` portent
   `->withTrashed()`, comme pour les comptes. La page d'accueil après
   connexion est `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
-  La suppression de compte utilisateur (`ProfileController::destroy()`) est désactivée et répond 501.
+  La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
+  supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
+  comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.

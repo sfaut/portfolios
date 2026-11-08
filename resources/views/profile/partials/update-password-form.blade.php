@@ -1,3 +1,8 @@
+{{--
+    Changement du mot de passe, après saisie du mot de passe actuel (PasswordController).
+
+    @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation, dans le sac updatePassword.
+--}}
 <x-card>
     <x-slot:title>Modification du mot de passe</x-slot:title>
     <x-slot:description>Sécurisez votre compte avec un mot de passe long et difficile à retrouver.</x-slot:description>

@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * Profil de l'utilisateur connecté : informations, mot de passe (PasswordController) et suppression du
+ * compte, derrière la confirmation du mot de passe (middleware `password.confirm`).
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Affiche le profil.
+     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -18,36 +25,51 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Enregistre le profil ; une nouvelle adresse perd sa vérification et reçoit un lien pour la retrouver.
+     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($request->validated());
+
+        $email_changed = $user->isDirty('email');
+
+        if ($email_changed) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        if ($email_changed) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    /**
+     * Supprime le compte de l'utilisateur, après vérification de son mot de passe, puis le déconnecte.
+     *
+     * Les clefs étrangères en cascade suppriment avec lui ses portfolios, comptes, opérations et axes
+     * analytiques, archivés compris.
+     */
     public function destroy(Request $request): RedirectResponse
     {
-        abort(501);
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
 
-        // $request->validateWithBag('userDeletion', [
-        //     'password' => ['required', 'current_password'],
-        // ]);
+        $user = $request->user();
 
-        // $user = $request->user();
+        Auth::logout();
 
-        // Auth::logout();
+        $user->delete();
 
-        // $user->delete();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        // $request->session()->invalidate();
-        // $request->session()->regenerateToken();
-
-        // return Redirect::to('/');
+        return Redirect::to('/');
     }
 }

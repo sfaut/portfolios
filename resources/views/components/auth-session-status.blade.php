@@ -1,3 +1,9 @@
+{{--
+    Message de réussite des pages d'auth (lien envoyé, mot de passe réinitialisé…), omis s'il est vide.
+
+    @var string|null $status Message à afficher, lu dans la clef de session status.
+    @var \Illuminate\View\ComponentAttributeBag $attributes Attributs du bloc.
+--}}
 @props(['status'])
 
 @if ($status)

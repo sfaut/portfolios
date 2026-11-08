@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Confirmation du mot de passe, demandée par le middleware `password.confirm` (pages du profil).
+ */
 class ConfirmablePasswordController extends Controller
 {
     /**
-     * Show the confirm password view.
+     * Affiche le formulaire de confirmation du mot de passe.
      */
     public function show(): View
     {
@@ -20,7 +23,9 @@ class ConfirmablePasswordController extends Controller
     }
 
     /**
-     * Confirm the user's password.
+     * Vérifie le mot de passe, note l'heure de la confirmation, puis rouvre la page demandée.
+     *
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {

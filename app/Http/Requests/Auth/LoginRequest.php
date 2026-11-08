@@ -9,13 +9,24 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Demande de connexion, limitée à cinq échecs par adresse et par IP.
+ */
 class LoginRequest extends FormRequest
 {
+    /**
+     * Ouvre la connexion à tous : seuls les invités atteignent la route (middleware `guest`).
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Noms des champs dans les messages d'erreur.
+     *
+     * @return array<string, string>
+     */
     public function attributes(): array
     {
         return [
@@ -24,6 +35,11 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    /**
+     * Règles de validation des champs.
+     *
+     * @return array<string, list<string>>
+     */
     public function rules(): array
     {
         return [
@@ -32,6 +48,11 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    /**
+     * Connecte l'utilisateur ; un échec compte pour la limite, un succès la remet à zéro.
+     *
+     * @throws ValidationException
+     */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -47,6 +68,11 @@ class LoginRequest extends FormRequest
         RateLimiter::clear($this->throttleKey());
     }
 
+    /**
+     * Refuse la connexion après cinq échecs, même avec le bon mot de passe, le temps que la limite expire.
+     *
+     * @throws ValidationException
+     */
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -66,7 +92,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Clef de la limite : adresse saisie, en minuscules et translittérée, et IP du client.
      */
     public function throttleKey(): string
     {

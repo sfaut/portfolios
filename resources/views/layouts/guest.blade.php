@@ -1,3 +1,9 @@
+{{--
+    Mise en page invité (connexion, inscription, mot de passe, vérification, pages d'erreur) : logo,
+    titre, puis le contenu dans une carte.
+
+    @var \Illuminate\View\ComponentSlot $slot Contenu de la carte.
+--}}
 <x-empty-layout>
 
     <div @class([

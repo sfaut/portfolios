@@ -1,3 +1,8 @@
+{{--
+    Suppression du compte et de toutes ses données, confirmée dans une boîte par le mot de passe.
+
+    @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation, dans le sac userDeletion.
+--}}
 <x-card danger>
     <x-slot:title>Suppression de compte</x-slot:title>
     <x-slot:description>
@@ -28,6 +33,7 @@
             id="password"
             name="password"
             type="password"
+            autocomplete="current-password"
             class="w-3/4"
             placeholder="Mot de passe"
         />

@@ -53,7 +53,9 @@ test('the destructive actions are confirmed in a dialog', function (string $rout
         'profile.edit' => [],
     ][$route];
 
-    $response = $this->actingAs($user)->get(route($route, $parameters));
+    $response = $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->get(route($route, $parameters));
 
     $response->assertOk()
         ->assertSeeInOrder([

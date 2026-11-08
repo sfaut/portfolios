@@ -1,6 +1,33 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+
+beforeEach(function () {
+    $this->withSession(['auth.password_confirmed_at' => time()]);
+});
+
+test('the profile asks to confirm the password first', function () {
+    $this->flushSession();
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/profile');
+
+    $response->assertRedirect(route('password.confirm'));
+});
+
+test('the profile opens once the password is confirmed', function () {
+    $this->flushSession();
+    $user = User::factory()->create();
+    $this->actingAs($user)->get('/profile');
+
+    $response = $this->post(route('password.confirm'), ['password' => 'password']);
+
+    $response->assertRedirect('/profile');
+    $this->get('/profile')->assertOk();
+});
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -35,7 +62,21 @@ test('profile information can be updated', function () {
     $this->assertNull($user->email_verified_at);
 });
 
+test('a new email address receives a verification link', function () {
+    Notification::fake();
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->patch('/profile', [
+        'last_name' => 'User',
+        'first_name' => 'Test',
+        'email' => 'nouvelle@example.com',
+    ]);
+
+    Notification::assertSentTo($user, VerifyEmail::class, fn ($notification, $channels, $notifiable) => $notifiable->email === 'nouvelle@example.com');
+});
+
 test('email verification status is unchanged when the email address is unchanged', function () {
+    Notification::fake();
     $user = User::factory()->create();
 
     $response = $this
@@ -51,6 +92,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->assertRedirect('/profile');
 
     $this->assertNotNull($user->refresh()->email_verified_at);
+    Notification::assertNothingSent();
 });
 
 test('users cannot make themselves administrator', function () {
@@ -72,8 +114,12 @@ test('users cannot make themselves administrator', function () {
     expect($user->refresh()->is_admin)->toBeFalse();
 });
 
-test('account deletion is disabled', function () {
+test('users can delete their account, with all their data', function () {
+    Mail::fake();
     $user = User::factory()->create();
+    $user->portfolios()->create(['name' => 'Portfolio'])
+        ->accounts()->create(['name' => 'Compte'])
+        ->operations()->create(['label' => 'Opération', 'amount' => '10.00', 'delivery_at' => '2026-01-15']);
 
     $response = $this
         ->actingAs($user)
@@ -81,7 +127,30 @@ test('account deletion is disabled', function () {
             'password' => 'password',
         ]);
 
-    $response->assertStatus(501);
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/');
 
-    $this->assertNotNull($user->fresh());
+    $this->assertGuest();
+    $this->assertModelMissing($user);
+    $this->assertDatabaseEmpty('portfolios');
+    $this->assertDatabaseEmpty('accounts');
+    $this->assertDatabaseEmpty('operations');
+});
+
+test('the correct password must be provided to delete the account', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->from('/profile')
+        ->delete('/profile', [
+            'password' => 'wrong-password',
+        ]);
+
+    $response
+        ->assertSessionHasErrorsIn('userDeletion', 'password')
+        ->assertRedirect('/profile');
+
+    $this->assertModelExists($user);
 });

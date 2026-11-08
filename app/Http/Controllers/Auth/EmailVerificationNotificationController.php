@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Nouvel envoi du lien de vérification de l'adresse.
+ */
 class EmailVerificationNotificationController extends Controller
 {
     /**
-     * Send a new email verification notification.
+     * Envoie un nouveau lien de vérification, sauf à une adresse déjà vérifiée.
      */
     public function store(Request $request): RedirectResponse
     {
