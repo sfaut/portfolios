@@ -62,8 +62,9 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   `boost:update` : ne pas les modifier à la main. Les directives générales et le reste de ce fichier
   priment sur elles, par exemple pour les propriétés promues (une par ligne), la longueur des colonnes
   `string`, le `RefreshDatabase` de `tests/Pest.php` ou le contrôle par `pint --test`.
-- Boost repère ses consignes par leur balise ouvrante : ce texte ne doit jamais la citer, sous peine que
-  `boost:update` remplace tout ce qui la suit.
+- Boost encadre ses consignes par la balise `laravel-boost-guidelines`, ouvrante et fermante, et
+  `boost:update` remplace tout ce qui va de la première balise ouvrante à la première fermante. Ce texte
+  n'écrit donc jamais la balise ouvrante avec ses chevrons : Boost y verrait le début de son bloc.
 
 ## Architecture
 
