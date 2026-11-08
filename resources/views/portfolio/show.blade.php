@@ -5,7 +5,7 @@
                 <h2 class="text-xl font-semibold">
                     Portfolio <span class="text-indigo-700 dark:text-indigo-400">{{ $portfolio->name }}</span>
                 </h2>
-                <div class="text-sm text-gray-400">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
                     {{ count($portfolio->accounts) }}
                     {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
                     {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
@@ -36,7 +36,7 @@
 
                     @class([
                         'border', 'border-gray-200', 'dark:border-gray-700',
-                        'grid', 'grid-cols-[1fr_min-content]', 'gap-2',
+                        'group', 'grid', 'grid-cols-[1fr_min-content]', 'gap-2',
                         'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'p-4',
                         'rounded-md',
                         'hover:bg-indigo-700', 'hover:text-white',
@@ -47,7 +47,7 @@
                 >
                     <div class="truncate">
                         <div class="font-semibold truncate">{{ $account->name }}</div>
-                        <div class="text-xs text-gray-400">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-200">
                             @if ($account->operation_last_at !== null)
                                 {{ optional($account->operation_first_at)->format('d/m/Y') }}
                                 ~

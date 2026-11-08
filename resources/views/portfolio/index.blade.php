@@ -4,7 +4,7 @@
             <h2 class="text-xl font-semibold">
                 Portfolios
             </h2>
-            <div class="text-sm text-gray-400">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ count($portfolios) }}
                 {{ Str::of('portfolio')->plural(count($portfolios)) }}
                 {{ Str::of('enregistré')->plural(count($portfolios)) }}
@@ -26,7 +26,7 @@
                 href="{{ route('portfolio.show', $portfolio) }}"
 
                 @class([
-                    'flex', 'items-center', 'justify-between', 'gap-4',
+                    'group', 'flex', 'items-center', 'justify-between', 'gap-4',
                     'rounded-md', 'bg-white', 'dark:bg-gray-800', 'p-4', 'shadow-sm',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'hover:scale-102',
@@ -34,7 +34,7 @@
             >
                 <div>
                     <h3 class="text-xl font-semibold">{{ $portfolio->name }}</h3>
-                    <p class="text-sm text-gray-400">{{ trim($portfolio->description) ?? '--' }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-indigo-200">{{ filled($portfolio->description) ? $portfolio->description : '--' }}</p>
                 </div>
 
                 <svg class="shrink-0" preserveAspectRatio="none" width="40" height="40" viewBox="0 0 10 10">

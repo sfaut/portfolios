@@ -1,6 +1,6 @@
 <x-guest-layout>
 
-    <div class="text-sm text-gray-400">
+    <div class="text-sm text-gray-500 dark:text-gray-400">
         Vous avez oublié votre mot de passe ? Pas de problèmes.
         Renseignez votre adresse e-mail et nous vous transmettrons par e-mail un lien
         de réinitialisation qui vous permettra d'en choisir un nouveau.

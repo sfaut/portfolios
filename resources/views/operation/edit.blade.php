@@ -1,17 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div>
-                <h2 class="text-xl font-semibold">Modification de l'opération <span class="text-indigo-700 dark:text-indigo-400">{{ $operation->id }}</span></h2>
-                <div class="text-sm text-gray-400">
-                    ➜ Portfolio
-                    <a href="{{ route('portfolio.show', $operation->account->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $operation->account->portfolio->name }}</a>
-                    ➜ Compte
-                    <a href="{{ route('account.show', $operation->account->id) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $operation->account->name }}</a>
-                </div>
-            </div>
-            <div class="text-sm flex text-indigo-300 hover:text-indigo-700 dark:text-indigo-500 dark:hover:text-indigo-300 transition-colors ease-linear delay-100">
-                <a href="{{ route('account.show', $operation->account_id) }}" class="px-2 underline hover:no-underline">Annuler</a>
+        <div>
+            <h2 class="text-xl font-semibold">Modification de l'opération <span class="text-indigo-700 dark:text-indigo-400">{{ $operation->id }}</span></h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                ➜ Portfolio
+                <a href="{{ route('portfolio.show', $operation->account->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $operation->account->portfolio->name }}</a>
+                ➜ Compte
+                <a href="{{ route('account.show', $operation->account->id) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $operation->account->name }}</a>
             </div>
         </div>
     </x-slot>
