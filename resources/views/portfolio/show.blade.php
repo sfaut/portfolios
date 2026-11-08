@@ -55,10 +55,24 @@
         </div>
 
         @if ($archived_accounts->isNotEmpty())
-            <section class="flex flex-col gap-4">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Comptes archivés</h3>
+            <section x-data="{ open: false }" class="flex flex-col gap-4">
+                <h3>
+                    <button
+                        type="button"
+                        x-on:click="open = ! open"
+                        x-bind:aria-expanded="open"
+                        aria-controls="archived-accounts"
+                        class="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400"
+                    >
+                        <svg x-bind:class="open && 'rotate-90'" class="size-4 transition-transform duration-200" viewBox="0 0 10 10" aria-hidden="true">
+                            <polyline points="3,1 7,5 3,9" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                        </svg>
+                        Comptes archivés
+                        <span class="rounded-full bg-gray-200 dark:bg-gray-700 px-2 text-sm text-gray-600 dark:text-gray-300">{{ $archived_accounts->count() }}</span>
+                    </button>
+                </h3>
 
-                <div class="grid gap-6 grid-cols-3">
+                <div id="archived-accounts" x-show="open" style="display: none" class="grid gap-6 grid-cols-3">
                     @foreach ($archived_accounts as $account)
                         @include('account.partials.card', ['account' => $account])
                     @endforeach

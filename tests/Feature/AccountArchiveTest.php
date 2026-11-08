@@ -24,7 +24,7 @@ test('archived accounts are listed in their own section of the portfolio', funct
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', $this->portfolio));
 
     $response->assertOk()
-        ->assertSeeInOrder(['Compte courant', 'Créer un compte', 'Comptes archivés', 'Livret clos']);
+        ->assertSeeInOrder(['Compte courant', 'Créer un compte', 'Comptes archivés', '>1</span>', 'Livret clos'], escape: false);
 });
 
 test('the archived accounts section is hidden without archived account', function () {
