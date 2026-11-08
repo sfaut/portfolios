@@ -130,10 +130,16 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
 - Les classes suivent les consignes Tailwind 4 de Boost : toute bordure porte sa couleur (clair et
   sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
   classe inexistante ni redondante.
-- Le mode sombre suit le réglage du système : variante `dark:` par défaut de Tailwind
-  (`prefers-color-scheme`), et `scheme-light-dark` sur `<html>` pour les contrôles natifs. Toute vue
-  nouvelle ou modifiée porte ses variantes `dark:`, sur la palette en place : fond de page `gray-900`,
-  surfaces `gray-800`, en-têtes de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
+- Thème clair / sombre / système, choisi dans le menu utilisateur (store Alpine `theme`,
+  `resources/js/theme.js`) et gardé par navigateur dans le `localStorage` (clef `theme`, absente pour
+  « système »). Le choix devient la classe `light` ou `dark` de `<html>`, posée avant le premier rendu
+  par le script en ligne de `layouts/empty`. `resources/css/app.css` redéfinit la variante `dark:`
+  (`@custom-variant`) : la classe `dark` l'active, la classe `light` l'écarte, et sans classe le système
+  décide (`prefers-color-scheme`) ; chaque règle `dark:` sort donc en double dans le CSS. `<html>` porte
+  `scheme-light dark:scheme-dark` pour les contrôles natifs. Les pages d'erreur
+  (`resources/views/errors`, CSS en ligne) suivent le système seul. Toute vue nouvelle ou modifiée
+  porte ses variantes `dark:`, sur la palette en place : fond de page `gray-900`, surfaces `gray-800`,
+  en-têtes de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
 
 ### Mails
 

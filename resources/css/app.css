@@ -3,6 +3,23 @@
 @plugin '@tailwindcss/forms';
 
 /*
+  Dark mode, chosen in the user menu (resources/js/theme.js): the "dark" class
+  on <html> forces it, the "light" class rules it out, and without either class
+  the operating system decides.
+*/
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:not(.light, .light *)) {
+      @slot;
+    }
+  }
+}
+
+/*
   Semantic colors, aliases of the Tailwind palette.
 */
 @theme inline {
