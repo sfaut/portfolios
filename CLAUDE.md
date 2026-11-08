@@ -86,6 +86,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   utilisateur (404) et dans celui des invités (redirection vers la connexion). Il vérifie aussi qu'une
   clef inattendue du formulaire (`user_id`, `portfolio_id`, `account_id`) ne déplace aucune donnée
   chez un autre utilisateur.
+- `tests/Feature/EscapingTest.php` vérifie l'échappement des saisies (noms, descriptions, libellés,
+  recherche) dans les pages, les messages flash et les mails : une nouvelle page qui affiche une saisie
+  s'y ajoute.
 
 ## Conventions
 
