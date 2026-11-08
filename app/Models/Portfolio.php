@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class Portfolio extends Model
 {
@@ -68,5 +70,25 @@ class Portfolio extends Model
     public function operations(): HasManyThrough
     {
         return $this->hasManyThrough(Operation::class, Account::class);
+    }
+
+    /**
+     * Mois où les comptes du portfolio, archivés compris, ont au moins une opération (date
+     * effective), du plus récent au plus ancien.
+     *
+     * @return array<string, string> Libellé de chaque mois (« Novembre 2026 »), par clef « 2026-11 ».
+     */
+    public function operationMonths(): array
+    {
+        return Operation::query()
+            ->whereIn('account_id', $this->accounts()->withTrashed()->select('id'))
+            ->selectRaw("DATE_FORMAT(delivery_at, '%Y-%m') AS month")
+            ->distinct()
+            ->orderByDesc('month')
+            ->pluck('month')
+            ->mapWithKeys(fn (string $month): array => [
+                $month => Str::ucfirst(Carbon::createFromFormat('!Y-m', $month)->translatedFormat('F Y')),
+            ])
+            ->all();
     }
 }

@@ -1,14 +1,17 @@
 /**
- * Search of the accounts of a portfolio by name (portfolio/show.blade.php).
+ * Filters of the accounts of a portfolio (portfolio/show.blade.php): search by name, and month
+ * in which the account has at least one operation.
  *
- * Typing shows the spinner at once and, after a short pause, fetches the page with the search
- * from the server, which answers ajax requests with the "accounts" fragment alone. The fragment
- * replaces the results ($refs.results), and its summary ([data-summary]) goes to the status next
- * to the field ($refs.summary). The search is kept in the URL, so that a reload shows it again.
+ * Typing shows the spinner at once and, after a short pause, fetches the page with the filters
+ * from the server; choosing a month fetches it at once. The server answers ajax requests with
+ * the "accounts" fragment alone. The fragment replaces the results ($refs.results), and its summary ([data-summary]) goes to the status next
+ * to the filters ($refs.summary). The filters are kept in the URL, so that a reload shows them
+ * again.
  *
  * @param {string} search Search given by the server, empty without search.
+ * @param {string} month Month given by the server ("2026-11"), empty without month filter.
  */
-export default function accountSearch(search) {
+export default function accountSearch(search, month) {
     /**
      * Controller of the pending request, aborted by a newer search.
      *
@@ -18,23 +21,26 @@ export default function accountSearch(search) {
 
     return {
         search,
+        month,
         loading: false,
         failed: false,
 
         /**
-         * Fetches the accounts matching the search and shows them.
+         * Fetches the accounts matching the filters and shows them.
          */
         async refresh() {
             controller?.abort();
             controller = new AbortController();
 
             const url = new URL(window.location.href);
-            const value = this.search.trim();
+            const filters = { search: this.search.trim(), month: this.month };
 
-            if (value === "") {
-                url.searchParams.delete("search");
-            } else {
-                url.searchParams.set("search", value);
+            for (const [name, value] of Object.entries(filters)) {
+                if (value === "") {
+                    url.searchParams.delete(name);
+                } else {
+                    url.searchParams.set(name, value);
+                }
             }
 
             window.history.replaceState(window.history.state, "", url);
@@ -73,6 +79,15 @@ export default function accountSearch(search) {
             this.search = "";
             this.refresh();
             this.$refs.input.focus();
+        },
+
+        /**
+         * Empties the search and the month, shows all the accounts again and gives the focus back
+         * to the search field.
+         */
+        clearFilters() {
+            this.month = "";
+            this.clear();
         },
     };
 }

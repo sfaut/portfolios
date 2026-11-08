@@ -65,3 +65,67 @@ test('an ajax request receives the accounts fragment alone', function () {
         ->assertDontSee('<html', escape: false)
         ->assertDontSee('Rechercher un compte');
 });
+
+/**
+ * Ajoute une opération au compte du portfolio de test qui porte ce nom, archivé ou non. Les portées
+ * sont levées : hors requête, aucun utilisateur n'est connecté.
+ *
+ * @param  string  $account_name  Nom du compte.
+ * @param  string  $delivery_at  Date effective de l'opération (« 2026-10-31 »).
+ */
+function addOperationTo(string $account_name, string $delivery_at): void
+{
+    test()->portfolio->accounts()->withoutGlobalScopes()->where('name', $account_name)->sole()
+        ->operations()->create(['label' => 'Opération', 'amount' => '10.00', 'delivery_at' => $delivery_at]);
+}
+
+test('the month filter keeps the accounts with an operation in the month, archived ones included', function () {
+    addOperationTo('Compte courant', '2026-10-31');
+    addOperationTo('Livret Épargne', '2026-11-01');
+    addOperationTo('Épargne logement', '2026-10-01');
+
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-10']));
+
+    $response->assertOk()
+        ->assertSeeInOrder(['Compte courant', 'Comptes archivés', 'Épargne logement'])
+        ->assertSee('2 comptes sur 4')
+        ->assertDontSee('Livret Épargne')
+        ->assertDontSee('Remise 100%');
+});
+
+test('the month filter offers the months of the operations, latest first', function () {
+    addOperationTo('Compte courant', '2026-10-31');
+    addOperationTo('Livret Épargne', '2026-11-01');
+    addOperationTo('Épargne logement', '2025-12-24');
+
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-10']));
+
+    $response->assertOk()->assertSeeInOrder([
+        '<option value="">Tous les mois</option>',
+        '<option value="2026-11" >Novembre 2026</option>',
+        '<option value="2026-10" selected>Octobre 2026</option>',
+        '<option value="2025-12" >Décembre 2025</option>',
+    ], escape: false);
+});
+
+test('a month without operation in the portfolio is ignored', function () {
+    addOperationTo('Compte courant', '2026-10-31');
+
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-09']));
+
+    $response->assertOk()
+        ->assertSee('Livret Épargne')
+        ->assertSee('<h3>Créer un compte</h3>', escape: false)
+        ->assertDontSee('sur 4');
+});
+
+test('the search and the month filter add up', function () {
+    addOperationTo('Compte courant', '2026-10-31');
+    addOperationTo('Livret Épargne', '2026-11-01');
+
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'search' => 'livret', 'month' => '2026-10']));
+
+    $response->assertOk()
+        ->assertSee('Aucun compte ne correspond à « livret » avec une opération en octobre 2026.', escape: false)
+        ->assertDontSee('Compte courant');
+});

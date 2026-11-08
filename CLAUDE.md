@@ -164,12 +164,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les opérations d'un compte archivé sont en lecture seule : `operation.create` / `store` lient un compte
   non archivé, et `OperationController` répond 404 sur `edit` / `update` / `destroy`. La relation
   `Operation::account()` inclut les comptes archivés.
-- Recherche des comptes : `portfolio/show` filtre ses comptes, actifs et archivés, sur le nom (paramètre
-  `search`, `whereLike` aux jokers échappés, insensible à la casse et aux accents par la collation).
+- Filtres des comptes : `portfolio/show` filtre ses comptes, actifs et archivés, sur le nom (paramètre
+  `search`, `whereLike` aux jokers échappés, insensible à la casse et aux accents par la collation) et
+  sur le mois (paramètre `month`, « 2026-11 » : comptes ayant au moins une opération dans le mois, par
+  `delivery_at`). Les deux se cumulent. Le mois se choisit dans une liste des mois où le portfolio a des
+  opérations (`Portfolio::operationMonths()`, libellés en français) ; un autre mois est ignoré.
   Le composant Alpine `accountSearch` (`resources/js/account-search.js`) interroge la même route après
-  300 ms de pause, avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
+  300 ms de pause (aussitôt pour le mois), avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
   fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
-  (« 2 comptes sur 14 ») se place à droite du champ, sans changer la hauteur de la barre ; sans
+  (« 2 comptes sur 14 ») se place à droite des filtres, sans changer la hauteur de la barre ; sans
   JavaScript, le formulaire recharge la page filtrée.
 - Répartition analytique du formulaire d'opération : composant Alpine `analyticLines`
   (`resources/js/analytic-lines.js`, enregistré par `Alpine.data()` dans `app.js`), qui ajoute et retire
