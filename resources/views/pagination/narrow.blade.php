@@ -8,7 +8,7 @@
     <nav @class([
         'grid', 'grid-flow-col', 'auto-cols-min',
         'shadow-sm',
-        'divide-x',
+        'divide-x', 'divide-gray-200', 'dark:divide-gray-700',
         'text-xs', 'text-gray-600', 'dark:text-gray-300',
     ])>
 

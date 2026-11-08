@@ -12,7 +12,7 @@
         <p class="mt-1 text-sm text-gray-400">Renseignez les informations du compte.</p>
     </header>
 
-    <form method="post" action="{{ $action }}" class="space-y-6">
+    <form method="post" action="{{ $action }}" class="flex flex-col gap-6">
 
         @method($method)
         @csrf

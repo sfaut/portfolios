@@ -14,7 +14,7 @@
     <form
         method="post"
         action="{{ $action }}"
-        class="space-y-6"
+        class="flex flex-col gap-6"
     >
 
         @method($method)
@@ -33,7 +33,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('amount')"/>
         </div>
 
-        <div class="separated-y-2">
+        <div>
             <x-input-label for="delivery_at" value="Date effective"/>
             <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="mt-1 rounded-md w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
             <x-input-error class="mt-2" :messages="$errors->get('delivery_at')"/>

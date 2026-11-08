@@ -35,9 +35,9 @@
                 href="{{ route('account.show', ['account' => $account]) }}"
 
                 @class([
-                    'border',
+                    'border', 'border-gray-200', 'dark:border-gray-700',
                     'grid', 'grid-cols-[1fr_min-content]',
-                    'block', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'p-4',
+                    'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'p-4',
                     'rounded-md',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',

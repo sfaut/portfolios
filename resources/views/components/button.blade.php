@@ -8,7 +8,7 @@
         $attributes->class([
             'rounded-md',
             'leading-none',
-            'bg-indigo-800', 'dark:bg-indigo-600', 'text-white', 'text-uppercase', 'font-medium', 'uppercase',
+            'bg-indigo-800', 'dark:bg-indigo-600', 'text-white', 'font-medium', 'uppercase',
             'tracking-wider',
 
             'px-2' => ($size === 'tiny'),

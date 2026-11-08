@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="---text-[16px] tracking-wide scheme-light-dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="tracking-wide scheme-light-dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">

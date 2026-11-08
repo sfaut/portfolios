@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div class="max-w-2xl mx-auto space-y-6 pb-6">
+    <div class="max-w-2xl mx-auto flex flex-col gap-6 pb-6">
 
         @foreach($portfolios as $portfolio)
 
@@ -28,7 +28,7 @@
                 href="{{ route('portfolio.show', $portfolio) }}"
 
                 @class([
-                    'block', 'flex', 'rounded-md',
+                    'flex', 'rounded-md',
                     'bg-white', 'dark:bg-gray-800', 'p-4', 'shadow-sm',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'hover:scale-102',

@@ -38,7 +38,6 @@
         <form
             method="post"
             action="{{ route('account.destroy', $account) }}"
-            class="space-y-6"
             onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
         >
             @method('delete')

@@ -36,7 +36,7 @@
                 La suppression de l'opération est définitive et irréversible.
             </p>
         </header>
-        <form method="post" action="{{ route('operation.destroy', $operation) }}" class="space-y-6">
+        <form method="post" action="{{ route('operation.destroy', $operation) }}">
             @method('delete')
             @csrf
 

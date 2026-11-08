@@ -23,8 +23,8 @@
         {{ $operations->links('pagination.narrow') }}
     </div>
 
-    <div class="max-w-6xl mx-auto rounded-lg shadow-sm mt-6 mb-6 -overflow-hidden">
-        <table class="w-full">
+    <div class="max-w-6xl mx-auto rounded-lg shadow-sm mt-6 mb-6">
+        <table class="w-full **:border-gray-200 dark:**:border-gray-700">
             <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                 <tr>
                     <th class="border px-3 py-2">ID</th>

@@ -11,7 +11,7 @@
                     </a>
                 </div>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden gap-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('portfolio.index')" :active="request()->routeIs(['portfolio.*', 'account.*', 'operation.*'])">
                         Portfolios
                     </x-nav-link>
@@ -24,7 +24,7 @@
                     <x-slot name="trigger">
                         <button
                             @class([
-                                'flex', 'inline-flex', 'items-center',
+                                'inline-flex', 'items-center',
                                 'rounded-md', 'bg-white', 'dark:bg-gray-800',
                                 'px-3', 'py-2',
                                 'text-sm', 'leading-4', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300',

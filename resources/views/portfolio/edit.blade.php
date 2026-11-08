@@ -7,7 +7,7 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-xl mx-auto space-y-6 pb-6">
+    <div class="max-w-xl mx-auto flex flex-col gap-6 pb-6">
 
         <div class="shadow-sm rounded-md p-6 bg-white dark:bg-gray-800">
             <header>
@@ -33,7 +33,7 @@
                 </p>
             </header>
 
-            <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}" class="space-y-6">
+            <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}">
                 @method('delete')
                 @csrf
 
