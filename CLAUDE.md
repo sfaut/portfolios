@@ -157,8 +157,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
-  composants sont surtout anonymes (`resources/views/components`, dont `x-alert type="…"`,
-  `x-link.primary` / `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs).
+  composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
+  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). `x-alert type="…"`
+  (`info` par défaut, `success`, `warning`, `danger`) tient de sa classe `App\View\Components\Alert` ses
+  couleurs, son icône Lucide et son rôle ARIA (`alert` pour `danger`, `status` sinon) ; il garde les
+  retours à la ligne du message, sans ses blancs de début et de fin.
   Toute infobulle passe par `<x-tooltip>` (slot par défaut : déclencheur, slot `content` : contenu),
   sans attribut `title` : popover manuel ouvert par Alpine au survol et au focus, dans la couche
   supérieure (il échappe à un parent en `overflow-hidden`), placé par le positionnement d'ancre CSS
