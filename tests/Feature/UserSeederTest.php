@@ -22,6 +22,7 @@ test('the seeder creates the administrator from the configuration', function () 
         ->first_name->toBe('Claire')
         ->email->toBe('claire.martin@example.net')
         ->is_admin->toBeTruthy()
+        ->hasVerifiedEmail()->toBeTrue()
         ->and(Hash::check('Un mot de passe sûr', $admin->password))->toBeTrue();
 });
 

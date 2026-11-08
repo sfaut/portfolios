@@ -156,8 +156,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ### HTTP et vues
 
-- Toutes les routes métier sont dans `routes/web.php`, sous le middleware `auth` ; `routes/auth.php`
-  (Breeze) y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
+- Toutes les routes métier sont dans `routes/web.php`, sous les middlewares `auth` et `verified` ;
+  `routes/auth.php` (Breeze) y est inclus. `User` implémente `MustVerifyEmail` : l'inscription envoie un
+  lien de vérification, et une adresse non vérifiée mène à la page `verification.notice`. Le profil
+  reste sous `auth` seul, pour corriger une adresse mal saisie ; une nouvelle adresse y perd sa
+  vérification et reçoit un lien. L'envoi des mails d'auth est synchrone : `MAIL_FROM_ADDRESS` doit
+  être renseignée, sans quoi l'inscription répond 500 (`phpunit.xml` en fixe une pour les tests). Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
   Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`, liée depuis

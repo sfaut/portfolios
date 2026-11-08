@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Notification;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -35,7 +37,21 @@ test('profile information can be updated', function () {
     $this->assertNull($user->email_verified_at);
 });
 
+test('a new email address receives a verification link', function () {
+    Notification::fake();
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->patch('/profile', [
+        'last_name' => 'User',
+        'first_name' => 'Test',
+        'email' => 'nouvelle@example.com',
+    ]);
+
+    Notification::assertSentTo($user, VerifyEmail::class, fn ($notification, $channels, $notifiable) => $notifiable->email === 'nouvelle@example.com');
+});
+
 test('email verification status is unchanged when the email address is unchanged', function () {
+    Notification::fake();
     $user = User::factory()->create();
 
     $response = $this
@@ -51,6 +67,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->assertRedirect('/profile');
 
     $this->assertNotNull($user->refresh()->email_verified_at);
+    Notification::assertNothingSent();
 });
 
 test('users cannot make themselves administrator', function () {

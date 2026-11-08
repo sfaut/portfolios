@@ -65,6 +65,7 @@ class UserSeeder extends Seeder
             'first_name' => $admin['first_name'],
             'email' => $admin['email'],
             'is_admin' => true,
+            'email_verified_at' => now(),
             'password' => Hash::make($admin['password']),
         ]);
     }

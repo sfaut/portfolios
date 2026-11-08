@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+/**
+ * Utilisateur de l'application, propriétaire de ses portfolios.
+ *
+ * Son adresse doit être vérifiée pour accéder aux pages métier (middleware `verified`).
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 

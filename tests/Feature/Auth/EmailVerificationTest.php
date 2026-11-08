@@ -2,7 +2,9 @@
 
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 
 test('email verification screen can be rendered', function () {
@@ -29,6 +31,32 @@ test('email can be verified', function () {
     Event::assertDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
     $response->assertRedirect(route('portfolio.index', absolute: false).'?verified=1');
+});
+
+test('unverified users are sent to the verification notice from the business pages', function () {
+    $user = User::factory()->unverified()->create();
+
+    $response = $this->actingAs($user)->get(route('portfolio.index'));
+
+    $response->assertRedirect(route('verification.notice'));
+});
+
+test('unverified users can still reach their profile to correct their address', function () {
+    $user = User::factory()->unverified()->create();
+
+    $response = $this->actingAs($user)->get(route('profile.edit'));
+
+    $response->assertOk();
+});
+
+test('a new verification link can be requested', function () {
+    Notification::fake();
+    $user = User::factory()->unverified()->create();
+
+    $response = $this->actingAs($user)->from(route('verification.notice'))->post(route('verification.send'));
+
+    $response->assertRedirect(route('verification.notice'))->assertSessionHas('status', 'verification-link-sent');
+    Notification::assertSentTo($user, VerifyEmail::class);
 });
 
 test('email is not verified with invalid hash', function () {

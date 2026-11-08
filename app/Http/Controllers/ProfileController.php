@@ -18,15 +18,26 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Enregistre le profil ; une nouvelle adresse perd sa vérification et reçoit un lien pour la retrouver.
+     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($request->validated());
+
+        $email_changed = $user->isDirty('email');
+
+        if ($email_changed) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        if ($email_changed) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

@@ -24,6 +24,7 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_DATABASE" value="portfolios_test"/>
         <env name="MAIL_MAILER" value="array"/>
+        <env name="MAIL_FROM_ADDRESS" value="portfolios@example.com"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

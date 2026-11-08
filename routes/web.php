@@ -16,7 +16,7 @@ Route::middleware('auth')->get('/', function () {
     return to_route('portfolio.index');
 });
 
-Route::controller(PortfolioController::class)->middleware(['auth'])->group(function () {
+Route::controller(PortfolioController::class)->middleware(['auth', 'verified'])->group(function () {
     Route::get('/portfolios', 'index')->name('portfolio.index');
     Route::get('/portfolio/create', 'create')->name('portfolio.create');
     Route::post('/portfolio', 'store')->name('portfolio.store');
@@ -28,7 +28,7 @@ Route::controller(PortfolioController::class)->middleware(['auth'])->group(funct
     Route::get('/portfolio/{id}', fn (int $id) => to_route('portfolio.show', ['portfolio' => $id]))->whereNumber('id');
 });
 
-Route::controller(AccountController::class)->middleware(['auth'])->group(function () {
+Route::controller(AccountController::class)->middleware(['auth', 'verified'])->group(function () {
     Route::get('/portfolio/{portfolio}/account/create', 'create')->name('account.create');
     Route::post('/portfolio/{portfolio}/account', 'store')->name('account.store');
 
@@ -39,7 +39,7 @@ Route::controller(AccountController::class)->middleware(['auth'])->group(functio
     Route::delete('/account/{account}', 'destroy')->name('account.destroy');
 });
 
-Route::controller(AnalyticAxisController::class)->middleware(['auth'])->group(function () {
+Route::controller(AnalyticAxisController::class)->middleware(['auth', 'verified'])->group(function () {
     Route::get('/portfolio/{portfolio}/analytic-axes', 'index')->name('analytic-axis.index');
     Route::get('/portfolio/{portfolio}/analytic-axis/create', 'create')->name('analytic-axis.create');
     Route::post('/portfolio/{portfolio}/analytic-axis', 'store')->name('analytic-axis.store');
@@ -50,7 +50,7 @@ Route::controller(AnalyticAxisController::class)->middleware(['auth'])->group(fu
     Route::delete('/analytic-axis/{analytic_axis}', 'destroy')->name('analytic-axis.destroy');
 });
 
-Route::controller(OperationController::class)->middleware(['auth'])->group(function () {
+Route::controller(OperationController::class)->middleware(['auth', 'verified'])->group(function () {
     Route::get('/account/{account}/operation/create', 'create')->name('operation.create');
     Route::post('/account/{account}/operation', 'store')->name('operation.store');
     Route::get('/operation/{operation}/edit', 'edit')->name('operation.edit');
