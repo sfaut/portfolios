@@ -17,6 +17,6 @@
 
     <div class="flex items-center gap-6">
         <x-primary-button>{{ $button }}</x-primary-button>
-        <a href="{{ $abort }}" class="text-indigo-800 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+        <a href="{{ $abort }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
     </div>
 </form>

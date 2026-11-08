@@ -69,7 +69,7 @@
                                         @click="$store.theme.set('{{ $mode }}')"
                                         @class([
                                             'flex', 'flex-col', 'items-center', 'gap-1',
-                                            'rounded', 'px-1', 'py-1.5',
+                                            'rounded-sm', 'px-1', 'py-1.5',
                                             'text-xs', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-200',
                                             'aria-pressed:bg-white', 'aria-pressed:text-gray-900', 'aria-pressed:shadow-sm',
                                             'dark:aria-pressed:bg-gray-600', 'dark:aria-pressed:text-white',

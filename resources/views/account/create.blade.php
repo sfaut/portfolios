@@ -4,7 +4,7 @@
 
         <div class="text-sm text-gray-400">
             ➜ Portfolio
-            <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-400 underline hover:no-underline">{{ $portfolio->name }}</a>
+            <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $portfolio->name }}</a>
         </div>
     </x-slot>
 

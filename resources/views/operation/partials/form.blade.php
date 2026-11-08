@@ -22,7 +22,7 @@
 
     <div class="flex flex-col gap-1">
         <x-input-label for="delivery_at" value="Date effective"/>
-        <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="rounded-md w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+        <x-text-input type="date" id="delivery_at" name="delivery_at" class="w-full" :value="old('delivery_at', $operation->delivery_at ?? date('Y-m-d'))"/>
         <x-input-error :messages="$errors->get('delivery_at')"/>
     </div>
 
