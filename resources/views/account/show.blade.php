@@ -72,14 +72,21 @@
                             </td>
                             <td class="border px-3 py-2 text-center whitespace-nowrap">
                                 @if ($operation->analyticLines->isNotEmpty())
-                                    <span
-                                        title="{{ $operation->analytic_breakdown }}"
-                                        class="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300"
-                                    >
-                                        <span aria-hidden="true">✓</span>
-                                        {{ $operation->analyticLines->count() }} {{ Str::plural('axe', $operation->analyticLines->count()) }}
-                                        <span class="sr-only">: {{ $operation->analytic_breakdown }}</span>
-                                    </span>
+                                    <x-tooltip>
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                                            <span aria-hidden="true">✓</span>
+                                            {{ $operation->analyticLines->count() }} {{ Str::plural('axe', $operation->analyticLines->count()) }}
+                                        </span>
+
+                                        <x-slot:content>
+                                            <span class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+                                                @foreach ($operation->analyticLines as $line)
+                                                    <span>{{ $line->analyticAxis->name }}</span>
+                                                    <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
+                                                @endforeach
+                                            </span>
+                                        </x-slot:content>
+                                    </x-tooltip>
                                 @endif
                             </td>
                             <td @class([

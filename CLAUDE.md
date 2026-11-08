@@ -145,7 +145,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de
   `OperationController::analyticForm()`, les erreurs de `$errors`, que le composant lit par clef
   (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
-  opérations réparties, détail au survol (`OperationReport::analyticBreakdown()`).
+  opérations réparties, avec le détail par axe dans un `<x-tooltip>`.
 - `AccountController::show()` redirige vers la dernière page des opérations quand `page` est absent, en
   refaisant le flash de session (`reflash()`) pour garder le message.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
@@ -155,6 +155,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-alert type="…"`,
   `x-link.primary` / `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs).
+  Toute infobulle passe par `<x-tooltip>` (slot par défaut : déclencheur, slot `content` : contenu),
+  sans attribut `title` : popover manuel ouvert par Alpine au survol et au focus, dans la couche
+  supérieure (il échappe à un parent en `overflow-hidden`), placé par le positionnement d'ancre CSS
+  au-dessus du déclencheur (en dessous faute de place), fond presque noir (`gray-950`).
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
