@@ -34,7 +34,7 @@
             >
                 <div>
                     <h3 class="text-xl font-semibold">{{ $portfolio->name }}</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ trim($portfolio->description) ?? '--' }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ filled($portfolio->description) ? $portfolio->description : '--' }}</p>
                 </div>
 
                 <svg class="shrink-0" preserveAspectRatio="none" width="40" height="40" viewBox="0 0 10 10">
