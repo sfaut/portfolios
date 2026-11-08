@@ -4,30 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OperationRequest;
 use App\Models\Account;
+use App\Models\AnalyticAxis;
+use App\Models\AnalyticLine;
 use App\Models\Operation;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OperationController extends Controller
 {
-    public function create(Account $account)
+    /**
+     * Affiche le formulaire d'écriture d'une opération sur le compte.
+     *
+     * @param  Account  $account  Compte non archivé qui recevra l'opération.
+     */
+    public function create(Account $account): View
     {
         return view('operation.create', [
             'account' => $account,
+            'analytic_form' => $this->analyticForm($account),
         ]);
     }
 
     /**
-     * Enregistre une nouvelle opération sur le compte, puis revient au compte.
+     * Enregistre une nouvelle opération sur le compte, avec sa répartition analytique, puis revient
+     * au compte.
      *
-     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective).
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
      * @param  Account  $account  Compte qui reçoit l'opération.
      */
     public function store(OperationRequest $request, Account $account): RedirectResponse
     {
-        $new_operation = $request->validated();
-
-        $account->operations()->create($new_operation);
+        DB::transaction(function () use ($request, $account): void {
+            $operation = $account->operations()->create($request->safe()->except('analytic_lines'));
+            $operation->analyticLines()->createMany($request->analyticLines());
+        });
 
         return to_route('account.show', $account)
             ->with('alert', 'Opération ajoutée avec succès.');
@@ -44,21 +57,26 @@ class OperationController extends Controller
 
         return view('operation.edit', [
             'operation' => $operation,
+            'analytic_form' => $this->analyticForm($operation->account, $operation),
         ]);
     }
 
     /**
-     * Enregistre les modifications de l'opération, puis revient au compte.
+     * Enregistre les modifications de l'opération, dont sa répartition analytique, qui remplace la
+     * précédente, puis revient au compte.
      *
-     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective).
+     * @param  OperationRequest  $request  Requête validée (libellé, montant, date effective, lignes analytiques à 100 %).
      * @param  Operation  $operation  Opération à modifier, d'un compte non archivé (404 sinon).
      */
     public function update(OperationRequest $request, Operation $operation): RedirectResponse
     {
         $this->abortIfAccountArchived($operation);
 
-        $data = $request->validated();
-        $operation->update($data);
+        DB::transaction(function () use ($request, $operation): void {
+            $operation->update($request->safe()->except('analytic_lines'));
+            $operation->analyticLines()->delete();
+            $operation->analyticLines()->createMany($request->analyticLines());
+        });
 
         return to_route('account.show', $operation->account)
             ->with('alert', 'Opération modifiée avec succès.')
@@ -90,5 +108,59 @@ class OperationController extends Controller
     private function abortIfAccountArchived(Operation $operation): void
     {
         abort_if($operation->account->trashed(), 404);
+    }
+
+    /**
+     * Données de la répartition analytique du formulaire (resources/js/analytic-lines.js) : axes
+     * proposés et lignes initiales. Après une validation échouée, les lignes envoyées reviennent,
+     * même aucune ; sinon, celles de l'opération.
+     *
+     * @param  Account  $account  Compte de l'opération.
+     * @param  Operation|null  $operation  Opération modifiée, null en création.
+     * @return array{
+     *     axes: list<array{id: int, name: string, archived: bool}>,
+     *     lines: list<array{analytic_axis_id: string, percentage: string}>,
+     * }
+     */
+    private function analyticForm(Account $account, ?Operation $operation = null): array
+    {
+        $lines = session()->hasOldInput()
+            ? array_values((array) old('analytic_lines', []))
+            : $operation?->analyticLines
+                ->map(fn (AnalyticLine $line): array => [
+                    'analytic_axis_id' => (string) $line->analytic_axis_id,
+                    'percentage' => $line->percentage,
+                ])
+                ->all() ?? [];
+
+        return [
+            'axes' => $this->selectableAnalyticAxes($account, $operation)
+                ->map(fn (AnalyticAxis $axis): array => [
+                    'id' => $axis->id,
+                    'name' => $axis->name,
+                    'archived' => $axis->trashed(),
+                ])
+                ->values()
+                ->all(),
+            'lines' => $lines,
+        ];
+    }
+
+    /**
+     * Axes analytiques proposés par le formulaire : ceux du portfolio du compte, non archivés, plus
+     * les axes archivés que l'opération utilise déjà.
+     *
+     * @param  Account  $account  Compte de l'opération.
+     * @param  Operation|null  $operation  Opération modifiée, null en création.
+     * @return Collection<int, AnalyticAxis>
+     */
+    private function selectableAnalyticAxes(Account $account, ?Operation $operation = null): Collection
+    {
+        $used_axis_ids = $operation?->analyticLines->pluck('analytic_axis_id')->all() ?? [];
+
+        return $account->portfolio->analyticAxes()
+            ->withTrashed()
+            ->where(fn (Builder $query) => $query->whereNull('deleted_at')->orWhereIn('id', $used_axis_ids))
+            ->get();
     }
 }

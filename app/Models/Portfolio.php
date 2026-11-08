@@ -55,6 +55,16 @@ class Portfolio extends Model
         return $this->hasMany(AccountReport::class)->orderBy('name');
     }
 
+    /**
+     * Axes analytiques du portfolio, par nom.
+     *
+     * @return HasMany<AnalyticAxis, $this>
+     */
+    public function analyticAxes(): HasMany
+    {
+        return $this->hasMany(AnalyticAxis::class)->orderBy('name');
+    }
+
     public function operations(): HasManyThrough
     {
         return $this->hasManyThrough(Operation::class, Account::class);

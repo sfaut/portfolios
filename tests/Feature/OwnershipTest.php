@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Account;
+use App\Models\AnalyticAxis;
+use App\Models\AnalyticLine;
 use App\Models\Operation;
 use App\Models\Portfolio;
 use App\Models\User;
@@ -18,6 +20,11 @@ beforeEach(function () {
         'label' => 'Operation',
         'amount' => '10.00',
         'delivery_at' => '2026-01-15',
+    ]);
+    $this->analytic_axis = $this->portfolio->analyticAxes()->create(['name' => 'Axis']);
+    $this->operation->analyticLines()->create([
+        'analytic_axis_id' => $this->analytic_axis->id,
+        'percentage' => '100.00',
     ]);
 });
 
@@ -44,6 +51,13 @@ test('users cannot reach the data of another user', function (string $method, st
     ['get', 'operation.edit', 'operation'],
     ['put', 'operation.update', 'operation'],
     ['delete', 'operation.destroy', 'operation'],
+    ['get', 'analytic-axis.index', 'portfolio'],
+    ['get', 'analytic-axis.create', 'portfolio'],
+    ['post', 'analytic-axis.store', 'portfolio'],
+    ['get', 'analytic-axis.edit', 'analytic_axis'],
+    ['put', 'analytic-axis.update', 'analytic_axis'],
+    ['patch', 'analytic-axis.restore', 'analytic_axis'],
+    ['delete', 'analytic-axis.destroy', 'analytic_axis'],
 ]);
 
 test('users can reach their own data', function (string $route, string $model, array $query) {
@@ -60,10 +74,22 @@ test('users can reach their own data', function (string $route, string $model, a
     ['account.edit', 'account', []],
     ['operation.create', 'account', []],
     ['operation.edit', 'operation', []],
+    ['analytic-axis.index', 'portfolio', []],
+    ['analytic-axis.create', 'portfolio', []],
+    ['analytic-axis.edit', 'analytic_axis', []],
 ]);
 
 test('models are hidden without an authenticated user', function () {
     expect(Portfolio::count())->toBe(0)
         ->and(Account::count())->toBe(0)
-        ->and(Operation::count())->toBe(0);
+        ->and(Operation::count())->toBe(0)
+        ->and(AnalyticAxis::count())->toBe(0)
+        ->and(AnalyticLine::count())->toBe(0);
+});
+
+test('models are hidden from another user', function () {
+    $this->actingAs($this->stranger);
+
+    expect(AnalyticAxis::count())->toBe(0)
+        ->and(AnalyticLine::count())->toBe(0);
 });

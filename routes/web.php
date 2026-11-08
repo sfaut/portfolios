@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AnalyticAxisController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
@@ -36,6 +37,17 @@ Route::controller(AccountController::class)->middleware(['auth'])->group(functio
     Route::put('/account/{account}', 'update')->name('account.update')->withTrashed();
     Route::patch('/account/{account}/restore', 'restore')->name('account.restore')->withTrashed();
     Route::delete('/account/{account}', 'destroy')->name('account.destroy');
+});
+
+Route::controller(AnalyticAxisController::class)->middleware(['auth'])->group(function () {
+    Route::get('/portfolio/{portfolio}/analytic-axes', 'index')->name('analytic-axis.index');
+    Route::get('/portfolio/{portfolio}/analytic-axis/create', 'create')->name('analytic-axis.create');
+    Route::post('/portfolio/{portfolio}/analytic-axis', 'store')->name('analytic-axis.store');
+
+    Route::get('/analytic-axis/{analytic_axis}/edit', 'edit')->name('analytic-axis.edit')->withTrashed();
+    Route::put('/analytic-axis/{analytic_axis}', 'update')->name('analytic-axis.update')->withTrashed();
+    Route::patch('/analytic-axis/{analytic_axis}/restore', 'restore')->name('analytic-axis.restore')->withTrashed();
+    Route::delete('/analytic-axis/{analytic_axis}', 'destroy')->name('analytic-axis.destroy');
 });
 
 Route::controller(OperationController::class)->middleware(['auth'])->group(function () {

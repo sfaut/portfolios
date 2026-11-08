@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\AuthUserParentScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Operation extends Model
 {
@@ -38,5 +39,15 @@ class Operation extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class)->withTrashed();
+    }
+
+    /**
+     * Lignes analytiques de l'opération, qui répartissent son montant entre des axes.
+     *
+     * @return HasMany<AnalyticLine, $this>
+     */
+    public function analyticLines(): HasMany
+    {
+        return $this->hasMany(AnalyticLine::class);
     }
 }
