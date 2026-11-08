@@ -46,8 +46,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   dépôt (section « Script de déploiement »). Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
   l'archive de la release dans `/var/www/portfolios/releases/vX.Y.Z`, la relie à `shared/.env` et
   `shared/storage`, lance `optimize`, sauvegarde la base (`php artisan db:dump`, compressée dans `backups/`), lance
-  `migrate --force`, puis bascule le lien `current`. Au premier lancement, il crée `shared/.env` depuis
-  `.env.model-prod` de la version, avec une `APP_KEY` générée, et s'arrête. `optimize`
+  `migrate --force`, bascule le lien `current`, puis redémarre le worker de file, dont il crée le
+  service systemd (`portfolios-queue`) s'il n'existe pas. Au premier lancement, il crée `shared/.env`
+  depuis `.env.model-prod` de la version, avec une `APP_KEY` générée une fois pour toutes, et s'arrête.
+  `optimize`
   met en cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`,
   sans quoi chaque rendu relit les SVG sur le disque). Une migration doit rester compatible avec la
   version précédente, qui peut revenir par `deploy.sh` sur le schéma migré.

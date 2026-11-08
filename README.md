@@ -122,7 +122,8 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    de portfolio, qui ne partent pas sans elle. Relancé sur une base qui a déjà un administrateur, le
    seed la laisse telle quelle et le signale.
 
-5. Installer le worker de file, le certificat, puis Nginx, décrits dans les sections suivantes.
+5. Installer le certificat, puis Nginx, décrits dans les sections suivantes. Le worker de file, lui,
+   est déjà en place : `deploy.sh` a créé et démarré son service (section « Worker de file »).
 
 ### Installation sur une base existante
 
@@ -137,8 +138,10 @@ quelle, en suivant la première installation avec ces différences :
   connexions, remplacer la clef générée par celle de l'ancienne installation, à condition qu'elle n'ait
   jamais été publiée (dépôt, sauvegarde partagée…) : une clef connue de tiers permet de forger des
   cookies.
-- Avant l'étape 4 : arrêter l'ancienne installation, son worker de file compris. Deux workers sur la
-  même table `jobs`, l'un sur l'ancien code, enverraient des mails au hasard de l'un ou de l'autre.
+- Avant l'étape 4 : arrêter l'ancienne installation, son worker de file compris
+  (`systemctl disable --now <service>`). Deux workers sur la même table `jobs`, l'un sur l'ancien code,
+  se partageraient les mails. Si son service s'appelle déjà `portfolios-queue`, supprimer son fichier
+  puis lancer `systemctl daemon-reload` : `deploy.sh` crée le nouveau.
 - Étape 4 : `deploy.sh` sauvegarde la base, puis ne passe que les migrations qui manquent, d'après la
   table `migrations` ; la sauvegarde permet de revenir à l'état d'avant. Le seed ne crée rien si la base
   a déjà un administrateur.
@@ -146,32 +149,19 @@ quelle, en suivant la première installation avec ces différences :
 ### Worker de file
 
 L'application range ses mails dans une file, la table `jobs`, et un worker (`php artisan queue:work`)
-les envoie en lisant cette file en permanence : sans lui, les mails restent en attente. systemd le
-démarre avec le serveur et le relance s'il s'arrête :
-
-```ini
-# /etc/systemd/system/portfolios-queue.service
-[Unit]
-Description=Portfolios - worker de file
-After=network.target mysql.service
-
-[Service]
-User=www-data
-WorkingDirectory=/var/www/portfolios/current
-ExecStart=/usr/bin/php artisan queue:work --tries=3 --max-time=3600
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```sh
-systemctl daemon-reload
-systemctl enable --now portfolios-queue
-```
+les envoie en lisant cette file en permanence : sans lui, les mails restent en attente. Le worker tourne
+comme service systemd, `portfolios-queue`, que `deploy.sh` crée à son premier déploiement : systemd le
+démarre avec le serveur et le relance s'il s'arrête. Son contenu figure dans le script (étape 7).
 
 À chaque déploiement, `deploy.sh` demande au worker de s'arrêter après sa tâche en cours
-(`queue:restart`) : systemd le relance aussitôt, sur la nouvelle version.
+(`queue:restart`) : systemd le relance aussitôt, sur la nouvelle version. Un service déjà présent est
+laissé tel quel, et peut donc s'adapter à la main (`systemctl edit --full portfolios-queue`) ; le script
+avertit seulement s'il est arrêté, ou s'il tourne ailleurs que dans `/var/www/portfolios/current`.
+
+```sh
+systemctl status portfolios-queue      # état du worker
+journalctl --unit portfolios-queue     # sa sortie
+```
 
 ### Certificat TLS
 
@@ -369,7 +359,7 @@ modifier l'application pour s'y installer durablement. Pour la même raison, ni 
 root, ni les dossiers qui le contiennent ne doivent être modifiables par `www-data` ou un autre compte.
 
 Le compte de PHP-FPM se vérifie dans `/etc/php/8.5/fpm/pool.d/www.conf` (`user`, `group`) : il doit
-être celui d'`APP_USER` dans `deploy.sh` et de `User=` dans le service du worker. Les droits d'un
+être celui d'`APP_USER` dans `deploy.sh`, que reprend le service du worker (`User=`). Les droits d'un
 chemin, dossier par dossier, se lisent avec `namei -l /var/www/portfolios/current/public/index.php`.
 
 ### Script de déploiement
@@ -393,7 +383,8 @@ dossier de l'application, compte du serveur web, service PHP-FPM, nombre de vers
 #     4. Sauvegarde de la base, compressée, dans backups/.
 #     5. Migrations de la base.
 #     6. Bascule du lien current vers la nouvelle version, d'un coup.
-#     7. Rechargement de PHP-FPM et redémarrage du worker de file.
+#     7. Rechargement de PHP-FPM et redémarrage du worker de file, dont le service systemd est créé
+#        au premier déploiement.
 #     8. Suppression des versions et des sauvegardes les plus anciennes.
 #
 # Retour arrière : une version encore présente sur le disque est réactivée sans téléchargement
@@ -424,6 +415,8 @@ APP_DIR=/var/www/portfolios
 APP_USER=www-data
 # Service systemd de PHP-FPM, rechargé après la bascule.
 PHP_FPM_SERVICE=php8.5-fpm
+# Service systemd du worker de file, créé par le script s'il n'existe pas.
+QUEUE_SERVICE=portfolios-queue
 # Nombre de versions gardées sur le disque, version active comprise, pour revenir en arrière.
 KEEP_RELEASES=5
 # Nombre de sauvegardes de la base gardées, une par déploiement.
@@ -435,6 +428,11 @@ KEEP_BACKUPS=10
 fail() {
     echo "deploy.sh : $*" >&2
     exit 1
+}
+
+# Affiche un avertissement, sans arrêter le script.
+warn() {
+    echo "deploy.sh : attention, $*" >&2
 }
 
 TAG=${1:-}
@@ -579,6 +577,34 @@ systemctl reload "$PHP_FPM_SERVICE"
 # Le worker de file termine sa tâche en cours puis s'arrête ; systemd le relance aussitôt dans
 # current, donc sur la nouvelle version.
 artisan queue:restart
+
+# Le worker envoie les mails rangés dans la file (table jobs) : sans lui, ils restent en attente.
+# Absent, son service est créé, démarré, et activé au démarrage du serveur ; systemd le relance s'il
+# s'arrête. Présent, il est laissé tel quel (il a pu être adapté à la main) et seulement contrôlé.
+if ! systemctl cat "$QUEUE_SERVICE" > /dev/null 2>&1; then
+    echo "Création du service $QUEUE_SERVICE (worker de file)…"
+    cat > "/etc/systemd/system/$QUEUE_SERVICE.service" <<EOF
+[Unit]
+Description=Portfolios - worker de file
+After=network.target mysql.service
+
+[Service]
+User=$APP_USER
+WorkingDirectory=$APP_DIR/current
+ExecStart=$(command -v php) artisan queue:work --tries=3 --max-time=3600
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+    systemctl enable --now "$QUEUE_SERVICE"
+elif [[ $(systemctl show --property=WorkingDirectory --value "$QUEUE_SERVICE") != "$APP_DIR/current" ]]; then
+    # Un service resté sur un autre dossier (ancienne installation…) ferait tourner un autre code.
+    warn "le service $QUEUE_SERVICE ne tourne pas dans $APP_DIR/current (WorkingDirectory à corriger)"
+elif ! systemctl is-active --quiet "$QUEUE_SERVICE"; then
+    warn "le service $QUEUE_SERVICE est arrêté, les mails restent en attente (systemctl enable --now $QUEUE_SERVICE)"
+fi
 
 # --- 8. Nettoyage -------------------------------------------------------------------------------------
 
