@@ -1,15 +1,20 @@
 {{--
     Portfolio et ses comptes : comptes actifs, puis comptes archivés dans une section repliée.
 
-    Le champ de recherche filtre les deux listes sur le nom des comptes (composant Alpine accountSearch).
-    Le fragment accounts, que le contrôleur renvoie seul aux requêtes ajax, porte les résultats et leur
-    résumé (data-summary), que le composant reporte à droite du champ.
+    Deux filtres cumulables réduisent les deux listes (composant Alpine accountSearch) : la recherche
+    sur le nom des comptes, et le mois, qui garde les comptes ayant une opération dans ce mois. Le
+    fragment accounts, que le contrôleur renvoie seul aux requêtes ajax, porte les résultats et leur
+    résumé (data-summary), que le composant reporte à droite des filtres.
 
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var string $search Recherche sur le nom des comptes, vide sans recherche.
-    @var string $summary Nombre de comptes trouvés sur le total du portfolio, vide sans recherche.
-    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $accounts Comptes actifs, filtrés par la recherche.
-    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $archived_accounts Comptes archivés, filtrés par la recherche.
+    @var string $month Mois d'opération retenu (« 2026-11 »), vide sans filtre de mois.
+    @var array<string, string> $months Mois où le portfolio a des opérations, libellés par clef « 2026-11 ».
+    @var bool $filtered Si un filtre au moins est actif.
+    @var string $summary Nombre de comptes trouvés sur le total du portfolio, vide sans filtre.
+    @var string $empty_message Message affiché quand les filtres ne trouvent aucun compte.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $accounts Comptes actifs, filtrés.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $archived_accounts Comptes archivés, filtrés.
 --}}
 <x-app-layout>
     <x-slot name="header">
@@ -31,7 +36,7 @@
         </div>
     </x-slot>
 
-    <div x-data="accountSearch(@js($search))" class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div x-data="accountSearch(@js($search), @js($month))" class="max-w-6xl mx-auto flex flex-col gap-6">
 
         @if (session('message'))
             <x-alert type="success">
@@ -84,6 +89,22 @@
                         <x-lucide-x class="size-4" aria-hidden="true"/>
                     </button>
                 </div>
+
+                @if ($months !== [])
+                    <label for="account-month" class="sr-only">Mois d'opération</label>
+                    <select
+                        id="account-month"
+                        name="month"
+                        x-model="month"
+                        x-on:change="refresh()"
+                        class="shrink-0 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:shadow-md"
+                    >
+                        <option value="">Tous les mois</option>
+                        @foreach ($months as $value => $label)
+                            <option value="{{ $value }}" @selected($value === $month)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                @endif
                 <span
                     x-ref="summary"
                     x-show="! failed"
@@ -112,21 +133,21 @@
             @fragment('accounts')
                 <span data-summary hidden>{{ $summary }}</span>
 
-                @if ($search !== '' && $accounts->isEmpty() && $archived_accounts->isEmpty())
+                @if ($filtered && $accounts->isEmpty() && $archived_accounts->isEmpty())
                     <div class="flex flex-col items-center gap-4 rounded-md border-2 border-dashed border-gray-300 dark:border-gray-700 p-8 text-center text-gray-500 dark:text-gray-400">
-                        <p>Aucun compte ne correspond à « {{ $search }} ».</p>
-                        <x-secondary-button x-on:click="clear()">Effacer la recherche</x-secondary-button>
+                        <p>{{ $empty_message }}</p>
+                        <x-secondary-button x-on:click="clearFilters()">Effacer les filtres</x-secondary-button>
                     </div>
                 @endif
 
-                @if ($search === '' || $accounts->isNotEmpty())
+                @if (! $filtered || $accounts->isNotEmpty())
                     <div class="grid gap-6 grid-cols-3">
 
                         @foreach ($accounts as $account)
                             @include('account.partials.card', ['account' => $account])
                         @endforeach
 
-                        @if ($search === '')
+                        @unless ($filtered)
                             <a
                                 href="{{ route('account.create', $portfolio) }}"
                                 @class([
@@ -142,12 +163,12 @@
                                 <x-lucide-circle-plus class="mx-auto size-7.5 stroke-[1.25]" aria-hidden="true"/>
                                 <h3>Créer un compte</h3>
                             </a>
-                        @endif
+                        @endunless
                     </div>
                 @endif
 
                 @if ($archived_accounts->isNotEmpty())
-                    <section x-data="{ open: @js($search !== '') }" class="flex flex-col gap-4">
+                    <section x-data="{ open: @js($filtered) }" class="flex flex-col gap-4">
                         <h3>
                             <button
                                 type="button"
@@ -162,7 +183,7 @@
                             </button>
                         </h3>
 
-                        <div id="archived-accounts" x-show="open" @style(['display: none' => $search === '']) class="grid gap-6 grid-cols-3">
+                        <div id="archived-accounts" x-show="open" @style(['display: none' => ! $filtered]) class="grid gap-6 grid-cols-3">
                             @foreach ($archived_accounts as $account)
                                 @include('account.partials.card', ['account' => $account])
                             @endforeach
