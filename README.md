@@ -132,12 +132,12 @@ quelle, en suivant la première installation avec ces différences :
 
 - Étape 1 : garder la base, sans la recréer. Seuls l'utilisateur MySQL et ses droits sont à créer, s'ils
   n'existent pas déjà (`SHOW_ROUTINE` compris).
-- Étape 3 : `deploy.sh` génère une nouvelle clef `APP_KEY`. Elle chiffre les cookies, dont celui de
-  session : avec la nouvelle clef, chaque utilisateur doit se reconnecter, et les cases « Se souvenir
-  de moi » sont perdues ; les données de la base ne dépendent pas de la clef. Pour garder les
-  connexions, remplacer la clef générée par celle de l'ancienne installation, à condition qu'elle n'ait
-  jamais été publiée (dépôt, sauvegarde partagée…) : une clef connue de tiers permet de forger des
-  cookies.
+- Étape 3 : dans `shared/.env`, remplacer la clef `APP_KEY` que `deploy.sh` vient de générer par celle
+  de l'ancienne installation. La clef appartient à l'installation et la suit d'une version à l'autre ;
+  elle chiffre les cookies, dont ceux de session et de « Se souvenir de moi », que les utilisateurs
+  gardent ainsi. Les données de la base, elles, ne dépendent pas de la clef. Seule exception, une
+  ancienne clef publiée (dépôt, sauvegarde partagée…) : connue de tiers, elle leur permet de forger des
+  cookies. On garde alors la clef générée, et chacun se reconnecte une fois.
 - Avant l'étape 4 : arrêter l'ancienne installation, son worker de file compris
   (`systemctl disable --now <service>`). Deux workers sur la même table `jobs`, l'un sur l'ancien code,
   se partageraient les mails. Si son service s'appelle déjà `portfolios-queue`, supprimer son fichier
