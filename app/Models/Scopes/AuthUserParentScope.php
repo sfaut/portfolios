@@ -5,6 +5,7 @@ namespace App\Models\Scopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Restreint un modèle aux enregistrements dont le parent appartient à l'utilisateur connecté.
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Scope;
 class AuthUserParentScope implements Scope
 {
     /**
-     * @param  string  $relation  Relation vers le parent, dont le modèle utilise SoftDeletes.
+     * @param  string  $relation  Relation vers le parent, avec ou sans SoftDeletes.
      */
     public function __construct(
         private readonly string $relation,
@@ -27,13 +28,17 @@ class AuthUserParentScope implements Scope
     }
 
     /**
-     * Ajoute la condition d'existence d'un parent appartenant à l'utilisateur connecté.
+     * Ajoute la condition d'existence d'un parent appartenant à l'utilisateur connecté, archivé ou non.
      *
      * @param  Builder<Model>  $builder  Requête à restreindre.
      * @param  Model  $model  Modèle interrogé.
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->whereHas($this->relation, fn (Builder $parent_query) => $parent_query->withTrashed());
+        $builder->whereHas($this->relation, function (Builder $parent_query): void {
+            if (in_array(SoftDeletes::class, class_uses_recursive($parent_query->getModel()), strict: true)) {
+                $parent_query->withTrashed();
+            }
+        });
     }
 }
