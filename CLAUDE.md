@@ -170,7 +170,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `portfolio/show`), faute de page parent qui l'accueille ; `edit`, `update` et `restore` portent
   `->withTrashed()`, comme pour les comptes. La page d'accueil après
   connexion est `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
-  La suppression de compte utilisateur (`ProfileController::destroy()`) est désactivée et répond 501.
+  La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
+  supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
+  comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.

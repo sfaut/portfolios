@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
@@ -113,8 +114,12 @@ test('users cannot make themselves administrator', function () {
     expect($user->refresh()->is_admin)->toBeFalse();
 });
 
-test('account deletion is disabled', function () {
+test('users can delete their account, with all their data', function () {
+    Mail::fake();
     $user = User::factory()->create();
+    $user->portfolios()->create(['name' => 'Portfolio'])
+        ->accounts()->create(['name' => 'Compte'])
+        ->operations()->create(['label' => 'Opération', 'amount' => '10.00', 'delivery_at' => '2026-01-15']);
 
     $response = $this
         ->actingAs($user)
@@ -122,7 +127,30 @@ test('account deletion is disabled', function () {
             'password' => 'password',
         ]);
 
-    $response->assertStatus(501);
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/');
 
-    $this->assertNotNull($user->fresh());
+    $this->assertGuest();
+    $this->assertModelMissing($user);
+    $this->assertDatabaseEmpty('portfolios');
+    $this->assertDatabaseEmpty('accounts');
+    $this->assertDatabaseEmpty('operations');
+});
+
+test('the correct password must be provided to delete the account', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->from('/profile')
+        ->delete('/profile', [
+            'password' => 'wrong-password',
+        ]);
+
+    $response
+        ->assertSessionHasErrorsIn('userDeletion', 'password')
+        ->assertRedirect('/profile');
+
+    $this->assertModelExists($user);
 });

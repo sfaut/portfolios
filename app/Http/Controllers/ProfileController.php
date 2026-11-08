@@ -42,23 +42,27 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    /**
+     * Supprime le compte de l'utilisateur, après vérification de son mot de passe, puis le déconnecte.
+     *
+     * Les clefs étrangères en cascade suppriment avec lui ses portfolios, comptes, opérations et axes
+     * analytiques, archivés compris.
+     */
     public function destroy(Request $request): RedirectResponse
     {
-        abort(501);
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
 
-        // $request->validateWithBag('userDeletion', [
-        //     'password' => ['required', 'current_password'],
-        // ]);
+        $user = $request->user();
 
-        // $user = $request->user();
+        Auth::logout();
 
-        // Auth::logout();
+        $user->delete();
 
-        // $user->delete();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        // $request->session()->invalidate();
-        // $request->session()->regenerateToken();
-
-        // return Redirect::to('/');
+        return Redirect::to('/');
     }
 }
