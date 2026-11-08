@@ -285,9 +285,14 @@ Avant les migrations, `deploy.sh` sauvegarde la base dans `backups/`
 (`portfolios.pre-vX.Y.Z.sql.gz`, dix gardées), par la commande
 `php artisan db:dump` de l'application, qui passe par `mysqldump`. La copie est complète : tables et
 données, vues, procédures et fonctions, déclencheurs, événements, jeu de caractères et collation de la
-base. Une sauvegarde en échec ou incomplète arrête le déploiement. Une sauvegarde déjà présente pour
-la même version (déploiement relancé) est gardée, renommée avec la date et l'heure de sa création
-(`portfolios.pre-vX.Y.Z.<date>-<heure>.sql.gz`).
+base. Une sauvegarde en échec ou incomplète arrête le déploiement.
+
+Une sauvegarde déjà présente pour la même version (déploiement relancé, ou redéploiement après un
+retour arrière) est gardée, renommée avec la date et l'heure de sa création
+(`portfolios.pre-vX.Y.Z.<date>-<heure>.sql.gz`). Le nom simple désigne donc toujours la base d'avant
+le dernier déploiement de la version : la copie la plus proche des données en service, celle à
+restaurer d'ordinaire. Une copie plus ancienne, restaurée par erreur, effacerait tout ce qui a été
+saisi depuis.
 
 Une sauvegarde supprime puis recrée la base : elle rend exactement l'état copié, sans les tables ou
 objets créés depuis. Elle se restaure, site en maintenance, par un compte MySQL qui a tous les droits
@@ -298,6 +303,13 @@ runuser --user www-data -- php /var/www/portfolios/current/artisan down
 zcat /var/www/portfolios/backups/portfolios.pre-vX.Y.Z.sql.gz | mysql
 runuser --user www-data -- php /var/www/portfolios/current/artisan up
 ```
+
+Migrations en échec : `deploy.sh` s'arrête avant la bascule, le site reste sur la version précédente,
+et le message nomme la sauvegarde faite juste avant. MySQL n'annule pas un changement de schéma
+interrompu : la base peut être restée à moitié migrée. Restaurer cette sauvegarde, comme ci-dessus,
+avant de corriger puis de relancer le déploiement. La relance sauvegarde alors de nouveau la base
+d'avant les migrations, sous le nom simple. Relancer sans restaurer ferait porter le nom simple à une
+base à moitié migrée ; la copie d'avant les migrations resterait celle renommée avec sa date.
 
 Pour vérifier une sauvegarde sans toucher à la base en service, la restaurer sous un autre nom, ici
 `portfolios_verification`. Le nom de la base figure dans la copie, sur ses lignes `DROP DATABASE`,
@@ -559,7 +571,8 @@ if ! gzip --test "$backup_file.partial" \
 fi
 # Une sauvegarde déjà présente pour cette version (relance après une erreur, nouveau déploiement
 # après un retour arrière) est gardée, renommée avec la date et l'heure de sa création : aucune
-# sauvegarde n'est écrasée.
+# sauvegarde n'est écrasée. Le nom simple désigne ainsi toujours la base d'avant le dernier
+# déploiement de la version, la plus proche des données en service.
 if [[ -f $backup_file ]]; then
     mv "$backup_file" "$BACKUPS_DIR/portfolios.pre-$TAG.$(date --reference="$backup_file" +%Y%m%d-%H%M%S).sql.gz"
 fi
@@ -570,8 +583,14 @@ echo "Sauvegarde : $backup_file"
 
 # Passées sur la nouvelle version avant la bascule : en cas d'échec, le site reste sur l'ancienne.
 # Une migration doit donc rester compatible avec la version encore en service.
+# MySQL n'annule pas un changement de schéma interrompu : une migration en échec peut laisser la base
+# à moitié migrée. Il faut alors restaurer la sauvegarde de l'étape 4 avant de relancer le script,
+# pour que la sauvegarde de la relance reparte de la base d'avant les migrations.
 echo "Migrations…"
-artisan migrate --force
+artisan migrate --force \
+    || fail "migrations en échec, site toujours sur la version précédente." \
+        "La base d'avant les migrations est dans $backup_file : la restaurer avant toute relance" \
+        "(README, section « Mise à jour et retour arrière »)."
 
 # --- 6. Bascule ---------------------------------------------------------------------------------------
 
