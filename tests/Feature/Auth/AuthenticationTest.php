@@ -8,6 +8,12 @@ test('login screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
+test('the login screen links to the registration', function () {
+    $response = $this->get('/login');
+
+    $response->assertSee('href="'.route('register').'"', escape: false);
+});
+
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 

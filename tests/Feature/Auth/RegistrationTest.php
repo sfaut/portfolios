@@ -10,6 +10,12 @@ test('registration screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
+test('the registration screen links to the login', function () {
+    $response = $this->get('/register');
+
+    $response->assertSee('href="'.route('login').'"', escape: false);
+});
+
 test('new users can register', function () {
     $response = $this->post('/register', [
         'last_name' => 'User',

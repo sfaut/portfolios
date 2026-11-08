@@ -66,7 +66,15 @@
                 </a>
             @endif
 
-            <x-primary-button>Connecter</x-primary-button>
+            <x-primary-button>Se connecter</x-primary-button>
         </div>
     </form>
+
+    <p class="border-t border-gray-200 dark:border-gray-700 pt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        Pas encore de compte ?
+        <a
+            href="{{ route('register') }}"
+            class="font-medium text-indigo-700 dark:text-indigo-400 underline hover:no-underline rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+        >Créer un compte</a>
+    </p>
 </x-guest-layout>
