@@ -292,8 +292,15 @@ dossier de l'application, compte du serveur web, service PHP-FPM, nombre de vers
 # Le script s'arrête à la première erreur. Tant que la bascule de l'étape 4 n'a pas eu lieu, la
 # version en service reste celle d'avant.
 
-# -e : arrêt à la première commande en échec ; -u : erreur sur une variable non définie ;
-# -o pipefail : un tube échoue si l'une de ses commandes échoue.
+# Mode strict de Bash. Par défaut, Bash affiche l'erreur d'une commande puis passe à la suivante :
+# un déploiement continuerait sur une étape ratée.
+#   -e           arrête le script dès qu'une commande échoue. Sans lui, des migrations en échec
+#                n'empêcheraient pas la bascule vers la nouvelle version, et un « cd » raté ferait
+#                tourner le nettoyage (rm -rf) dans un autre dossier.
+#   -u           traite une variable non définie comme une erreur, au lieu d'une chaîne vide : une
+#                faute de frappe dans un nom de variable ne peut pas changer la cible d'un rm -rf.
+#   -o pipefail  fait échouer un tube (cmd1 | cmd2) dès que l'une de ses commandes échoue, et pas
+#                seulement la dernière, pour que -e s'applique aussi aux tubes.
 set -euo pipefail
 
 # --- Paramètres, à adapter au serveur -----------------------------------------------------------------
