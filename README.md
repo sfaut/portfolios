@@ -76,30 +76,12 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    GRANT ALL PRIVILEGES ON portfolios.* TO 'portfolios'@'localhost';
    ```
 
-2. Créer la configuration partagée depuis le modèle de production de la version, lisible par le seul
-   serveur web :
-
-   ```sh
-   mkdir --parents /var/www/portfolios/shared
-   cd /var/www/portfolios/shared
-   curl --fail --location --output .env \
-       https://raw.githubusercontent.com/sfaut/portfolios/vX.Y.Z/.env.model-prod
-   chown root:www-data .env
-   chmod 640 .env
-   ```
-
-   Y renseigner au moins `APP_URL`, les accès à la base (`DB_*`) et au serveur de mail (`MAIL_*`),
-   l'administrateur (`APP_ADMIN_*`, obligatoires) et la clef de l'application (`APP_KEY`), à générer
-   par :
-
-   ```sh
-   echo "base64:$(openssl rand -base64 32)"
-   ```
-
-3. Créer `/var/www/portfolios/deploy.sh` avec le contenu de la section « Script de déploiement »
+2. Créer `/var/www/portfolios/deploy.sh` avec le contenu de la section « Script de déploiement »
    ci-dessous, puis le réserver à root :
 
    ```sh
+   mkdir --parents /var/www/portfolios
+   # … y créer deploy.sh, puis :
    chown root:root /var/www/portfolios /var/www/portfolios/deploy.sh
    chmod 755 /var/www/portfolios
    chmod 700 /var/www/portfolios/deploy.sh
@@ -109,7 +91,18 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    contient (`/var/www/portfolios`, `/var/www`), lui ferait exécuter n'importe quoi en root (section
    « Propriétaires et droits »).
 
-4. Déployer la version, puis créer le compte administrateur :
+3. Lancer le script une première fois :
+
+   ```sh
+   /var/www/portfolios/deploy.sh vX.Y.Z
+   ```
+
+   Faute de configuration, il crée `shared/.env` depuis le modèle de production de la version
+   (`.env.model-prod`), y génère la clef de l'application (`APP_KEY`), le rend lisible par le seul
+   serveur web, puis s'arrête. Y renseigner au moins `APP_URL`, les accès à la base (`DB_*`) et au
+   serveur de mail (`MAIL_*`), et l'administrateur (`APP_ADMIN_*`, obligatoires).
+
+4. Relancer le script, qui déploie cette fois la version, puis créer le compte administrateur :
 
    ```sh
    /var/www/portfolios/deploy.sh vX.Y.Z
@@ -276,8 +269,8 @@ renomme qu'une version plus tard).
 ### Propriétaires et droits
 
 Tout appartient à root, sauf ce que l'application écrit : le `storage/` partagé et le cache de chaque
-version, à `www-data`. `deploy.sh` les règle ainsi à chaque déploiement, hormis `deploy.sh` lui-même
-et `shared/.env`, créés à la main.
+version, à `www-data`. `deploy.sh` les règle ainsi, `shared/.env` compris, hormis `deploy.sh` lui-même,
+créé à la main.
 
 ```
 /var/www/portfolios/                 root:root          755
@@ -377,8 +370,23 @@ SHARED_DIR=$APP_DIR/shared
 RELEASES_DIR=$APP_DIR/releases
 RELEASE_DIR=$RELEASES_DIR/$TAG
 
-# La configuration se crée à la main avant le premier déploiement (README, « Première installation »).
-[[ -f $SHARED_DIR/.env ]] || fail "$SHARED_DIR/.env manquant (modèle : .env.model-prod)"
+# Premier lancement : sans configuration, le script crée shared/.env depuis le modèle de production
+# de la version, y génère la clef de l'application, puis s'arrête pour qu'on renseigne le reste.
+if [[ ! -f $SHARED_DIR/.env ]]; then
+    mkdir --parents "$SHARED_DIR"
+    curl --fail --location --silent --show-error --output "$SHARED_DIR/.env" \
+        "https://raw.githubusercontent.com/$REPOSITORY/$TAG/.env.model-prod" \
+        || { rm -f "$SHARED_DIR/.env"; fail ".env.model-prod introuvable dans la version $TAG"; }
+    # Clef de chiffrement des cookies : 32 octets aléatoires, encodés en base64 comme le fait
+    # « php artisan key:generate ».
+    sed --in-place "s|^APP_KEY=\$|APP_KEY=base64:$(head --bytes=32 /dev/urandom | base64)|" "$SHARED_DIR/.env"
+    # Écrit par root, lu par le serveur web, fermé aux autres comptes : il contient des mots de passe.
+    chown "root:$APP_USER" "$SHARED_DIR/.env"
+    chmod 640 "$SHARED_DIR/.env"
+    echo "Premier lancement : $SHARED_DIR/.env créé, avec sa clef APP_KEY."
+    echo "Y renseigner au moins APP_URL, DB_*, MAIL_* et APP_ADMIN_*, puis relancer : $0 $TAG"
+    exit 1
+fi
 
 # Lance une commande Artisan de la version déployée sous le compte du serveur web : les fichiers
 # qu'elle écrit (caches, journaux) lui appartiennent, et il pourra les réécrire ensuite.
