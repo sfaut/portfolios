@@ -3,6 +3,8 @@
  * give an analytic axis and a percentage of the amount, which total 100 %.
  *
  * The lines are posted as analytic_lines[i][analytic_axis_id] and analytic_lines[i][percentage].
+ * Each line also shows the part of the amount it stands for, read from the "amount" field of the
+ * form, outside the component.
  * The total is computed in whole hundredths, as OperationRequest does, which has the last word.
  *
  * @param {object} form Data prepared by OperationController::analyticForm().
@@ -25,20 +27,46 @@ export default function analyticLines({ axes, lines }, errors) {
         percentage: String(line.percentage ?? ""),
     });
 
+    /**
+     * Whole number of hundredths in a decimal written with a dot ("12.5" gives 1250), or null if
+     * the text is not a number.
+     *
+     * @param {string} text
+     * @returns {?number}
+     */
+    const hundredths = (text) => {
+        const value = Number.parseFloat(text);
+
+        return Number.isFinite(value) ? Math.round(value * 100) : null;
+    };
+
     return {
         axes,
         lines: lines.map(keyed),
         errors,
+        amount: "",
+
+        /**
+         * Follows the amount field of the form, whose value may come back from a failed validation.
+         */
+        init() {
+            const field = this.$root.closest("form")?.elements.namedItem("amount");
+
+            if (!field) {
+                return;
+            }
+
+            this.amount = field.value;
+            field.addEventListener("input", () => {
+                this.amount = field.value;
+            });
+        },
 
         /**
          * Total of the percentages, in hundredths (10000 for 100 %).
          */
         get total() {
-            return this.lines.reduce((sum, line) => {
-                const value = Number.parseFloat(line.percentage);
-
-                return sum + (Number.isFinite(value) ? Math.round(value * 100) : 0);
-            }, 0);
+            return this.lines.reduce((sum, line) => sum + (hundredths(line.percentage) ?? 0), 0);
         },
 
         /**
@@ -106,12 +134,51 @@ export default function analyticLines({ axes, lines }, errors) {
         },
 
         /**
-         * Hundredths of percent written in French, "33,5 %".
+         * Part of the amount that a line stands for, in cents, rounded half away from zero; null
+         * while the amount or the percentage is not a number, or the percentage is not positive.
+         *
+         * @param {{percentage: string}} line
+         * @returns {?number}
+         */
+        lineAmount(line) {
+            const cents = hundredths(this.amount);
+            const percentage = hundredths(line.percentage);
+
+            if (cents === null || percentage === null || percentage <= 0) {
+                return null;
+            }
+
+            return Math.sign(cents) * Math.round((Math.abs(cents) * percentage) / 10000);
+        },
+
+        /**
+         * Amount in cents written as Number::amount() does without currency: French, two
+         * decimals, typographic minus sign (U+2212) before a negative amount, no sign for zero.
+         * An empty string for null.
+         *
+         * @param {?number} cents
+         * @returns {string}
+         */
+        formatAmount(cents) {
+            if (cents === null) {
+                return "";
+            }
+
+            const digits = (Math.abs(cents) / 100).toLocaleString("fr-FR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+
+            return cents < 0 ? `−${digits}` : digits;
+        },
+
+        /**
+         * Hundredths of percent written in French, without the percent sign: "33,5".
          *
          * @param {number} hundredths
          */
         format(hundredths) {
-            return `${(hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}\u00a0%`;
+            return (hundredths / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
         },
     };
 }
