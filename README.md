@@ -283,6 +283,34 @@ zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz | mysql
 runuser --user www-data -- php /var/www/portfolios/current/artisan up
 ```
 
+Pour vérifier une sauvegarde sans toucher à la base en service, la restaurer sous un autre nom, ici
+`portfolios_verification`. Le nom de la base figure dans la copie, sur ses lignes `DROP DATABASE`,
+`CREATE DATABASE` et `USE` : `sed` le remplace sur ces seules lignes, dans une copie lisible par root
+seul, à contrôler avant la restauration.
+
+```sh
+# Sous-shell : umask 077 (fichier lisible par root seul) ne vaut que pour cette commande.
+(
+    umask 077
+    zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz \
+        | sed --expression 's/^\(\/\*!40000 DROP DATABASE IF EXISTS \|CREATE DATABASE .*\|USE \)`portfolios`/\1`portfolios_verification`/' \
+        > /root/portfolios_verification.sql
+)
+# Toutes les lignes affichées doivent nommer portfolios_verification : une ligne restée sur
+# portfolios remplacerait la base en service.
+grep --extended-regexp '^(/\*!40000 DROP DATABASE|CREATE DATABASE|USE )' /root/portfolios_verification.sql
+mysql < /root/portfolios_verification.sql
+```
+
+La copie se consulte alors comme toute base (`mysql portfolios_verification`), avec ses vues, ses
+procédures et ses déclencheurs ; ses événements planifiés tournent aussi, sur ses propres tables. Une
+fois la vérification faite, la supprimer :
+
+```sh
+mysql --execute 'DROP DATABASE portfolios_verification'
+rm /root/portfolios_verification.sql
+```
+
 Pour revenir à une version précédente, relancer `deploy.sh` avec son numéro. Encore sur le disque
 (`deploy.sh` garde les cinq dernières), elle est réactivée sans téléchargement. Les migrations restent
 en place : l'ancienne version tourne sur le schéma de la nouvelle, ce qui demande des migrations
