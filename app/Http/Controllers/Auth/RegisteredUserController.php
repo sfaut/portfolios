@@ -31,11 +31,13 @@ class RegisteredUserController extends Controller
      * Crée l'utilisateur, lui envoie le lien de vérification de son adresse (événement Registered),
      * puis le connecte.
      *
+     * Seuls les champs validés sont enregistrés : le formulaire ne peut pas donner `is_admin`.
+     *
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
-        Validator::validate(
+        $validated = Validator::validate(
             data: $request->all(),
             rules: [
                 'last_name' => ['required', 'string', 'max:30'],
@@ -52,10 +54,10 @@ class RegisteredUserController extends Controller
         );
 
         $user = User::create([
-            'last_name' => $request->last_name,
-            'first_name' => $request->first_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'last_name' => $validated['last_name'],
+            'first_name' => $validated['first_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
         event(new Registered($user));
