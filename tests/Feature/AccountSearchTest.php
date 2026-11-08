@@ -93,19 +93,17 @@ test('the month filter keeps the accounts with an operation in the month, archiv
         ->assertDontSee('Remise 100%');
 });
 
-test('the month filter offers the months of the operations, latest first', function () {
+test('the month filter offers the months of the operations', function () {
     addOperationTo('Compte courant', '2026-10-31');
     addOperationTo('Livret Épargne', '2026-11-01');
     addOperationTo('Épargne logement', '2025-12-24');
 
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'month' => '2026-10']));
 
-    $response->assertOk()->assertSeeInOrder([
-        '<option value="">Tous les mois</option>',
-        '<option value="2026-11" >Novembre 2026</option>',
-        '<option value="2026-10" selected>Octobre 2026</option>',
-        '<option value="2025-12" >Décembre 2025</option>',
-    ], escape: false);
+    $response->assertOk()
+        ->assertSee('\u0022months\u0022:[\u00222025-12\u0022,\u00222026-10\u0022,\u00222026-11\u0022]', escape: false)
+        ->assertSee('<input type="hidden" name="month" value="2026-10"', escape: false)
+        ->assertSee('Octobre 2026');
 });
 
 test('a month without operation in the portfolio is ignored', function () {

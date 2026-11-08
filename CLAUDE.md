@@ -167,8 +167,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Filtres des comptes : `portfolio/show` filtre ses comptes, actifs et archivés, sur le nom (paramètre
   `search`, `whereLike` aux jokers échappés, insensible à la casse et aux accents par la collation) et
   sur le mois (paramètre `month`, « 2026-11 » : comptes ayant au moins une opération dans le mois, par
-  `delivery_at`). Les deux se cumulent. Le mois se choisit dans une liste des mois où le portfolio a des
-  opérations (`Portfolio::operationMonths()`, libellés en français) ; un autre mois est ignoré.
+  `delivery_at`). Les deux se cumulent. Le mois se choisit par `<x-month-picker>`, limité aux mois où
+  le portfolio a des opérations (`Portfolio::operationMonths()`) ; un autre mois est ignoré.
   Le composant Alpine `accountSearch` (`resources/js/account-search.js`) interroge la même route après
   300 ms de pause (aussitôt pour le mois), avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
   fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
@@ -207,6 +207,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   calculé ; noms sur https://lucide.dev/icons. Pas de SVG copié dans les vues, hormis le logo
   (`x-application-logo`). La taille passe par `size-*` et l'épaisseur du trait, 2 par défaut, par une
   classe (`stroke-1`, `stroke-[1.25]`) : un attribut `stroke-width` sortirait en double sur le `<svg>`.
+  Tout choix de mois passe par `<x-month-picker>` (`App\View\Components\MonthPicker`, composant
+  Alpine `monthPicker` de `resources/js/month-picker.js`), inspiré de `<input type="month">`, que
+  Safari et Firefox sur ordinateur n'affichent qu'en champ texte : un déclencheur à l'allure d'un
+  champ, et un popover « une année, douze mois » placé comme `<x-tooltip>`. Trois modes : `single`
+  (« 2026-11 », champ `name`), `multiple` (liste, champs `name[]`) et `range` (`start` / `end`,
+  champs `name[start]` / `name[end]`) ; `min` / `max` bornent les mois, `months` les restreint. La
+  classe normalise la valeur et calcule le libellé initial, que le JavaScript recalcule à
+  l'identique ; le parent lie la sélection par `x-model` (`x-modelable`). Clavier : flèches entre mois
+  choisissables, Page préc. / suiv. pour l'année, Début / Fin, Échap.
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le

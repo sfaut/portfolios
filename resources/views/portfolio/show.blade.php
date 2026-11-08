@@ -9,7 +9,7 @@
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var string $search Recherche sur le nom des comptes, vide sans recherche.
     @var string $month Mois d'opération retenu (« 2026-11 »), vide sans filtre de mois.
-    @var array<string, string> $months Mois où le portfolio a des opérations, libellés par clef « 2026-11 ».
+    @var list<string> $months Mois où le portfolio a des opérations (« 2026-11 »), du plus récent au plus ancien.
     @var bool $filtered Si un filtre au moins est actif.
     @var string $summary Nombre de comptes trouvés sur le total du portfolio, vide sans filtre.
     @var string $empty_message Message affiché quand les filtres ne trouvent aucun compte.
@@ -91,19 +91,14 @@
                 </div>
 
                 @if ($months !== [])
-                    <label for="account-month" class="sr-only">Mois d'opération</label>
-                    <select
-                        id="account-month"
+                    <x-month-picker
                         name="month"
+                        :months="$months"
+                        :value="$month"
+                        label="Mois d'opération"
+                        placeholder="Tous les mois"
                         x-model="month"
-                        x-on:change="refresh()"
-                        class="shrink-0 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:shadow-md"
-                    >
-                        <option value="">Tous les mois</option>
-                        @foreach ($months as $value => $label)
-                            <option value="{{ $value }}" @selected($value === $month)>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    />
                 @endif
                 <span
                     x-ref="summary"
