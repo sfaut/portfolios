@@ -191,8 +191,13 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
   opérations réparties, avec le détail par axe dans un `<x-tooltip>` : pourcentage et part du montant
   (`AnalyticLine::amountShare()`, même arrondi que le formulaire).
-- `AccountController::show()` redirige vers la dernière page des opérations quand `page` est absent, en
-  refaisant le flash de session (`reflash()`) pour garder le message.
+- `AccountController::show()` pagine les opérations par 20 et redirige vers la dernière page quand
+  `page` est absent, en refaisant le flash de session (`reflash()`) pour garder le message. Le bouton
+  poussoir « Tout », à côté de la pagination, envoie `all=1` ou `all=0` (formulaire GET) : la
+  préférence est gardée en session (`AccountController::SHOW_ALL_OPERATIONS`, pour tous les comptes),
+  puis la page se recharge sans le paramètre. Toutes à la fois, les opérations s'affichent sans
+  pagination, avec leur nombre, et la page s'ouvre sur l'opération modifiée, centrée, ou à défaut au
+  bas du tableau.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
   (`account/show`), `status` (vues Breeze). Un flash n'apparaît que si la vue de destination lit sa clef.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
@@ -229,6 +234,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   initiale et calcule le libellé initial ; le parent lie la sélection par `x-model`
   (`x-modelable`). Clavier : flèches entre mois choisissables, Page préc. / suiv. pour l'année,
   Début / Fin, Échap.
+  Tout bouton à deux états passe par `<x-toggle-button name="…" :pressed="…">` (bouton poussoir) :
+  un bouton d'envoi qui porte `aria-pressed` et envoie l'état opposé (`name=1` pour l'enfoncer,
+  `name=0` pour le relâcher), dans un formulaire GET, sans JavaScript. Relâché, il a l'allure blanche
+  des boutons de pagination ; enfoncé, il passe en indigo plein avec une ombre intérieure, par les
+  variantes `aria-pressed:`.
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le

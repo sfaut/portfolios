@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AccountRequest;
 use App\Models\Account;
 use App\Models\Portfolio;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
@@ -32,13 +34,46 @@ class AccountController extends Controller
             ->with(['message' => 'Le compte a bien été ajouté au portfolio.']);
     }
 
-    public function show(Account $account)
-    {
-        $operations = $account->operationsReport()->with('analyticLines.analyticAxis')->paginate(20);
+    /**
+     * Clef de session de la préférence « Tout » : toutes les opérations d'un compte, sans pagination.
+     */
+    public const string SHOW_ALL_OPERATIONS = 'show_all_operations';
 
-        // Go to last page by default
-        if (! request()->has('page')) {
-            request()->session()->reflash();
+    /**
+     * Affiche un compte et ses opérations, paginées par 20 ou toutes à la fois.
+     *
+     * Le bouton poussoir « Tout » envoie all=1 ou all=0 : la préférence est gardée en session, pour
+     * tous les comptes, puis la page se recharge sans le paramètre. Paginée, la page s'ouvre par
+     * défaut sur la dernière page, celle des opérations les plus récentes. Le flash de session est
+     * refait à chaque redirection, pour garder le message.
+     *
+     * @param  Request  $request  Requête, avec la page ou la préférence all éventuelles.
+     * @param  Account  $account  Compte à afficher, archivé ou non.
+     */
+    public function show(Request $request, Account $account): View|RedirectResponse
+    {
+        if ($request->has('all')) {
+            $request->session()->put(self::SHOW_ALL_OPERATIONS, $request->boolean('all'));
+            $request->session()->reflash();
+
+            return to_route('account.show', $account);
+        }
+
+        $show_all = $request->session()->get(self::SHOW_ALL_OPERATIONS, false) === true;
+        $query = $account->operationsReport()->with('analyticLines.analyticAxis');
+
+        if ($show_all) {
+            return view('account.show', [
+                'account' => $account,
+                'operations' => $query->get(),
+                'show_all' => true,
+            ]);
+        }
+
+        $operations = $query->paginate(20);
+
+        if (! $request->has('page')) {
+            $request->session()->reflash();
 
             return to_route('account.show', [
                 'account' => $account,
@@ -49,6 +84,7 @@ class AccountController extends Controller
         return view('account.show', [
             'account' => $account,
             'operations' => $operations,
+            'show_all' => false,
         ]);
     }
 

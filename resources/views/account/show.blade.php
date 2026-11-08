@@ -1,8 +1,12 @@
 {{--
-    Compte et ses opérations, paginées, avec leur solde cumulé et leur repère analytique.
+    Compte et ses opérations, paginées ou toutes à la fois (bouton poussoir « Tout »), avec leur solde
+    cumulé et leur repère analytique. Toutes à la fois, la page s'ouvre sur l'opération modifiée, ou
+    à défaut au bas du tableau, sur les plus récentes.
 
     @var \App\Models\Account $account Compte affiché, archivé ou non.
-    @var \Illuminate\Pagination\LengthAwarePaginator<int, \App\Models\OperationReport> $operations Opérations de la page, avec leurs lignes analytiques.
+    @var \Illuminate\Pagination\LengthAwarePaginator<int, \App\Models\OperationReport>|\Illuminate\Database\Eloquent\Collection<int, \App\Models\OperationReport> $operations
+        Opérations de la page, ou toutes sans pagination, avec leurs lignes analytiques.
+    @var bool $show_all Si toutes les opérations sont affichées, sans pagination.
 --}}
 <x-app-layout>
     <x-slot name="header">
@@ -37,10 +41,25 @@
             @unless ($account->trashed())
                 <x-link.primary :target="route('operation.create', $account)">Écrire une opération</x-link.primary>
             @endunless
-            {{ $operations->links('pagination.narrow') }}
+            <div class="flex items-center gap-3">
+                <form method="GET" action="{{ route('account.show', $account) }}">
+                    <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
+                </form>
+                @if ($show_all)
+                    <span class="text-xs text-gray-600 dark:text-gray-300">{{ trans_choice(':count opération|:count opérations', $operations->count()) }}</span>
+                @else
+                    {{ $operations->links('pagination.narrow') }}
+                @endif
+            </div>
         </div>
 
-        <div class="overflow-hidden rounded-md shadow-sm">
+        <div
+            @if ($show_all)
+                x-data
+                x-init="const row = $el.querySelector('[aria-current]'); (row ?? $el).scrollIntoView({ block: row ? 'center' : 'end' })"
+            @endif
+            class="overflow-hidden rounded-md shadow-sm"
+        >
             <table class="w-full **:border-gray-200 dark:**:border-gray-700">
                 <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                     <tr>
