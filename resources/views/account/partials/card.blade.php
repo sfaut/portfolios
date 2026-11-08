@@ -1,4 +1,9 @@
-{{-- Carte d'un compte (AccountReport) dans la liste du portfolio, estompée s'il est archivé. --}}
+{{--
+    Carte d'un compte dans la liste du portfolio, estompée s'il est archivé. Le solde porte son signe et
+    sa couleur, comme le solde cumulé de la liste des opérations : rouge négatif, vert nul, bleu positif.
+
+    @var \App\Models\AccountReport $account Compte, avec son solde et ses première et dernière dates d'opération.
+--}}
 <a
     href="{{ route('account.show', ['account' => $account]) }}"
 
@@ -26,10 +31,10 @@
         </div>
     </div>
     <div @class([
-        'text-right',
-        'content-center',
-        // 'text-red-700' => $account->operation_balance < 0,
-        // 'text-emerald-700' => $account->operation_balance == 0,
-        // 'text-blue-700' => $account->operation_balance > 0,
-    ])>{{ Number::amount($account->operation_balance, currency: 'EUR') }}</div>
+        'content-center', 'text-right', 'text-lg', 'font-semibold', 'whitespace-nowrap',
+        'group-hover:text-white',
+        'text-red-700 dark:text-red-400' => $account->operation_balance < 0,
+        'text-emerald-700 dark:text-emerald-400' => $account->operation_balance == 0,
+        'text-blue-700 dark:text-blue-400' => $account->operation_balance > 0,
+    ])>{{ Number::amount($account->operation_balance, signed: true, currency: 'EUR') }}</div>
 </a>
