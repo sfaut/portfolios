@@ -42,6 +42,7 @@
                         <th class="border px-3 py-2 whitespace-nowrap">Date effective</th>
                         <th class="border px-3 py-2">Libellé</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Montant (€)</th>
+                        <th class="border px-3 py-2">Analytique</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Solde (€)</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Horodatage création</th>
                         @unless ($account->trashed())
@@ -62,6 +63,18 @@
                             <td class="border px-3 py-2">{{ $operation->label }}</td>
                             <td class="border px-3 py-2 text-right whitespace-nowrap">
                                 {{ Number::amount($operation->amount) }}
+                            </td>
+                            <td class="border px-3 py-2 text-center whitespace-nowrap">
+                                @if ($operation->analyticLines->isNotEmpty())
+                                    <span
+                                        title="{{ $operation->analytic_breakdown }}"
+                                        class="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300"
+                                    >
+                                        <span aria-hidden="true">✓</span>
+                                        {{ $operation->analyticLines->count() }} {{ Str::plural('axe', $operation->analyticLines->count()) }}
+                                        <span class="sr-only">: {{ $operation->analytic_breakdown }}</span>
+                                    </span>
+                                @endif
                             </td>
                             <td @class([
                                 'border px-3 py-2 text-right font-semibold whitespace-nowrap',
@@ -88,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $account->trashed() ? 6 : 7 }}" class="p-4 text-center">
+                            <td colspan="{{ $account->trashed() ? 7 : 8 }}" class="p-4 text-center">
                                 Pas encore d'opérations.<br>
                                 Mais ça ne saurait tarder...<br>
                             </td>

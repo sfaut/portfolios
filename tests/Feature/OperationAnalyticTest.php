@@ -199,3 +199,20 @@ test('the operation form gives back the posted analytic lines after a failed val
             escape: false,
         );
 });
+
+test('the operations of an account show whether they are split between analytic axes', function () {
+    $split = $this->account->operations()->create([...lessonOperation([]), 'label' => 'Cours réparti']);
+    $split->analyticLines()->createMany([
+        ['analytic_axis_id' => $this->piano->id, 'percentage' => '50'],
+        ['analytic_axis_id' => $this->chess->id, 'percentage' => '50'],
+    ]);
+    $this->account->operations()->create([...lessonOperation([]), 'label' => 'Cours non réparti']);
+
+    $response = $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]));
+
+    $response->assertOk()
+        ->assertSeeInOrder(['Cours réparti', '2 axes', 'Cours piano 50', 'Cours non réparti'])
+        ->assertSee('Analytique');
+
+    expect(substr_count($response->getContent(), '✓'))->toBe(1);
+});

@@ -34,7 +34,7 @@ class AccountController extends Controller
 
     public function show(Account $account)
     {
-        $operations = $account->operationsReport()->paginate(20);
+        $operations = $account->operationsReport()->with('analyticLines.analyticAxis')->paginate(20);
 
         // Go to last page by default
         if (! request()->has('page')) {
