@@ -1,0 +1,131 @@
+# Intégration et livraison continues de Portfolios.
+#
+# À chaque push sur master et à chaque pull request : style (Pint), build du front et tests, sur un
+# serveur MySQL. Une modification de la seule documentation ne lance rien.
+#
+# À la publication d'une release GitHub (changelog rédigé à la main, voir la procédure de release) :
+# les mêmes vérifications sur le commit du tag, puis la construction de l'archive de déploiement
+# (dépendances de production, front construit), ajoutée à la release avec son empreinte SHA-256. Le
+# serveur l'installe ensuite par deploy.sh (README, section « Déploiement »). La CI n'écrit jamais
+# les notes de la release.
+#
+# Lancé à la main (workflow_dispatch) : vérifications et archive, rangée dans les artefacts de
+# l'exécution, pour essayer une construction hors release.
+
+name: CI
+
+# Fichiers sans effet sur le code : n'en changer que ceux-là ne lance pas la CI.
+on:
+  push:
+    branches: [master]
+    paths-ignore: ["**.md", ".claude/**", "LICENSE"]
+  pull_request:
+    paths-ignore: ["**.md", ".claude/**", "LICENSE"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# Une nouvelle exécution sur la même branche annule la précédente, sauf pour une release : elle ne
+# doit pas s'arrêter en cours de route.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'release' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Style, front et tests. Les tests demandent MySQL (vues SQL, fonctions de fenêtrage) et le
+  # manifeste Vite (vues Blade).
+  check:
+    name: Vérifications
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: portfolios_test
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: intl, pdo_mysql, mbstring
+          coverage: none
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: composer install --no-interaction --no-progress
+      - run: npm ci
+      - name: Style (Pint)
+        run: vendor/bin/pint --test
+      - name: Build du front (Vite)
+        run: npm run build
+      # Les variables de l'environnement l'emportent sur le .env, copié du modèle de développement
+      # pour le reste de la configuration. phpunit.xml fixe la base portfolios_test.
+      - name: Tests (Pest)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: |
+          cp .env.model-dev .env
+          php artisan key:generate --no-interaction
+          php artisan test
+
+  # Archive de déploiement : le code de l'application, ses dépendances de production et le front
+  # construit, sans les fichiers de développement. storage/ et .env n'y sont pas : deploy.sh les
+  # relie au dossier partagé du serveur.
+  package:
+    name: Archive de déploiement
+    # Pour une release, ou à la demande ; jamais pour un simple push.
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    needs: [check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      NAME: portfolios-${{ github.event.release.tag_name || github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: intl, pdo_mysql, mbstring
+          coverage: none
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      # Sans les dépendances de développement : la découverte des paquets
+      # (bootstrap/cache/packages.php) ne retient alors que ceux de production.
+      - run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+      - run: npm ci
+      - run: npm run build
+      - name: Archive et empreinte
+        run: |
+          tar --create --gzip --file "$NAME.tar.gz" \
+            app artisan bootstrap composer.json composer.lock config database lang LICENSE \
+            public resources routes vendor
+          sha256sum "$NAME.tar.gz" > "$NAME.tar.gz.sha256"
+          ls -l "$NAME".tar.gz*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.NAME }}
+          path: ${{ env.NAME }}.tar.gz*
+          if-no-files-found: error
+      # Release publiée : l'archive et son empreinte lui sont ajoutées, ses notes restent intactes.
+      - name: Ajout à la release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" "$NAME.tar.gz" "$NAME.tar.gz.sha256" --repo "$GITHUB_REPOSITORY" --clobber

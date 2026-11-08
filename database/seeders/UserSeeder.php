@@ -18,11 +18,22 @@ class UserSeeder extends Seeder
      * Les quatre variables sont obligatoires et n'ont pas de valeur par défaut : une installation ne
      * peut donc pas garder des identifiants d'administrateur publiés avec le code.
      *
+     * Une base qui a déjà un administrateur (installation sur une base existante, seed relancé) est
+     * laissée telle quelle, sans contrôle des variables.
+     *
      * @throws RuntimeException Si une variable manque ou n'est pas valide (longueur, adresse, mot de
      *                          passe trop faible).
      */
     public function run(): void
     {
+        $existing_admin = User::query()->where('is_admin', true)->first();
+
+        if ($existing_admin !== null) {
+            $this->command?->info("Administrateur déjà présent ({$existing_admin->email}) : aucun compte créé.");
+
+            return;
+        }
+
         $admin = config('app.admin');
 
         $values = [
