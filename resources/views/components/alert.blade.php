@@ -7,10 +7,10 @@
     // https://laravel.com/api/11.x/Illuminate/View/ComponentAttributeBag.html
 
     $styles = [
-        'info' => ['text-sky-700', 'bg-sky-200', 'ring-sky-300', 'dark:text-sky-200', 'dark:bg-sky-900/60', 'dark:ring-sky-700'],
+        'info' => ['text-info-700', 'bg-info-200', 'ring-info-300', 'dark:text-info-200', 'dark:bg-info-900/60', 'dark:ring-info-700'],
         'success' => ['text-success-700', 'bg-success-200', 'ring-success-300', 'dark:text-success-200', 'dark:bg-success-900/60', 'dark:ring-success-700'],
-        'warning' => ['text-amber-700', 'bg-amber-200', 'ring-amber-300', 'dark:text-amber-200', 'dark:bg-amber-900/60', 'dark:ring-amber-700'],
-        'danger' => ['text-rose-700', 'bg-rose-200', 'ring-rose-300', 'dark:text-rose-200', 'dark:bg-rose-900/60', 'dark:ring-rose-700'],
+        'warning' => ['text-warning-700', 'bg-warning-200', 'ring-warning-300', 'dark:text-warning-200', 'dark:bg-warning-900/60', 'dark:ring-warning-700'],
+        'danger' => ['text-danger-700', 'bg-danger-200', 'ring-danger-300', 'dark:text-danger-200', 'dark:bg-danger-900/60', 'dark:ring-danger-700'],
     ];
 
     $style = $styles[$type] ?? $styles['info'];

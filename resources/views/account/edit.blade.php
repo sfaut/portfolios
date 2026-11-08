@@ -5,7 +5,7 @@
                 <h2 class="text-xl font-semibold">Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></h2>
                 <div class="text-sm text-gray-400">
                     ➜ Portfolio
-                    <a href="{{ route('portfolio.show', $account->portfolio) }}" class="text-indigo-400 underline hover:no-underline">{{ $account->portfolio->name }}</a>
+                    <a href="{{ route('portfolio.show', $account->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $account->portfolio->name }}</a>
                 </div>
             </div>
             <div class="text-sm flex text-indigo-300 hover:text-indigo-700 dark:text-indigo-500 dark:hover:text-indigo-300 transition-colors ease-linear delay-100">
@@ -14,42 +14,43 @@
         </div>
     </x-slot>
 
-    @include('account.partials.form', [
-        'action' => route('account.update', $account),
-        'method' => 'put',
-        'button' => 'Modifier',
-        'abort' => route('account.show', $account),
-    ])
+    <div class="max-w-xl mx-auto flex flex-col gap-6">
 
-    <div @class([
-        'max-w-xl', 'mx-auto',
-        'shadow-sm', 'rounded-md',
-        'p-6', 'bg-white', 'dark:bg-gray-800',
-        'ring-2', 'ring-red-800', 'dark:ring-red-600',
-        'mt-6',
-    ])>
-        <header>
-            <h2 class="text-lg font-semibold">Archivage du compte</h2>
-            <p class="mt-1 text-sm text-gray-400">
+        <x-card>
+            <x-slot:title>Informations du compte</x-slot:title>
+            <x-slot:description>Modifiez les informations du compte.</x-slot:description>
+
+            @include('account.partials.form', [
+                'action' => route('account.update', $account),
+                'method' => 'put',
+                'button' => 'Modifier',
+                'abort' => route('account.show', $account),
+            ])
+        </x-card>
+
+        <x-card danger>
+            <x-slot:title>Archivage du compte</x-slot:title>
+            <x-slot:description>
                 Toutes les opérations du compte seront également archivées.
                 Le compte et ses opérations pourront être désarchivés.
-            </p>
-        </header>
-        <form
-            method="post"
-            action="{{ route('account.destroy', $account) }}"
-            onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
-        >
-            @method('delete')
-            @csrf
+            </x-slot:description>
 
-            <div class="flex items-center gap-6">
+            <form
+                method="post"
+                action="{{ route('account.destroy', $account) }}"
+                onsubmit="return confirm('Êtes-vous sûr et certain de vouloir archiver ce compte ?')"
+                class="flex items-center gap-6"
+            >
+                @method('delete')
+                @csrf
+
                 <x-danger-button>
                     Archiver
                 </x-danger-button>
                 <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-            </div>
-        </form>
+            </form>
+        </x-card>
+
     </div>
 
 </x-app-layout>

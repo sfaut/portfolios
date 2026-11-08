@@ -2,7 +2,7 @@
 
     <div @class([
         'min-h-screen',
-        'flex', 'flex-col',
+        'flex', 'flex-col', 'gap-6',
         'items-center', 'justify-center',
         'bg-gray-100', 'dark:bg-gray-900',
     ])>
@@ -13,11 +13,12 @@
             </a>
         </div>
 
-        <h1 class="mt-6 text-4xl tracking-widest drop-shadow-md font-medium text-indigo-800 dark:text-indigo-400">Portfolios</h1>
+        <h1 class="text-4xl tracking-widest drop-shadow-md font-medium text-indigo-800 dark:text-indigo-400">Portfolios</h1>
 
         <div @class([
             'max-w-md', 'w-full',
-            'mt-6', 'px-6', 'py-6',
+            'flex', 'flex-col', 'gap-4',
+            'px-6', 'py-6',
             'bg-white', 'dark:bg-gray-800',
             'shadow-md', 'overflow-hidden',
             'rounded-lg',

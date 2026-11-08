@@ -1,43 +1,22 @@
-@props([
-    'action',
-    'method',
-    'button',
-    'abort',
-])
+<form method="post" action="{{ $action }}" class="flex flex-col gap-6">
 
-<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 shadow-sm rounded-lg">
+    @method($method)
+    @csrf
 
-    <header>
-        <h2 class="text-lg font-semibold">Informations du compte</h2>
-        <p class="mt-1 text-sm text-gray-400">Renseignez les informations du compte.</p>
-    </header>
+    <div class="flex flex-col gap-1">
+        <x-input-label for="name" value="Nom"/>
+        <x-text-input id="name" name="name" type="text" class="w-full" :value="old('name', $account->name ?? '')" autofocus/>
+        <x-input-error :messages="$errors->get('name')"/>
+    </div>
 
-    <form method="post" action="{{ $action }}" class="flex flex-col gap-6">
+    <div class="flex flex-col gap-1">
+        <x-input-label for="label" value="Libellé"/>
+        <x-textarea id="label" name="label" class="w-full">{{ old('label', $account->label ?? '') }}</x-textarea>
+        <x-input-error :messages="$errors->get('label')"/>
+    </div>
 
-        @method($method)
-        @csrf
-
-        <div>
-            <x-input-label for="name" value="Nom"/>
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $account->name ?? '')" autofocus/>
-            <x-input-error class="mt-2" :messages="$errors->get('name')"/>
-        </div>
-
-        <div>
-            <x-input-label for="label" value="Libellé"/>
-            <textarea
-                id="label"
-                rows="4"
-                name="label"
-                class="resize-none mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-xs"
-            >{{ old('label', $account->label ?? '') }}</textarea>
-            <x-input-error class="mt-2" :messages="$errors->get('label')"/>
-        </div>
-
-        <div class="flex items-center gap-5">
-            <x-primary-button>{{ $button }}</x-primary-button>
-            <a href="{{ $abort }}" class="text-indigo-800 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-        </div>
-    </form>
-
-</div>
+    <div class="flex items-center gap-6">
+        <x-primary-button>{{ $button }}</x-primary-button>
+        <a href="{{ $abort }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+    </div>
+</form>

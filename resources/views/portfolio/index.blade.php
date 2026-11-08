@@ -12,15 +12,13 @@
         </div>
     </x-slot>
 
-    @if (session('message'))
-        <div class="max-w-2xl mx-auto mb-6">
+    <div class="max-w-2xl mx-auto flex flex-col gap-6">
+
+        @if (session('message'))
             <x-alert type="success">
                 {{ session('message') }}
             </x-alert>
-        </div>
-    @endif
-
-    <div class="max-w-2xl mx-auto flex flex-col gap-6 pb-6">
+        @endif
 
         @foreach($portfolios as $portfolio)
 
@@ -28,11 +26,10 @@
                 href="{{ route('portfolio.show', $portfolio) }}"
 
                 @class([
-                    'flex', 'rounded-md',
-                    'bg-white', 'dark:bg-gray-800', 'p-4', 'shadow-sm',
+                    'flex', 'items-center', 'justify-between', 'gap-4',
+                    'rounded-md', 'bg-white', 'dark:bg-gray-800', 'p-4', 'shadow-sm',
                     'hover:bg-indigo-700', 'hover:text-white',
                     'transition-all', 'duration-200', 'hover:scale-102',
-                    'items-center',
                 ])
             >
                 <div>
@@ -40,7 +37,7 @@
                     <p class="text-sm text-gray-400">{{ trim($portfolio->description) ?? '--' }}</p>
                 </div>
 
-                <svg class="self-center ml-auto" preserveAspectRatio="none" width="40" height="40" viewBox="0 0 10 10">
+                <svg class="shrink-0" preserveAspectRatio="none" width="40" height="40" viewBox="0 0 10 10">
                     <polyline
                         points="3,1 7,5 3,9"
                         stroke="currentColor" stroke-width="0.4" fill="none"

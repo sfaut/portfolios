@@ -5,14 +5,14 @@
         @include('layouts.navigation')
 
         @isset($header)
-            <header class="bg-white dark:bg-gray-800 shadow-sm mb-6">
+            <header class="bg-white dark:bg-gray-800 shadow-sm">
                 <div class="max-w-7xl mx-auto py-4 px-6">
                     {{ $header }}
                 </div>
             </header>
         @endisset
 
-        <main class="pb-6">{{ $slot }}</main>
+        <main class="py-6">{{ $slot }}</main>
 
     </div>
 

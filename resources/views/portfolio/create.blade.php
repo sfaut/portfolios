@@ -6,19 +6,19 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-xl mx-auto shadow-sm rounded-md bg-white dark:bg-gray-800 flex flex-col gap-6 p-6">
+    <div class="max-w-xl mx-auto flex flex-col gap-6">
 
-        <header>
-            <h2 class="text-lg font-semibold">Informations du portfolio</h2>
-            <p class="mt-1 text-sm text-gray-400">Renseignez les informations de votre nouveau portfolio.</p>
-        </header>
+        <x-card>
+            <x-slot:title>Informations du portfolio</x-slot:title>
+            <x-slot:description>Renseignez les informations de votre nouveau portfolio.</x-slot:description>
 
-        @include('portfolio.partials.form', [
-            'action' => route('portfolio.store'),
-            'method' => 'post',
-            'button' => 'Créer',
-            'abort' => route('portfolio.index'),
-        ])
+            @include('portfolio.partials.form', [
+                'action' => route('portfolio.store'),
+                'method' => 'post',
+                'button' => 'Créer',
+                'abort' => route('portfolio.index'),
+            ])
+        </x-card>
 
     </div>
 
