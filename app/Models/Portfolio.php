@@ -33,13 +33,6 @@ class Portfolio extends Model
         Portfolio::observe(PortfolioObserver::class);
     }
 
-    protected function casts(): array
-    {
-        return [
-            'is_admin' => 'boolean',
-        ];
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
