@@ -34,6 +34,15 @@ test('the search takes the like wildcards literally', function (string $search, 
     'underscore' => ['_', 'Aucun compte sur 4'],
 ]);
 
+test('a search sent as a list is ignored', function () {
+    $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'search' => ['livret']]));
+
+    $response->assertOk()
+        ->assertSee('Compte courant')
+        ->assertSee('Livret Épargne')
+        ->assertDontSee('sur 4');
+});
+
 test('the search opens the archived accounts section when it finds archived accounts', function () {
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'search' => 'logement']));
 

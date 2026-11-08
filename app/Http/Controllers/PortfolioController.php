@@ -47,7 +47,8 @@ class PortfolioController extends Controller
      * (paramètre month, « 2026-11 »), qui garde les comptes ayant au moins une opération dans le mois
      * (date effective, delivery_at).
      * La recherche ne tient compte ni de la casse ni des accents (collation utf8mb4_0900_ai_ci), et
-     * prend « % » et « _ » littéralement. Le mois se choisit parmi ceux où le portfolio a des
+     * prend « % » et « _ » littéralement ; une recherche qui n'est pas un texte (search[]=…) est
+     * ignorée. Le mois se choisit parmi ceux où le portfolio a des
      * opérations (liste blanche de la restriction du sélecteur) ; un autre est ignoré, sans erreur,
      * comme il convient à un filtre. Une requête ajax (composant Alpine accountSearch) reçoit le
      * seul fragment accounts de la vue, d'où l'en-tête Vary, qui sépare page et fragment en cache.
@@ -57,7 +58,8 @@ class PortfolioController extends Controller
      */
     public function show(Request $request, Portfolio $portfolio): Response
     {
-        $search = mb_substr($request->string('search')->trim()->value(), 0, 50);
+        $search = $request->query('search');
+        $search = is_string($search) ? mb_substr(trim($search), 0, 50) : '';
         $escaped_search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
 
         $month_restriction = new MonthRestriction(allow: $portfolio->operationMonths());
