@@ -2,7 +2,7 @@
     @class([
         'max-w-xl', 'mx-auto',
         'rounded-md',
-        'bg-white',
+        'bg-white', 'dark:bg-gray-800',
         'mb-6', 'p-6',
     ])
 >
@@ -35,13 +35,13 @@
 
         <div class="separated-y-2">
             <x-input-label for="delivery_at" value="Date effective"/>
-            <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="mt-1 rounded-md w-full border border-slate-300">
+            <input type="date" id="delivery_at" name="delivery_at" value="{{ old('delivery_at', $operation->delivery_at ?? date('Y-m-d')) }}" class="mt-1 rounded-md w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
             <x-input-error class="mt-2" :messages="$errors->get('delivery_at')"/>
         </div>
 
         <div class="flex items-center gap-5">
             <x-primary-button>{{ $button }}</x-primary-button>
-            <a href="{{ $abort }}" class="text-indigo-700 underline hover:no-underline">Annuler</a>
+            <a href="{{ $abort }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
         </div>
     </form>
 </div>

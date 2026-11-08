@@ -25,9 +25,9 @@
                         <button
                             @class([
                                 'flex', 'inline-flex', 'items-center',
-                                'rounded-md', 'bg-white',
+                                'rounded-md', 'bg-white', 'dark:bg-gray-800',
                                 'px-3', 'py-2',
-                                'text-sm', 'leading-4', 'text-gray-500', 'hover:text-gray-700',
+                                'text-sm', 'leading-4', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300',
                                 'transition', 'ease-in-out', 'duration-150',
                             ])
                         >

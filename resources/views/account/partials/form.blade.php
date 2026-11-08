@@ -5,7 +5,7 @@
     'abort',
 ])
 
-<div class="max-w-xl mx-auto bg-white p-6 bg-white shadow-sm rounded-lg">
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 shadow-sm rounded-lg">
 
     <header>
         <h2 class="text-lg font-semibold">Informations du compte</h2>
@@ -36,7 +36,7 @@
 
         <div class="flex items-center gap-5">
             <x-primary-button>{{ $button }}</x-primary-button>
-            <a href="{{ $abort }}" class="text-indigo-800 underline hover:no-underline">Annuler</a>
+            <a href="{{ $abort }}" class="text-indigo-800 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
         </div>
     </form>
 

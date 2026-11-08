@@ -1,11 +1,11 @@
 <x-empty-layout>
 
-    <div class="min-h-screen bg-gray-200">
+    <div class="min-h-screen bg-gray-200 dark:bg-gray-900">
 
         @include('layouts.navigation')
 
         @isset($header)
-            <header class="bg-white shadow-sm mb-6">
+            <header class="bg-white dark:bg-gray-800 shadow-sm mb-6">
                 <div class="max-w-7xl mx-auto py-4 px-6">
                     {{ $header }}
                 </div>

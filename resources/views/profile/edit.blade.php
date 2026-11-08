@@ -5,7 +5,7 @@
 
     <div class="max-w-xl mx-auto space-y-6">
 
-        <div class="p-6 bg-white shadow-sm rounded-md">
+        <div class="p-6 bg-white dark:bg-gray-800 shadow-sm rounded-md">
             <div class="max-w-xl">
                 @include('profile.partials.update-profile-information-form')
             </div>

@@ -95,6 +95,8 @@
 
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
+
+  In dark mode, the default border color is darker, to suit dark surfaces.
 */
 @layer base {
   *,
@@ -103,6 +105,10 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+
+    @variant dark {
+      border-color: var(--color-gray-700, currentcolor);
+    }
   }
 }
 

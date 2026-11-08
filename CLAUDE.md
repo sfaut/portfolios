@@ -126,6 +126,10 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et des
   styles de compatibilité qui gardent la couleur de bordure et le curseur des boutons de Tailwind 3.
+- Le mode sombre suit le réglage du système : variante `dark:` par défaut de Tailwind
+  (`prefers-color-scheme`), et `scheme-light-dark` sur `<html>` pour les contrôles natifs. Toute vue
+  nouvelle ou modifiée porte ses variantes `dark:`, sur la palette en place : fond de page `gray-900`,
+  surfaces `gray-800`, en-têtes de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
 
 ### Mails
 

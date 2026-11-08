@@ -10,7 +10,7 @@
                     <a href="{{ route('account.show', $account) }}" class="text-indigo-400 underline hover:no-underline">{{ $account->name }}</a>
                 </div>
             </div>
-            <div class="text-sm flex text-indigo-300 hover:text-indigo-700 transition-colors ease-linear delay-100">
+            <div class="text-sm flex text-indigo-300 hover:text-indigo-700 dark:text-indigo-500 dark:hover:text-indigo-300 transition-colors ease-linear delay-100">
                 <a href="{{ route('account.show', $account->id) }}" class="px-2 underline hover:no-underline">Annuler</a>
             </div>
         </div>

@@ -9,7 +9,7 @@
         'grid', 'grid-flow-col', 'auto-cols-min',
         'shadow-sm',
         'divide-x',
-        'text-xs', 'text-gray-600',
+        'text-xs', 'text-gray-600', 'dark:text-gray-300',
     ])>
 
         {{-- First page --}}
@@ -17,7 +17,7 @@
             href="{{ $paginator->url(1) }}"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
-                'p-2', 'bg-white', 'rounded-l-md',
+                'p-2', 'bg-white', 'dark:bg-gray-800', 'rounded-l-md',
             ])
         >
             <svg class="size-4" viewBox="0 0 20 20"
@@ -36,7 +36,7 @@
             href="{{ $paginator->previousPageUrl() }}"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
-                'p-2', 'bg-white',
+                'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
             <svg class="size-4" viewBox="0 0 20 20"
@@ -50,7 +50,7 @@
             </svg>
         </a>
 
-        <div class="inline-flex items-center justify-center bg-white p-2 tracking-widest text-nowrap">
+        <div class="inline-flex items-center justify-center bg-white dark:bg-gray-800 p-2 tracking-widest text-nowrap">
             Page {{ $paginator->currentPage() }}
             / {{ $paginator->lastPage() }}
         </div>
@@ -60,7 +60,7 @@
             href="{{ $paginator->nextPageUrl() }}"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
-                'p-2', 'bg-white',
+                'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
             <svg class="size-4" viewBox="0 0 20 20"
@@ -79,7 +79,7 @@
             href="{{ $paginator->url($paginator->lastPage()) }}"
             @class([
                 'inline-flex', 'items-center', 'justify-center',
-                'rounded-r-md', 'p-2', 'bg-white',
+                'rounded-r-md', 'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
             <svg class="size-4" viewBox="0 0 20 20"
