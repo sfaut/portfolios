@@ -1,5 +1,11 @@
 # Portfolios
 
+[![Release](https://img.shields.io/github/v/release/sfaut/portfolios)](https://github.com/sfaut/portfolios/releases/latest)
+[![License](https://img.shields.io/github/license/sfaut/portfolios)](LICENSE)
+![PHP](https://img.shields.io/badge/PHP-8.5-informational)
+![Laravel](https://img.shields.io/badge/Laravel-13-informational)
+![Database](https://img.shields.io/badge/database-MySQL%208.0%2B-informational)
+
 Application web de suivi de comptes, regroupés en portfolios.
 
 ## Présentation
