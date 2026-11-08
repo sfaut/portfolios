@@ -33,7 +33,7 @@
                 />
                 <button
                     type="button"
-                    class="absolute inset-y-0 end-0 flex items-center px-3 rounded-e-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600"
+                    class="absolute inset-y-0 inset-e-0 flex items-center px-3 rounded-e-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                     aria-label="Afficher le mot de passe"
                     aria-controls="password"
                     aria-pressed="false"
