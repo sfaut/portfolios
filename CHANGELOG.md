@@ -2,6 +2,18 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.3.1 (2026-11-08)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.3.1, une version corrective du sélecteur de mois arrivé
+avec v1.3.0.
+
+### 🐞 Corrections
+
+- Sélecteur de mois : un clic sur le chevron, à droite du champ, ouvre maintenant la fenêtre de choix
+  des mois, comme le reste du champ.
+
 ## v1.3.0 (2026-11-08)
 
 ### 🚀 Lancement
