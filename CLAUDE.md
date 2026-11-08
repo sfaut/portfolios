@@ -39,8 +39,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   lanceur intégré à Node (`node:test`, sans dépendance), sur `tests/js/**/*.test.js` ; ils ne portent
   que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`). Les cas que PHP
   et JavaScript doivent appliquer à l'identique sont dans `tests/fixtures/*.json`, lus par les deux.
-- GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests sur un
-  service MySQL) à chaque push sur `master` et à chaque pull request. À la publication d'une release, il
+- GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests JavaScript,
+  tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
+  publication d'une release, il
   construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
   ajoute à la release avec son empreinte SHA-256 (`portfolios-vX.Y.Z.tar.gz`, `.sha256`).
 - Production : le déploiement est décrit dans `README.md`, seule source du script `deploy.sh` dans le
