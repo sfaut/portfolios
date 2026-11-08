@@ -2,6 +2,96 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.2.0 (2026-11-08)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.2.0, la plus grande version à ce jour :
+
+- l'analytique : chaque portfolio définit ses axes, et une opération se répartit entre eux ;
+- les comptes archivés restent consultables et se désarchivent ;
+- une interface revue, en thème clair, sombre ou celui du système ;
+- un déploiement par les archives des releases, avec sauvegarde de la base et retour arrière ;
+- Laravel 13 et PHP 8.5.
+
+### ✨ Nouvelles fonctionnalités
+
+- Analytique : chaque portfolio a ses axes (par exemple « Logement », « Loisirs »), créés, modifiés et
+  archivés depuis sa page. Une opération se répartit entre plusieurs axes, en pourcentages qui
+  totalisent 100 % ; la liste des opérations marque d'une pastille les opérations réparties, avec le
+  détail par axe au survol.
+- Comptes archivés : la page d'un portfolio les liste sous les comptes actifs, dans une section repliée
+  par défaut. Leurs opérations se consultent en lecture seule, et un compte archivé se désarchive.
+- Thème clair, sombre ou celui du système, au choix dans le menu utilisateur, sur toutes les pages,
+  pages d'erreur comprises.
+- Confirmation des archivages et suppressions dans une boîte de dialogue.
+- Bouton pour afficher le mot de passe sur la page de connexion.
+- Interface revue : cartes en trois parties (en-tête, contenu, actions), icônes Lucide, infobulles,
+  messages avec icône selon leur type, solde des comptes signé et coloré, signe moins typographique
+  « − » devant les montants négatifs, barres de défilement fines.
+- Commande `php artisan db:dump`, qui écrit une copie SQL complète de la base.
+- Déploiement : la CI ajoute à chaque release une archive de l'application prête à servir, avec son
+  empreinte SHA-256. Le script `deploy.sh`, donné dans le README, l'installe sur le serveur : il
+  sauvegarde la base, passe les migrations, bascule vers la nouvelle version d'un coup, crée le service
+  du worker de file, et revient à une version précédente sur demande.
+
+### 💥 Changements incompatibles
+
+- PHP 8.5 est requis (8.2 auparavant), avec les extensions `intl` et `pdo_mysql`.
+- Les modèles de configuration deviennent `.env.model-dev` et `.env.model-prod`.
+- L'administrateur se crée depuis les variables `APP_ADMIN_LAST_NAME`, `APP_ADMIN_FIRST_NAME`,
+  `APP_ADMIN_EMAIL` et `APP_ADMIN_PASSWORD`, obligatoires et sans valeur par défaut. `APP_ADMIN_EMAIL`
+  reçoit aussi les mails de portfolio.
+- La session est enregistrée en JSON : les utilisateurs connectés devront se reconnecter.
+- La sauvegarde de la base demande le privilège MySQL `SHOW_ROUTINE` (MySQL 8.0.20 ou plus récent).
+
+### 🐞 Corrections
+
+- La description d'un compte est enregistrée et affichée.
+- Après l'ajout d'une opération, la redirection mène au compte, avec son message.
+- La description d'un portfolio reste lisible au survol.
+
+### 🔒 Sécurité
+
+- Les comptes et les opérations sont réservés à leur propriétaire : un utilisateur pouvait auparavant
+  consulter, modifier ou supprimer ceux d'un autre utilisateur à partir de leur identifiant.
+- Le mode débogage est désactivé quand `APP_DEBUG` manque.
+- Le cache et la session ne désérialisent plus aucune classe PHP.
+- Les modèles de configuration ne contiennent plus de clef d'application ni d'identifiants
+  d'administrateur.
+- La sauvegarde transmet le mot de passe de la base par un fichier temporaire, hors de la ligne de
+  commande.
+
+### ⚙️ Améliorations internes
+
+- Dépendances PHP :
+  - `laravel/framework` v11.41.3 → v13.40.0 ;
+  - `laravel/tinker` v2.10.1 → v3.0.2 ;
+  - `mallardduck/blade-lucide-icons` ajouté (2.0.42), pour les icônes Lucide ;
+  - développement : `pestphp/pest` v3.7.4 → v5.3.5, `pestphp/pest-plugin-laravel` v3.1.0 → v5.0.1,
+    `barryvdh/laravel-debugbar` v3.14.10 → v4.4.5, `laravel/pail` v1.2.2 → v1.2.7, `laravel/pint`
+    v1.20.0 → v1.32.1, `mockery/mockery` 1.6.12 → 1.6.15 ;
+  - développement : `laravel/boost` ajouté (v2.10.4) ;
+  - développement : `laravel/breeze` (v2.3.3) retiré, son code d'authentification faisant désormais
+    partie du projet ; `laravel/sail` (v1.41.0) retiré, inutilisé ; `nunomaduro/collision` retiré
+    des dépendances directes, toujours installé par Pest.
+- Dépendances front :
+  - `tailwindcss` 3.4.17 → 4.3.5, avec `@tailwindcss/vite` (4.3.5), qui remplace `postcss` (8.5.1)
+    et `autoprefixer` (10.4.20) ;
+  - `vite` 6.0.7 → 8.3.6, `laravel-vite-plugin` 1.1.1 → 3.2.1 ;
+  - `alpinejs` 3.14.8 → 3.17.5, `@tailwindcss/forms` 0.5.10 → 0.5.11, `concurrently` 9.1.2 → 10.0.7 ;
+  - `axios` (1.7.9) retiré, inutilisé.
+- Intégration continue GitHub Actions : style (Pint), build du front et tests sur MySQL, à chaque push et
+  pull request.
+- Les tests tournent sur leur propre base, `portfolios_test`.
+- Le projet s'appelle Portfolios (paquet Composer `sfaut/portfolios`).
+
+### 📝 Documentation
+
+- README : présentation, déploiement (serveur, Nginx, certificat, worker, sauvegardes, droits) et
+  développement.
+- Changelog, licence MIT, modèles de configuration commentés section par section.
+
 ## v1.1.1 (2025-02-09)
 
 ### 🚀 Lancement
