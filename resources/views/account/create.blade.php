@@ -17,9 +17,12 @@
             @include('account.partials.form', [
                 'action' => route('account.store', $portfolio),
                 'method' => 'post',
-                'button' => 'Créer',
-                'abort' => route('portfolio.show', $portfolio),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="account-form">Créer</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
     </div>

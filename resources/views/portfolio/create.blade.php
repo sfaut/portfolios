@@ -15,9 +15,12 @@
             @include('portfolio.partials.form', [
                 'action' => route('portfolio.store'),
                 'method' => 'post',
-                'button' => 'Créer',
-                'abort' => route('portfolio.index'),
             ])
+
+            <x-slot:footer>
+                <a href="{{ route('portfolio.index') }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-primary-button form="portfolio-form">Créer</x-primary-button>
+            </x-slot:footer>
         </x-card>
 
     </div>

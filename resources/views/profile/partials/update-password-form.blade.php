@@ -2,7 +2,7 @@
     <x-slot:title>Modification du mot de passe</x-slot:title>
     <x-slot:description>Sécurisez votre compte avec un mot de passe long et difficile à retrouver.</x-slot:description>
 
-    <form method="post" action="{{ route('password.update') }}" class="flex flex-col gap-6">
+    <form id="update-password-form" method="post" action="{{ route('password.update') }}" class="flex flex-col gap-6">
         @csrf
         @method('put')
 
@@ -24,18 +24,19 @@
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')"/>
         </div>
 
-        <div class="flex items-center gap-6">
-            <x-primary-button>Sauvegarder</x-primary-button>
-
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm"
-                >Sauvegardé</p>
-            @endif
-        </div>
     </form>
+
+    <x-slot:footer>
+        @if (session('status') === 'password-updated')
+            <p
+                x-data="{ show: true }"
+                x-show="show"
+                x-transition
+                x-init="setTimeout(() => show = false, 2000)"
+                class="text-sm"
+            >Sauvegardé</p>
+        @endif
+
+        <x-primary-button form="update-password-form">Sauvegarder</x-primary-button>
+    </x-slot:footer>
 </x-card>
