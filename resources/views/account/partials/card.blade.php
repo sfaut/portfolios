@@ -31,5 +31,5 @@
         // 'text-red-700' => $account->operation_balance < 0,
         // 'text-emerald-700' => $account->operation_balance == 0,
         // 'text-blue-700' => $account->operation_balance > 0,
-    ])>{{ Number::currency($account->operation_balance, 'EUR', 'fr') }}</div>
+    ])>{{ Number::amount($account->operation_balance, currency: 'EUR') }}</div>
 </a>
