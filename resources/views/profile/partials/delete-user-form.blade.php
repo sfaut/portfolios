@@ -1,8 +1,18 @@
 {{--
     Suppression du compte et de toutes ses données, confirmée dans une boîte par le mot de passe.
+    Le compte administrateur ne se supprime pas : la carte le dit, sans bouton ni boîte.
 
+    @var \App\Models\User $user Utilisateur connecté.
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation, dans le sac userDeletion.
 --}}
+@if ($user->is_admin)
+<x-card>
+    <x-slot:title>Suppression de compte</x-slot:title>
+    <x-slot:description>
+        Le compte administrateur ne peut pas être supprimé.
+    </x-slot:description>
+</x-card>
+@else
 <x-card danger>
     <x-slot:title>Suppression de compte</x-slot:title>
     <x-slot:description>
@@ -46,3 +56,4 @@
         <x-danger-button form="user-deletion-form">Supprimer mon compte</x-danger-button>
     </x-slot:footer>
 </x-dialog>
+@endif
