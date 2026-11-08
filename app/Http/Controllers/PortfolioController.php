@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PortfolioRequest;
 use App\Models\Portfolio;
-use Illuminate\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PortfolioController extends Controller
 {
@@ -33,17 +35,45 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Affiche le portfolio, ses comptes actifs puis ses comptes archivés.
+     * Affiche le portfolio, ses comptes actifs puis ses comptes archivés, filtrés sur leur nom par la
+     * recherche (paramètre search) quand elle est donnée, avec le nombre de comptes trouvés.
      *
+     * La recherche ne tient compte ni de la casse ni des accents (collation utf8mb4_0900_ai_ci), et
+     * prend « % » et « _ » littéralement. Une requête ajax (composant Alpine accountSearch) reçoit le
+     * seul fragment accounts de la vue, d'où l'en-tête Vary, qui sépare page et fragment en cache.
+     *
+     * @param  Request  $request  Requête, avec la recherche éventuelle.
      * @param  Portfolio  $portfolio  Portfolio à afficher.
      */
-    public function show(Portfolio $portfolio): View
+    public function show(Request $request, Portfolio $portfolio): Response
     {
-        return view('portfolio.show', [
+        $search = mb_substr($request->string('search')->trim()->value(), 0, 50);
+
+        $escaped_search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+
+        $filter = fn (Builder $query) => $query->whereLike('name', "%{$escaped_search}%");
+
+        $accounts = $portfolio->accountsReport()->when($search !== '', $filter)->get();
+        $archived_accounts = $portfolio->accountsReport()->onlyTrashed()->when($search !== '', $filter)->get();
+
+        $summary = '';
+
+        if ($search !== '') {
+            $summary = trans_choice('portfolio.search.summary', $accounts->count() + $archived_accounts->count(), [
+                'total' => $portfolio->accountsReport()->withTrashed()->count(),
+            ]);
+        }
+
+        $view = view('portfolio.show', [
             'portfolio' => $portfolio,
-            'accounts' => $portfolio->accountsReport,
-            'archived_accounts' => $portfolio->accountsReport()->onlyTrashed()->get(),
+            'search' => $search,
+            'summary' => $summary,
+            'accounts' => $accounts,
+            'archived_accounts' => $archived_accounts,
         ]);
+
+        return response($view->fragmentIf($request->ajax(), 'accounts'))
+            ->header('Vary', 'X-Requested-With');
     }
 
     public function edit(Portfolio $portfolio)
