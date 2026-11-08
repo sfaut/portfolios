@@ -132,8 +132,8 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
   corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
-  n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau rouge des cartes
-  d'archivage. Pagination par la vue `pagination.narrow`.
+  n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau et le titre rouges des
+  cartes d'archivage et de suppression. Pagination par la vue `pagination.narrow`.
 - Tailwind CSS 4 se configure dans `resources/css/app.css`, sans fichier de configuration JavaScript, et
   passe par son plugin Vite. Ce fichier définit les couleurs sémantiques (`primary` indigo, `secondary`
   gris, `success`, `danger`, `warning`, `info`) comme alias de la palette, dans `@theme inline`, et un
