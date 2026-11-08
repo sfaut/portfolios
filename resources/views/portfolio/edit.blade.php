@@ -33,15 +33,28 @@
             </x-slot:description>
 
             <x-slot:footer>
-                <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}" class="flex items-center gap-6">
+                <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
+                <x-danger-button type="button" commandfor="archive-portfolio" command="show-modal">Archiver</x-danger-button>
+            </x-slot:footer>
+        </x-card>
+
+        <x-dialog id="archive-portfolio" danger>
+            <x-slot:title>Archiver le portfolio « {{ $portfolio->name }} » ?</x-slot:title>
+            <x-slot:description>
+                Le portfolio, ses comptes et ses opérations ne seront plus consultables.
+            </x-slot:description>
+
+            <x-slot:footer>
+                <button type="button" commandfor="archive-portfolio" command="close" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</button>
+
+                <form method="post" action="{{ route('portfolio.destroy', $portfolio) }}">
                     @method('delete')
                     @csrf
 
-                    <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                    <x-danger-button>Archiver</x-danger-button>
+                    <x-danger-button>Archiver le portfolio</x-danger-button>
                 </form>
             </x-slot:footer>
-        </x-card>
+        </x-dialog>
 
     </div>
 
