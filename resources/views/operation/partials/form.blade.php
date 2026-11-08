@@ -88,6 +88,7 @@
                                 <div class="flex shrink-0 items-center gap-1">
                                     <x-number-input
                                         x-model="line.percentage"
+                                        x-on:keydown.enter.prevent="addFromKeyboard()"
                                         x-bind:name="`analytic_lines[${index}][percentage]`"
                                         x-bind:aria-label="`Pourcentage de la ligne ${index + 1}`"
                                         min="0.01"
