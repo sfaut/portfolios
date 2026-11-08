@@ -25,7 +25,7 @@ Route::controller(PortfolioController::class)->middleware(['auth'])->group(funct
     Route::put('/portfolio/{portfolio}', 'update')->name('portfolio.update');
     Route::delete('/portfolio/{portfolio}', 'destroy')->name('portfolio.destroy');
 
-    Route::get('/portfolio/{id}', fn (int $id) => to_route('portfolio.show', ['portfolio' => $id]));
+    Route::get('/portfolio/{id}', fn (int $id) => to_route('portfolio.show', ['portfolio' => $id]))->whereNumber('id');
 });
 
 Route::controller(AccountController::class)->middleware(['auth'])->group(function () {
