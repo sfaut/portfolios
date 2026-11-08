@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PortfolioRequest;
 use App\Models\Operation;
 use App\Models\Portfolio;
+use App\Support\MonthRestriction;
 use App\View\Components\MonthPicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -43,10 +44,12 @@ class PortfolioController extends Controller
      * sont donnés, avec le nombre de comptes trouvés.
      *
      * Deux filtres, cumulables : la recherche (paramètre search) sur le nom des comptes, et le mois
-     * (paramètre month, « 2026-11 »), qui garde les comptes ayant au moins une opération dans le mois.
+     * (paramètre month, « 2026-11 »), qui garde les comptes ayant au moins une opération dans le mois
+     * (date effective, delivery_at).
      * La recherche ne tient compte ni de la casse ni des accents (collation utf8mb4_0900_ai_ci), et
      * prend « % » et « _ » littéralement. Le mois se choisit parmi ceux où le portfolio a des
-     * opérations ; un autre est ignoré. Une requête ajax (composant Alpine accountSearch) reçoit le
+     * opérations (liste blanche de la restriction du sélecteur) ; un autre est ignoré, sans erreur,
+     * comme il convient à un filtre. Une requête ajax (composant Alpine accountSearch) reçoit le
      * seul fragment accounts de la vue, d'où l'en-tête Vary, qui sépare page et fragment en cache.
      *
      * @param  Request  $request  Requête, avec la recherche et le mois éventuels.
@@ -57,10 +60,10 @@ class PortfolioController extends Controller
         $search = mb_substr($request->string('search')->trim()->value(), 0, 50);
         $escaped_search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
 
-        $months = $portfolio->operationMonths();
-        $month = $request->string('month')->value();
+        $month_restriction = new MonthRestriction(allow: $portfolio->operationMonths());
+        $month = $request->query('month');
 
-        if (! in_array($month, $months, true)) {
+        if (! $month_restriction->isChoosable($month)) {
             $month = '';
         }
 
@@ -98,7 +101,7 @@ class PortfolioController extends Controller
             'portfolio' => $portfolio,
             'search' => $search,
             'month' => $month,
-            'months' => $months,
+            'month_restriction' => $month_restriction,
             'filtered' => $filtered,
             'summary' => $summary,
             'empty_message' => $empty_message,

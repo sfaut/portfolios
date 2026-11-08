@@ -69,6 +69,8 @@ jobs:
         run: vendor/bin/pint --test
       - name: Build du front (Vite)
         run: npm run build
+      - name: Tests JavaScript (node:test)
+        run: npm run test:js
       # Les variables de l'environnement l'emportent sur le .env, copié du modèle de développement
       # pour le reste de la configuration. phpunit.xml fixe la base portfolios_test.
       - name: Tests (Pest)

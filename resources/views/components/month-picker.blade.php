@@ -4,6 +4,11 @@
     (popover auto : Échap et clic dehors le ferment), placé sous le déclencheur par le positionnement
     d'ancre CSS, au-dessus faute de place. Le parent lie la sélection par x-model (x-modelable).
 
+    Validation : $config porte une copie de la restriction (App\Support\MonthRestriction), qui ne
+    sert qu'à griser les mois interdits. Le serveur contrôle la valeur reçue avec sa propre
+    restriction, par la règle App\Rules\MonthSelection : voir le docblock de
+    App\View\Components\MonthPicker.
+
     @var string $name Nom du champ envoyé.
     @var string $label Libellé accessible du sélecteur.
     @var string $mode Mode de sélection : single, multiple ou range.

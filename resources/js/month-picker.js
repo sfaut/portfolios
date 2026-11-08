@@ -1,11 +1,18 @@
+import { createRestriction, describe, keyOf, nameOf, parse, seek } from "./month-picker-rules.js";
+
 /**
  * Month picker (components/month-picker.blade.php, App\View\Components\MonthPicker), inspired by
  * <input type="month">: the panel shows one year and its twelve months.
  *
  * Three modes: "single" (one month, "2026-11" or ""), "multiple" (sorted list of months) and
- * "range" ({start, end}, "" when missing). Months are written "2026-11", so that comparing their
- * texts compares their dates. min and max bound the months; months, when given, restricts them
- * further. The trigger label is built as MonthPicker::describe() does on the server.
+ * "range" ({start, end}, "" when missing). The restriction (bounds, white list, black list) comes
+ * from App\Support\MonthRestriction; its rule and the trigger label live in month-picker-rules.js.
+ * In range mode, only the ends of a range must be choosable: forbidden months inside it are shown
+ * in the range, greyed.
+ *
+ * Validation: this component validates nothing. Its copy of the restriction only greys the
+ * forbidden months and skips them with the keyboard; the server checks the value it receives
+ * against its own restriction (App\Rules\MonthSelection), whatever the browser sends.
  *
  * Keyboard, on a month: arrows move to the previous / next choosable month (Left / Right) or three
  * months away (Up / Down), Page Up / Page Down change the year, Home / End go to the first / last
@@ -14,86 +21,15 @@
  * @param {object} config Configuration prepared by MonthPicker.
  * @param {"single"|"multiple"|"range"} config.mode Selection mode.
  * @param {string|string[]|{start: string, end: string}} config.value Initial selection.
- * @param {?string[]} config.months Choosable months, or null for all those within the bounds.
- * @param {string} config.min First month, "" without bound.
- * @param {string} config.max Last month, "" without bound.
+ * @param {import("./month-picker-rules.js").RestrictionConfig} config.restriction Copy of the restriction, for the display.
  * @param {string} config.placeholder Text of the trigger without selection.
  */
-export default function monthPicker({ mode, value, months, min, max, placeholder }) {
+export default function monthPicker({ mode, value, restriction, placeholder }) {
     const lang = document.documentElement.lang || "fr";
-    const long_format = new Intl.DateTimeFormat(lang, { month: "long", year: "numeric" });
     const short_format = new Intl.DateTimeFormat(lang, { month: "short" });
-    const choosable_months = months === null ? null : new Set(months);
+    const rules = createRestriction(restriction);
+    const { min, max, isChoosable } = rules;
     const now = new Date();
-
-    /**
-     * Month key of a year and a month number (1 to 12): "2026-11".
-     *
-     * @param {number} year
-     * @param {number} month
-     * @returns {string}
-     */
-    const keyOf = (year, month) => `${year}-${String(month).padStart(2, "0")}`;
-
-    /**
-     * Year and month number of a month key.
-     *
-     * @param {string} key
-     * @returns {[number, number]}
-     */
-    const parse = (key) => [Number(key.slice(0, 4)), Number(key.slice(5, 7))];
-
-    /**
-     * Month key a number of months away.
-     *
-     * @param {string} key
-     * @param {number} offset Months to add, negative to go back.
-     * @returns {string}
-     */
-    const shift = (key, offset) => {
-        const [year, month] = parse(key);
-        const index = year * 12 + month - 1 + offset;
-
-        return keyOf(Math.floor(index / 12), (index % 12) + 1);
-    };
-
-    /**
-     * Full name of a month, "novembre 2026".
-     *
-     * @param {string} key
-     * @returns {string}
-     */
-    const nameOf = (key) => {
-        const [year, month] = parse(key);
-
-        return long_format.format(new Date(year, month - 1, 1));
-    };
-
-    /**
-     * Label of a month, "Novembre 2026".
-     *
-     * @param {string} key
-     * @returns {string}
-     */
-    const labelOf = (key) => {
-        const name = nameOf(key);
-
-        return name.charAt(0).toLocaleUpperCase(lang) + name.slice(1);
-    };
-
-    /**
-     * Whether the month is within the bounds.
-     *
-     * @param {string} key
-     */
-    const isWithinBounds = (key) => (min === "" || key >= min) && (max === "" || key <= max);
-
-    /**
-     * Whether the month can be chosen.
-     *
-     * @param {string} key
-     */
-    const isChoosable = (key) => isWithinBounds(key) && (choosable_months === null || choosable_months.has(key));
 
     /**
      * First month of the selection, "" without selection.
@@ -166,27 +102,7 @@ export default function monthPicker({ mode, value, months, min, max, placeholder
          * @returns {string}
          */
         get display() {
-            if (this.mode === "multiple") {
-                return this.value.length > 1
-                    ? `${this.value.length} mois`
-                    : this.value.length === 1 ? labelOf(this.value[0]) : "";
-            }
-
-            if (this.mode === "range") {
-                const { start, end } = this.value;
-
-                if (start === "") {
-                    return "";
-                }
-
-                if (end === "") {
-                    return `Depuis ${nameOf(start)}`;
-                }
-
-                return end === start ? labelOf(start) : `${labelOf(start)} – ${nameOf(end)}`;
-            }
-
-            return this.value === "" ? "" : labelOf(this.value);
+            return describe(this.mode, this.value, lang);
         },
 
         /**
@@ -253,7 +169,7 @@ export default function monthPicker({ mode, value, months, min, max, placeholder
                 return {
                     key,
                     short: short_format.format(new Date(this.year, index, 1)),
-                    name: nameOf(key),
+                    name: nameOf(key, lang),
                     active: isChoosable(key),
                     selected: this.isSelected(key),
                     inside: this.range !== null && key > this.range[0] && key < this.range[1],
@@ -292,14 +208,17 @@ export default function monthPicker({ mode, value, months, min, max, placeholder
 
             const classes = [];
 
-            if (cell.inside) {
+            if (cell.inside && cell.active) {
                 classes.push("bg-indigo-100 text-indigo-900 dark:bg-indigo-900/60 dark:text-indigo-100");
+            } else if (cell.inside) {
+                // Forbidden month inside a range: part of the range, but greyed.
+                classes.push("cursor-default bg-indigo-50 text-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-700");
+            } else if (!cell.active) {
+                classes.push("cursor-default text-gray-300 dark:text-gray-600");
             }
 
-            if (cell.active) {
+            if (cell.active && !cell.inside) {
                 classes.push("hover:bg-indigo-50 dark:hover:bg-indigo-950/60");
-            } else {
-                classes.push("cursor-default text-gray-300 dark:text-gray-600");
             }
 
             if (cell.current) {
@@ -425,27 +344,6 @@ export default function monthPicker({ mode, value, months, min, max, placeholder
         },
 
         /**
-         * Nearest choosable month from a month, moving by a step, within the bounds; null if none.
-         *
-         * @param {string} key Starting month, excluded.
-         * @param {number} step Months to move by at each try, negative to go back.
-         * @returns {?string}
-         */
-        seek(key, step) {
-            for (let candidate = shift(key, step), tries = 0; tries < 1200; candidate = shift(candidate, step), tries++) {
-                if (!isWithinBounds(candidate)) {
-                    return null;
-                }
-
-                if (isChoosable(candidate)) {
-                    return candidate;
-                }
-            }
-
-            return null;
-        },
-
-        /**
          * Keyboard navigation between the months (see the module description).
          *
          * @param {KeyboardEvent} event
@@ -463,16 +361,16 @@ export default function monthPicker({ mode, value, months, min, max, placeholder
 
             switch (event.key) {
                 case "ArrowLeft":
-                    target = this.seek(key, -1);
+                    target = seek(rules, key, -1);
                     break;
                 case "ArrowRight":
-                    target = this.seek(key, 1);
+                    target = seek(rules, key, 1);
                     break;
                 case "ArrowUp":
-                    target = this.seek(key, -3);
+                    target = seek(rules, key, -3);
                     break;
                 case "ArrowDown":
-                    target = this.seek(key, 3);
+                    target = seek(rules, key, 3);
                     break;
                 case "Home":
                     target = months_of_year[0];
