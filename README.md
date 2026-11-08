@@ -56,8 +56,8 @@ Pile : PHP 8.5, Laravel 13, Blade, Alpine.js, Tailwind CSS 4, MySQL.
    CREATE DATABASE portfolios CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
    ```
 
-3. Copier `.env.example-production` vers `.env`, puis y renseigner au moins `APP_URL`, les accès à la
-   base (`DB_*`) et au serveur de mail (`MAIL_*`), et l'administrateur (`APP_ADMIN_*`, obligatoires).
+3. Copier `.env.model-prod` vers `.env`, puis y renseigner au moins `APP_URL`, les accès à la base
+   (`DB_*`) et au serveur de mail (`MAIL_*`), et l'administrateur (`APP_ADMIN_*`, obligatoires).
    Générer ensuite la clef de l'application :
 
    ```sh
@@ -120,7 +120,7 @@ En plus des prérequis du déploiement, le développement demande Node.js 22 au 
 ```sh
 composer install
 npm install
-cp .env.example-local .env
+cp .env.model-dev .env
 php artisan key:generate
 ```
 

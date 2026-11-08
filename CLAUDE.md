@@ -17,9 +17,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ## Commandes
 
-- Installation : `composer install`, `npm install`, copier `.env.example-local` (ou
-  `.env.example-production`) vers `.env` et y renseigner les identifiants, puis `php artisan key:generate`
-  et `php artisan migrate --seed`. `UserSeeder`, appelé par `DatabaseSeeder`, crée l'administrateur
+- Installation : `composer install`, `npm install`, copier `.env.model-dev` (ou `.env.model-prod`) vers
+  `.env` et y renseigner les identifiants, puis `php artisan key:generate` et `php artisan migrate --seed`. `UserSeeder`, appelé par `DatabaseSeeder`, crée l'administrateur
   (id 1) depuis les quatre variables `APP_ADMIN_*`, lues par `config('app.admin')`. Elles sont
   obligatoires et sans valeur par défaut, pour qu'aucune installation ne garde des identifiants publiés
   avec le code : une valeur absente ou invalide arrête le seed, avec le nom des variables à corriger.
