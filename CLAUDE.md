@@ -43,6 +43,8 @@ Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`, montants en euro
   variable d'environnement l'emportant sur le `.env`.
 - Les tests demandent MySQL, à cause des vues créées par les migrations (`CREATE OR REPLACE VIEW`,
   fonctions de fenêtrage), et le manifeste Vite (`npm run build`) pour les vues Blade.
+- `mockery/mockery` reste nécessaire sans aucune doublure dans les tests : `RefreshDatabase` lance
+  `migrate:fresh` par `artisan()`, qui simule la sortie de la console avec Mockery.
 - `tests/Feature/OwnershipTest.php` vérifie le cloisonnement entre utilisateurs, route par route : une
   nouvelle route sur un portfolio, un compte ou une opération s'y ajoute.
 
