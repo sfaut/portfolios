@@ -41,6 +41,7 @@ symbolique, d'un coup :
 ```
 /var/www/portfolios/
 ├── deploy.sh                 script de déploiement
+├── backups/                  sauvegardes de la base, une par déploiement
 ├── current -> releases/vX.Y.Z
 ├── releases/
 │   ├── vX.Y.Z/               version active
@@ -60,7 +61,7 @@ version qui suit v1.1.1.
   `php8.5-mysql` et `php8.5-mbstring` viennent du dépôt d'Ondřej Surý.
 - MySQL 8.0 ou plus récent : les vues de l'application utilisent des fonctions de fenêtrage et la
   collation `utf8mb4_0900_ai_ci`.
-- Nginx, `curl` et systemd.
+- Nginx, `curl`, systemd et `mysqldump` (client MySQL, installé avec le serveur MySQL).
 - Un serveur SMTP pour les mails (réinitialisation du mot de passe, mails à l'administrateur).
 
 Les commandes qui suivent se lancent en root ; PHP-FPM et Nginx tournent sous le compte `www-data`.
@@ -260,6 +261,16 @@ pour ce domaine : le garder seulement une fois HTTPS en place et stable.
    /var/www/portfolios/deploy.sh vX.Y.Z
    ```
 
+Avant les migrations, `deploy.sh` sauvegarde la base dans `backups/`
+(`portfolios-<date>-<heure>-avant-vX.Y.Z.sql.gz`, dix gardées) ; une sauvegarde en échec arrête le
+déploiement. Une sauvegarde se restaure, site en maintenance, par :
+
+```sh
+runuser --user www-data -- php /var/www/portfolios/current/artisan down
+zcat /var/www/portfolios/backups/portfolios-…-avant-vX.Y.Z.sql.gz | mysql portfolios
+runuser --user www-data -- php /var/www/portfolios/current/artisan up
+```
+
 Pour revenir à une version précédente, relancer `deploy.sh` avec son numéro. Encore sur le disque
 (`deploy.sh` garde les cinq dernières), elle est réactivée sans téléchargement. Les migrations restent
 en place : l'ancienne version tourne sur le schéma de la nouvelle, ce qui demande des migrations
@@ -275,6 +286,7 @@ créé à la main.
 ```
 /var/www/portfolios/                 root:root          755
 ├── deploy.sh                        root:root          700   lu et lancé par root seul
+├── backups/                         root:root          700   fichiers en 600, lus par root seul
 ├── current -> releases/vX.Y.Z       root:root          lien
 ├── releases/                        root:root          755
 │   └── vX.Y.Z/                      root:root          755 (dossiers) / 644 (fichiers)
@@ -317,16 +329,18 @@ dossier de l'application, compte du serveur web, service PHP-FPM, nombre de vers
 #     1. Téléchargement de l'archive de la release, construite par la CI, et contrôle de son
 #        empreinte SHA-256.
 #     2. Décompression dans releases/vX.Y.Z, reliée au .env et au storage/ partagés.
-#     3. Migrations de la base et mise en cache (configuration, routes, vues, icônes).
-#     4. Bascule du lien current vers la nouvelle version, d'un coup.
-#     5. Rechargement de PHP-FPM et redémarrage du worker de file.
-#     6. Suppression des versions les plus anciennes.
+#     3. Mise en cache (configuration, routes, vues, icônes).
+#     4. Sauvegarde de la base, compressée, dans backups/.
+#     5. Migrations de la base.
+#     6. Bascule du lien current vers la nouvelle version, d'un coup.
+#     7. Rechargement de PHP-FPM et redémarrage du worker de file.
+#     8. Suppression des versions et des sauvegardes les plus anciennes.
 #
 # Retour arrière : une version encore présente sur le disque est réactivée sans téléchargement
-# (étapes 3 à 6). Les migrations déjà passées restent en place : l'ancienne version tourne sur le
-# schéma de la nouvelle.
+# (étapes 3 à 8). Les migrations déjà passées restent en place : l'ancienne version tourne sur le
+# schéma de la nouvelle. La sauvegarde de l'étape 4 permet de revenir aussi sur la base.
 #
-# Le script s'arrête à la première erreur. Tant que la bascule de l'étape 4 n'a pas eu lieu, la
+# Le script s'arrête à la première erreur. Tant que la bascule de l'étape 6 n'a pas eu lieu, la
 # version en service reste celle d'avant.
 
 # Mode strict de Bash. Par défaut, Bash affiche l'erreur d'une commande puis passe à la suivante :
@@ -344,7 +358,7 @@ set -euo pipefail
 
 # Dépôt GitHub dont les releases portent les archives.
 REPOSITORY=sfaut/portfolios
-# Dossier de l'application : il contient deploy.sh, current, releases/ et shared/.
+# Dossier de l'application : il contient deploy.sh, current, releases/, shared/ et backups/.
 APP_DIR=/var/www/portfolios
 # Compte du serveur web (PHP-FPM, Nginx), propriétaire des fichiers que l'application écrit.
 APP_USER=www-data
@@ -352,6 +366,8 @@ APP_USER=www-data
 PHP_FPM_SERVICE=php8.5-fpm
 # Nombre de versions gardées sur le disque, version active comprise, pour revenir en arrière.
 KEEP_RELEASES=5
+# Nombre de sauvegardes de la base gardées, une par déploiement.
+KEEP_BACKUPS=10
 
 # --- Contrôles ----------------------------------------------------------------------------------------
 
@@ -365,10 +381,13 @@ TAG=${1:-}
 [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "version attendue au format vX.Y.Z (ex. deploy.sh v1.2.0)"
 # root est nécessaire pour changer les propriétaires des fichiers et recharger PHP-FPM.
 [[ $EUID -eq 0 ]] || fail "à lancer en root"
+# Outil de sauvegarde de l'étape 4, fourni avec le client MySQL.
+command -v mysqldump > /dev/null || fail "mysqldump introuvable (paquet du client MySQL)"
 
 SHARED_DIR=$APP_DIR/shared
 RELEASES_DIR=$APP_DIR/releases
 RELEASE_DIR=$RELEASES_DIR/$TAG
+BACKUPS_DIR=$APP_DIR/backups
 
 # Premier lancement : sans configuration, le script crée shared/.env depuis le modèle de production
 # de la version, y génère la clef de l'application, puis s'arrête pour qu'on renseigne le reste.
@@ -394,11 +413,22 @@ artisan() {
     runuser --user "$APP_USER" -- php "$RELEASE_DIR/artisan" "$@"
 }
 
+# Dossier de travail, lisible par root seul (téléchargements, accès à la base), et dossier de
+# décompression provisoire, caché (point initial) et renommé seulement une fois complet : une
+# installation interrompue ne passe jamais pour une version prête. Les deux sont supprimés à la sortie
+# du script, en succès comme en erreur.
+work_dir=$(mktemp --directory)
+partial_dir=$RELEASES_DIR/.$TAG.partial
+trap 'rm -rf "$work_dir" "$partial_dir"' EXIT
+
 # storage/ est partagé entre les versions : journaux, sessions et vues compilées survivent aux
 # déploiements. Ses sous-dossiers, attendus par Laravel, sont créés au premier passage.
 mkdir --parents "$SHARED_DIR"/storage/{app/private,app/public,framework/{cache/data,sessions,views},logs}
 chown --recursive "$APP_USER:" "$SHARED_DIR/storage"
 mkdir --parents "$RELEASES_DIR"
+# Les sauvegardes contiennent toutes les données : root seul y accède.
+mkdir --parents "$BACKUPS_DIR"
+chmod 700 "$BACKUPS_DIR"
 
 # --- 1 et 2. Téléchargement et installation de la version ---------------------------------------------
 
@@ -408,28 +438,22 @@ if [[ -d $RELEASE_DIR ]]; then
 else
     archive=portfolios-$TAG.tar.gz
     url=https://github.com/$REPOSITORY/releases/download/$TAG
-    download_dir=$(mktemp --directory)
-    # Dossier de décompression provisoire, caché (point initial) et renommé seulement une fois
-    # complet : une installation interrompue ne passe jamais pour une version prête.
-    partial_dir=$RELEASES_DIR/.$TAG.partial
-    # Nettoyage à la sortie du script, en succès comme en erreur.
-    trap 'rm -rf "$download_dir" "$partial_dir"' EXIT
 
     # L'archive et son empreinte, ajoutées à la release par la CI. Le dépôt est public : aucun
     # identifiant n'est nécessaire.
     echo "Téléchargement de $archive…"
     for file in "$archive" "$archive.sha256"; do
-        curl --fail --location --silent --show-error --output "$download_dir/$file" "$url/$file" \
+        curl --fail --location --silent --show-error --output "$work_dir/$file" "$url/$file" \
             || fail "$file introuvable sur la release $TAG (CI terminée ?)"
     done
     # Une archive tronquée ou altérée est refusée avant toute décompression.
-    (cd "$download_dir" && sha256sum --check --quiet "$archive.sha256") || fail "empreinte invalide pour $archive"
+    (cd "$work_dir" && sha256sum --check --quiet "$archive.sha256") || fail "empreinte invalide pour $archive"
 
     rm -rf "$partial_dir"
     mkdir "$partial_dir"
     # --no-same-owner : les fichiers appartiennent à root, quel que soit leur propriétaire dans
     # l'archive.
-    tar --extract --gzip --no-same-owner --file "$download_dir/$archive" --directory "$partial_dir"
+    tar --extract --gzip --no-same-owner --file "$work_dir/$archive" --directory "$partial_dir"
     # La version lit la configuration et écrit dans le storage/ partagés.
     ln --symbolic "$SHARED_DIR/.env" "$partial_dir/.env"
     ln --symbolic "$SHARED_DIR/storage" "$partial_dir/storage"
@@ -439,25 +463,76 @@ else
     mv "$partial_dir" "$RELEASE_DIR"
 fi
 
-# --- 3. Migrations et mise en cache -------------------------------------------------------------------
+# --- 3. Mise en cache ---------------------------------------------------------------------------------
+
+# Faite avant la sauvegarde : la configuration mise en cache, lue depuis le .env actuel, donne à
+# l'étape 4 les accès à la base qu'utiliseront les migrations. Elle ne touche pas à la base.
+echo "Mise en cache…"
+artisan optimize
+
+# --- 4. Sauvegarde de la base -------------------------------------------------------------------------
+
+# Les accès à la base sont lus par Laravel lui-même, qui interprète le .env (guillemets, variables) ;
+# PHP tourne sous le compte du serveur web, seul autorisé à lire le .env. Il écrit une valeur par
+# ligne : base, hôte, port, utilisateur, mot de passe.
+echo "Sauvegarde de la base…"
+runuser --user "$APP_USER" -- php -r '
+    require $argv[1]."/vendor/autoload.php";
+    $app = require $argv[1]."/bootstrap/app.php";
+    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+    $db = config("database.connections.".config("database.default"));
+    echo implode("\n", [$db["database"], $db["host"], $db["port"], $db["username"], $db["password"]]), "\n";
+' "$RELEASE_DIR" > "$work_dir/database"
+mapfile -t database < "$work_dir/database"
+
+# Le mot de passe passe par un fichier d'options de MySQL, dans le dossier de travail de root, et non
+# par la ligne de commande, que tout compte du serveur peut lire (ps). Les valeurs sont entre
+# guillemets, leurs « \ » et « " » échappés.
+quote() {
+    local backslash='\' quote_char='"'
+    local value=${1//"$backslash"/"$backslash$backslash"}
+    printf '"%s"' "${value//"$quote_char"/"$backslash$quote_char"}"
+}
+{
+    echo "[client]"
+    echo "host=$(quote "${database[1]}")"
+    echo "port=$(quote "${database[2]}")"
+    echo "user=$(quote "${database[3]}")"
+    echo "password=$(quote "${database[4]:-}")"
+} > "$work_dir/mysql.cnf"
+
+# --single-transaction : copie cohérente sans bloquer l'application (InnoDB) ;
+# --routines, --triggers : procédures et déclencheurs avec les tables (les vues y sont d'office) ;
+# --no-tablespaces : évite le privilège PROCESS, qu'un utilisateur dédié à la base n'a pas.
+# La copie est écrite sous un nom provisoire, puis renommée : une sauvegarde interrompue ne passe
+# jamais pour complète. umask 077 la rend lisible par root seul.
+backup_file=$BACKUPS_DIR/portfolios-$(date +%Y%m%d-%H%M%S)-avant-$TAG.sql.gz
+(
+    umask 077
+    mysqldump --defaults-extra-file="$work_dir/mysql.cnf" --single-transaction --routines --triggers \
+        --no-tablespaces "${database[0]}" | gzip > "$backup_file.partial"
+) || { rm -f "$backup_file.partial"; fail "sauvegarde de la base en échec : déploiement arrêté"; }
+mv "$backup_file.partial" "$backup_file"
+echo "Sauvegarde : $backup_file"
+
+# --- 5. Migrations ------------------------------------------------------------------------------------
 
 # Passées sur la nouvelle version avant la bascule : en cas d'échec, le site reste sur l'ancienne.
 # Une migration doit donc rester compatible avec la version encore en service.
-echo "Migrations et mise en cache…"
+echo "Migrations…"
 artisan migrate --force
-artisan optimize
 
-# --- 4. Bascule ---------------------------------------------------------------------------------------
+# --- 6. Bascule ---------------------------------------------------------------------------------------
 
 # Le nouveau lien est créé à côté, puis renommé sur current : un renommage est atomique, et aucune
 # requête ne trouve current absent ou à moitié créé. La cible est relative (releases/vX.Y.Z), pour
 # que le lien reste juste si APP_DIR est déplacé.
 ln --symbolic --no-dereference --force "releases/$TAG" "$APP_DIR/current.new"
 mv --no-target-directory "$APP_DIR/current.new" "$APP_DIR/current"
-# La date du dossier sert au tri de l'étape 6 : la version active devient la plus récente.
+# La date du dossier sert au tri de l'étape 8 : la version active devient la plus récente.
 touch "$RELEASE_DIR"
 
-# --- 5. Rechargement des services ---------------------------------------------------------------------
+# --- 7. Rechargement des services ---------------------------------------------------------------------
 
 # PHP-FPM garde en mémoire (OPcache, cache des chemins) des fichiers de l'ancienne version : le
 # rechargement les oublie, sans couper les requêtes en cours.
@@ -466,13 +541,18 @@ systemctl reload "$PHP_FPM_SERVICE"
 # current, donc sur la nouvelle version.
 artisan queue:restart
 
-# --- 6. Nettoyage -------------------------------------------------------------------------------------
+# --- 8. Nettoyage -------------------------------------------------------------------------------------
 
 # Les versions sont triées de la plus récente à la plus ancienne (date du dossier) ; au-delà des
 # KEEP_RELEASES premières, elles sont supprimées, sauf la version active.
 cd "$RELEASES_DIR"
 ls -1t | tail --lines=+$((KEEP_RELEASES + 1)) | while read -r old_release; do
     [[ $old_release == "$TAG" ]] || rm -rf "$old_release"
+done
+# De même pour les sauvegardes, au-delà des KEEP_BACKUPS plus récentes.
+cd "$BACKUPS_DIR"
+ls -1t -- *.sql.gz | tail --lines=+$((KEEP_BACKUPS + 1)) | while read -r old_backup; do
+    rm -f -- "$old_backup"
 done
 
 echo "Portfolios $TAG déployée."
