@@ -97,7 +97,17 @@ Dans les exemples, `vX.Y.Z` désigne la version à installer.
    ```
 
 3. Créer `/var/www/portfolios/deploy.sh` avec le contenu de la section « Script de déploiement »
-   ci-dessous, réservé à root : `chmod 700 /var/www/portfolios/deploy.sh`.
+   ci-dessous, puis le réserver à root :
+
+   ```sh
+   chown root:root /var/www/portfolios /var/www/portfolios/deploy.sh
+   chmod 755 /var/www/portfolios
+   chmod 700 /var/www/portfolios/deploy.sh
+   ```
+
+   Le script tourne en root : un compte qui pourrait le modifier, ou modifier un dossier qui le
+   contient (`/var/www/portfolios`, `/var/www`), lui ferait exécuter n'importe quoi en root (section
+   « Propriétaires et droits »).
 
 4. Déployer la version, puis créer le compte administrateur :
 
@@ -262,6 +272,40 @@ Pour revenir à une version précédente, relancer `deploy.sh` avec son numéro.
 en place : l'ancienne version tourne sur le schéma de la nouvelle, ce qui demande des migrations
 compatibles avec la version précédente (une colonne s'ajoute d'abord, et ne se supprime ou ne se
 renomme qu'une version plus tard).
+
+### Propriétaires et droits
+
+Tout appartient à root, sauf ce que l'application écrit : le `storage/` partagé et le cache de chaque
+version, à `www-data`. `deploy.sh` les règle ainsi à chaque déploiement, hormis `deploy.sh` lui-même
+et `shared/.env`, créés à la main.
+
+```
+/var/www/portfolios/                 root:root          755
+├── deploy.sh                        root:root          700   lu et lancé par root seul
+├── current -> releases/vX.Y.Z       root:root          lien
+├── releases/                        root:root          755
+│   └── vX.Y.Z/                      root:root          755 (dossiers) / 644 (fichiers)
+│       ├── bootstrap/cache/         www-data:www-data  755   caches écrits par artisan optimize
+│       ├── .env -> shared/.env                         lien
+│       └── storage -> shared/storage                   lien
+└── shared/                          root:root          755
+    ├── .env                         root:www-data      640   écrit par root, lu par www-data
+    └── storage/                     www-data:www-data  755 (dossiers) / 644 (fichiers)
+```
+
+- Nginx (`www-data`) lit les fichiers de `public/`.
+- PHP-FPM et le worker de file (`www-data`) lisent le code et le `.env`, et écrivent dans `storage/` et
+  dans le `bootstrap/cache/` de leur version.
+- root, par `deploy.sh`, installe les versions, bascule `current` et recharge PHP-FPM ; il lance les
+  commandes Artisan sous `www-data`, propriétaire des fichiers qu'elles créent.
+
+Le code reste à root : une faille qui permettrait d'exécuter du code sous `www-data` ne pourrait pas
+modifier l'application pour s'y installer durablement. Pour la même raison, ni `deploy.sh`, lancé en
+root, ni les dossiers qui le contiennent ne doivent être modifiables par `www-data` ou un autre compte.
+
+Le compte de PHP-FPM se vérifie dans `/etc/php/8.5/fpm/pool.d/www.conf` (`user`, `group`) : il doit
+être celui d'`APP_USER` dans `deploy.sh` et de `User=` dans le service du worker. Les droits d'un
+chemin, dossier par dossier, se lisent avec `namei -l /var/www/portfolios/current/public/index.php`.
 
 ### Script de déploiement
 
