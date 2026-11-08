@@ -51,9 +51,7 @@
                         aria-controls="archived-analytic-axes"
                         class="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400"
                     >
-                        <svg x-bind:class="open && 'rotate-90'" class="size-4 transition-transform duration-200" viewBox="0 0 10 10" aria-hidden="true">
-                            <polyline points="3,1 7,5 3,9" stroke="currentColor" stroke-width="1.2" fill="none"/>
-                        </svg>
+                        <x-lucide-chevron-right x-bind:class="open && 'rotate-90'" class="size-4 transition-transform duration-200" aria-hidden="true"/>
                         Axes archivés
                         <span class="rounded-full bg-gray-200 dark:bg-gray-700 px-2 text-sm text-gray-600 dark:text-gray-300">{{ $archived_analytic_axes->count() }}</span>
                     </button>

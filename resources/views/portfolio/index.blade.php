@@ -37,12 +37,7 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-indigo-200">{{ filled($portfolio->description) ? $portfolio->description : '--' }}</p>
                 </div>
 
-                <svg class="shrink-0" preserveAspectRatio="none" width="40" height="40" viewBox="0 0 10 10">
-                    <polyline
-                        points="3,1 7,5 3,9"
-                        stroke="currentColor" stroke-width="0.4" fill="none"
-                    />
-                </svg>
+                <x-lucide-chevron-right class="size-10 shrink-0 stroke-1" aria-hidden="true"/>
             </a>
 
         @endforeach
@@ -59,11 +54,7 @@
                 'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',
             ])
         >
-            <svg width="30" height="30" viewBox="0 0 10 10" fill="none" class="mx-auto">
-                <line x1="5" y1="2.5" x2="5" y2="7.5" stroke="currentColor" stroke-width="0.5"/>
-                <line x1="2.5" y1="5" x2="7.5" y2="5" stroke="currentColor" stroke-width="0.5"/>
-                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="0.5"/>
-            </svg>
+            <x-lucide-circle-plus class="mx-auto size-7.5 stroke-[1.25]" aria-hidden="true"/>
             <h3>Créer un portfolio</h3>
         </a>
     </div>

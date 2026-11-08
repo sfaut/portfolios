@@ -20,15 +20,7 @@
                 'p-2', 'bg-white', 'dark:bg-gray-800', 'rounded-l-md',
             ])
         >
-            <svg class="size-4" viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-            >
-                <path d="M 16,5 L 11,10 L 16,15 M 9,5 L 4,10 L 9,15"/>
-            </svg>
+            <x-lucide-chevrons-left class="size-4" aria-hidden="true"/>
         </a>
 
         {{-- Previous page --}}
@@ -39,15 +31,7 @@
                 'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
-            <svg class="size-4" viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-            >
-                <path d="M 12,5 L 7,10 L 12,15"/>
-            </svg>
+            <x-lucide-chevron-left class="size-4" aria-hidden="true"/>
         </a>
 
         <div class="inline-flex items-center justify-center bg-white dark:bg-gray-800 p-2 tracking-widest text-nowrap">
@@ -63,15 +47,7 @@
                 'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
-            <svg class="size-4" viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-            >
-                <path d="M 8,5 L 13,10 L 8,15 "/>
-            </svg>
+            <x-lucide-chevron-right class="size-4" aria-hidden="true"/>
         </a>
 
         <!-- Right double chevron -->
@@ -82,15 +58,7 @@
                 'rounded-r-md', 'p-2', 'bg-white', 'dark:bg-gray-800',
             ])
         >
-            <svg class="size-4" viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-            >
-                <path d="M 4,5 L 9,10 L 4,15 M 11,5 L 16,10 L 11,15"/>
-            </svg>
+            <x-lucide-chevrons-right class="size-4" aria-hidden="true"/>
         </a>
 
     </nav>
