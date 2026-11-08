@@ -269,13 +269,17 @@ pour ce domaine : le garder seulement une fois HTTPS en place et stable.
 
 ### Mise à jour et retour arrière
 
-1. Publier la release sur GitHub. La CI vérifie le code du tag, puis ajoute à la release l'archive et
-   son empreinte (`portfolios-vX.Y.Z.tar.gz` et `portfolios-vX.Y.Z.tar.gz.sha256`).
+1. Publier la release sur GitHub. La CI vérifie le code du tag (style, build du front, tests), puis,
+   seulement si tout passe, ajoute à la release l'archive et son empreinte
+   (`portfolios-vX.Y.Z.tar.gz` et `portfolios-vX.Y.Z.tar.gz.sha256`).
 2. Sur le serveur, une fois la CI terminée :
 
    ```sh
    /var/www/portfolios/deploy.sh vX.Y.Z
    ```
+
+   Une archive présente sur la release garantit donc des vérifications terminées et réussies : CI en
+   cours ou en échec, `deploy.sh` ne trouve pas l'archive et s'arrête sans rien changer.
 
 Avant les migrations, `deploy.sh` sauvegarde la base dans `backups/`
 (`portfolios-<date>-<heure>-avant-vX.Y.Z.sql.gz`, dix gardées), par la commande
@@ -376,8 +380,8 @@ dossier de l'application, compte du serveur web, service PHP-FPM, nombre de vers
 #     deploy.sh vX.Y.Z
 #
 # Étapes :
-#     1. Téléchargement de l'archive de la release, construite par la CI, et contrôle de son
-#        empreinte SHA-256.
+#     1. Téléchargement de l'archive de la release, construite par la CI une fois ses tests passés,
+#        et contrôle de son empreinte SHA-256.
 #     2. Décompression dans releases/vX.Y.Z, reliée au .env et au storage/ partagés.
 #     3. Mise en cache (configuration, routes, vues, icônes).
 #     4. Sauvegarde de la base, compressée, dans backups/.
@@ -497,12 +501,14 @@ else
     archive=portfolios-$TAG.tar.gz
     url=https://github.com/$REPOSITORY/releases/download/$TAG
 
-    # L'archive et son empreinte, ajoutées à la release par la CI. Le dépôt est public : aucun
-    # identifiant n'est nécessaire.
+    # L'archive et son empreinte, ajoutées à la release par la CI. Leur présence garantit que les
+    # vérifications de la release (style, build, tests) sont terminées et réussies : la CI ne
+    # construit l'archive qu'après elles (job package, « needs: [check] »), et l'ajoute à la release
+    # en dernier. Le dépôt est public : aucun identifiant n'est nécessaire.
     echo "Téléchargement de $archive…"
     for file in "$archive" "$archive.sha256"; do
         curl --fail --location --silent --show-error --output "$work_dir/$file" "$url/$file" \
-            || fail "$file introuvable sur la release $TAG (CI terminée ?)"
+            || fail "$file introuvable sur la release $TAG : CI en cours ou en échec, ou release sans archive"
     done
     # Une archive tronquée ou altérée est refusée avant toute décompression.
     (cd "$work_dir" && sha256sum --check --quiet "$archive.sha256") || fail "empreinte invalide pour $archive"
