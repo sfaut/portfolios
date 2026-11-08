@@ -50,6 +50,25 @@ class AnalyticLine extends Model
     }
 
     /**
+     * Part d'un montant que représente la ligne, arrondie au centime, la moitié s'éloignant de zéro
+     * (−0,025 donne −0,03), comme le formulaire de l'opération (resources/js/analytic-lines.js).
+     *
+     * Le calcul se fait en centimes et centièmes de pourcentage entiers, pour ne pas dépendre de
+     * l'arrondi des flottants.
+     *
+     * @param  string  $amount  Montant à répartir, à deux décimales (montant de l'opération).
+     */
+    public function amountShare(string $amount): float
+    {
+        $cents = (int) round((float) $amount * 100);
+        $hundredths = (int) round((float) $this->percentage * 100);
+
+        $share = intdiv(abs($cents) * $hundredths + 5000, 10000);
+
+        return ($cents < 0 ? -$share : $share) / 100;
+    }
+
+    /**
      * Opération répartie.
      *
      * @return BelongsTo<Operation, $this>
