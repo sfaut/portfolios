@@ -22,7 +22,8 @@
         "ext-intl": "*",
         "ext-pdo_mysql": "*",
         "laravel/framework": "^13.0",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "mallardduck/blade-lucide-icons": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",

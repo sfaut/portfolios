@@ -55,11 +55,7 @@
                     'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',
                 ])
             >
-                <svg width="30" height="30" viewBox="0 0 10 10" fill="none" class="mx-auto">
-                    <line x1="5" y1="2.5" x2="5" y2="7.5" stroke="currentColor" stroke-width="0.5"/>
-                    <line x1="2.5" y1="5" x2="7.5" y2="5" stroke="currentColor" stroke-width="0.5"/>
-                    <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="0.5"/>
-                </svg>
+                <x-lucide-circle-plus class="mx-auto size-7.5 stroke-[1.25]" aria-hidden="true"/>
                 <h3>Créer un compte</h3>
             </a>
         </div>
@@ -74,9 +70,7 @@
                         aria-controls="archived-accounts"
                         class="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400"
                     >
-                        <svg x-bind:class="open && 'rotate-90'" class="size-4 transition-transform duration-200" viewBox="0 0 10 10" aria-hidden="true">
-                            <polyline points="3,1 7,5 3,9" stroke="currentColor" stroke-width="1.2" fill="none"/>
-                        </svg>
+                        <x-lucide-chevron-right x-bind:class="open && 'rotate-90'" class="size-4 transition-transform duration-200" aria-hidden="true"/>
                         Comptes archivés
                         <span class="rounded-full bg-gray-200 dark:bg-gray-700 px-2 text-sm text-gray-600 dark:text-gray-300">{{ $archived_accounts->count() }}</span>
                     </button>

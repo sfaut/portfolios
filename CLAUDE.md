@@ -35,6 +35,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `php artisan test --filter="profile page is displayed"`.
 - GitHub Actions : `.github/workflows/check-runner.yaml`, lancé à la main, vérifie le runner auto-hébergé
   de production (PHP et ses extensions, disque de `/var/www`).
+- Production : le déploiement doit lancer `php artisan icons:cache` (cache des icônes de blade-icons,
+  sans quoi chaque rendu relit les SVG sur le disque), à côté des caches de Laravel. Le déploiement
+  reste à décrire.
 - Laravel Boost (dépendance de dev) : consignes ajoutées à la fin de ce fichier, skills dans
   `.claude/skills`, serveur MCP `laravel-boost` déclaré dans `.mcp.json`. Ses choix sont dans `boost.json`
   et `config/boost.php`, qui écarte la consigne `deployments` (Laravel Cloud). `php artisan boost:update`
@@ -160,6 +163,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   sans attribut `title` : popover manuel ouvert par Alpine au survol et au focus, dans la couche
   supérieure (il échappe à un parent en `overflow-hidden`), placé par le positionnement d'ancre CSS
   au-dessus du déclencheur (en dessous faute de place), fond presque noir (`gray-950`).
+  Toute icône vient de Lucide, par `mallardduck/blade-lucide-icons` (sur `blade-ui-kit/blade-icons`) :
+  `<x-lucide-circle-help class="size-4" aria-hidden="true"/>`, ou `<x-dynamic-component>` pour un nom
+  calculé ; noms sur https://lucide.dev/icons. Pas de SVG copié dans les vues, hormis le logo
+  (`x-application-logo`). La taille passe par `size-*` et l'épaisseur du trait, 2 par défaut, par une
+  classe (`stroke-1`, `stroke-[1.25]`) : un attribut `stroke-width` sortirait en double sur le `<svg>`.
   Toute carte passe par `<x-card>`, en trois parties séparées par un filet : l'en-tête (slots `title` /
   `description`), le corps (slot par défaut, omis s'il est vide) et le pied (slot `footer`, sur fond
   teinté, actions alignées à droite, « Annuler » avant le bouton principal). Le formulaire reste dans le
