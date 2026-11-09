@@ -94,6 +94,7 @@ test('a photo becomes a 512 pixel square in WebP, cropped at the centre', functi
 
     $webp = Storage::disk('local')->get($path);
     expect(array_slice(getimagesizefromstring($webp), 0, 3))->toBe([512, 512, IMAGETYPE_WEBP])
+        ->and(substr($webp, 12, 4))->toBe('VP8L')
         ->and(dominantColor($webp, 100, 256))->toBe('red')
         ->and(dominantColor($webp, 412, 256))->toBe('blue');
 })->with(array_values(array_filter(

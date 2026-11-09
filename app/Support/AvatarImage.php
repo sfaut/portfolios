@@ -6,7 +6,7 @@ use GdImage;
 use InvalidArgumentException;
 
 /**
- * Photo de profil normalisée : un carré de 512 pixels en WebP, sans aucune métadonnée.
+ * Photo de profil normalisée : un carré de 512 pixels en WebP sans perte, sans aucune métadonnée.
  *
  * L'image reçue est décodée par GD, puis réencodée : seuls ses pixels passent dans le fichier produit.
  * EXIF (dont la position GPS), XMP, profil ICC et commentaires disparaissent, comme tout contenu
@@ -26,9 +26,9 @@ final class AvatarImage
     public const int SIZE = 512;
 
     /**
-     * Qualité de l'encodage WebP, de 0 à 100 : la plus haute.
+     * Qualité de l'encodage WebP : sans perte (IMG_WEBP_LOSSLESS), et non une qualité de 0 à 100.
      */
-    public const int QUALITY = 100;
+    public const int QUALITY = IMG_WEBP_LOSSLESS;
 
     /**
      * Nombre de pixels au plus de l'image reçue.
@@ -154,7 +154,7 @@ final class AvatarImage
     }
 
     /**
-     * Encode l'image en WebP.
+     * Encode l'image en WebP sans perte.
      *
      * @throws InvalidArgumentException
      *                                  Quand l'encodage échoue.

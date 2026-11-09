@@ -213,7 +213,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   ne paraît pas, et s'éteint dès la prise de vue ou la fermeture. La boîte met à la place du fichier
   un carré de 512 pixels ; sans JavaScript, un champ du `<noscript>` envoie la photo telle quelle.
   `App\Support\AvatarImage` décode toute photo reçue par GD, applique l'orientation EXIF, recadre
-  au centre et réencode en WebP 512 × 512 : aucune métadonnée ni contenu glissé ne passe. Le fichier
+  au centre et réencode en WebP sans perte de 512 × 512 (le navigateur envoie un PNG) : aucune
+  métadonnée ni contenu glissé ne passe. Le fichier
   va sur le disque privé `local` (`avatars/{id}-{aléatoire}.webp`, à plat, colonne `users.avatar_path`, ''
   sans photo) ; l'ancien est supprimé au remplacement, au retrait et avec l'utilisateur
   (`User::booted()`). `profile.avatar` le sert au seul utilisateur connecté, sans identifiant dans
