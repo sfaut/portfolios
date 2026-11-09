@@ -115,6 +115,21 @@
       stroke-dashoffset: 100;
     }
   }
+
+  /*
+    Time left of a toast (components/toast-region.blade.php): the line empties
+    from the right; its duration and its pause are set by the toast.
+  */
+  --animate-toast-time: toast-time linear forwards;
+
+  @keyframes toast-time {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
+  }
 }
 
 /*

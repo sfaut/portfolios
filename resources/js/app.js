@@ -8,10 +8,12 @@ import monthPicker from "./month-picker";
 import multiSelect from "./multi-select";
 import sectionSpy from "./section-spy";
 import theme from "./theme";
+import toasts from "./toasts";
 
 window.Alpine = Alpine;
 
 Alpine.store("theme", theme);
+Alpine.store("toasts", toasts);
 Alpine.data("accountSearch", accountSearch);
 Alpine.data("analyticLines", analyticLines);
 Alpine.data("avatarEditor", avatarEditor);

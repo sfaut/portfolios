@@ -16,4 +16,6 @@
 
     </div>
 
+    <x-toast-region/>
+
 </x-empty-layout>
