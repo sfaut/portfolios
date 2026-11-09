@@ -225,6 +225,7 @@
                     <table class="w-full **:border-gray-200 dark:**:border-gray-700">
                         <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                             <tr>
+                                <x-sortable-heading column="id" :sort="$filters->sort" :direction="$filters->direction" align="right">ID</x-sortable-heading>
                                 <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left">Compte</x-sortable-heading>
                                 <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Horodatage écriture</x-sortable-heading>
                                 <x-sortable-heading column="effective" :sort="$filters->sort" :direction="$filters->direction">Date effective</x-sortable-heading>
@@ -237,6 +238,7 @@
                         <tbody class="bg-white dark:bg-gray-800 text-sm">
                             @forelse ($operations as $operation)
                                 <tr class="hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
+                                    <td class="border px-3 py-2 text-right tabular-nums">{{ $operation->id }}</td>
                                     <td class="border px-3 py-2">
                                         <a
                                             href="{{ route('account.show', $operation->account) }}"
@@ -282,7 +284,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="p-6 text-center">
+                                    <td colspan="8" class="p-6 text-center">
                                         @if ($filters->isFiltered())
                                             Aucune opération ne correspond aux filtres.<br>
                                             <a href="{{ route('ledger.index', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Effacer les filtres</a>

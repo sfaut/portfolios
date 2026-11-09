@@ -273,6 +273,7 @@ class Ledger
                 DB::table('accounts')->select('name')->whereColumn('accounts.id', 'operations.account_id'),
                 $direction,
             ),
+            'id' => null,
             'effective' => $query->orderBy('operations.delivery_at', $direction),
             'label' => $query->orderBy('operations.label', $direction),
             'amount' => $query->orderBy('operations.amount', $direction),

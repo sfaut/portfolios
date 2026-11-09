@@ -80,6 +80,7 @@ class LedgerController extends Controller
         $filters = LedgerFilters::fromRequest($request, $ledger);
 
         $rows = $ledger->rows($filters)->map(fn (Operation $operation): array => [
+            $operation->id,
             Csv::text($operation->account->name),
             Csv::dateTime($operation->created_at),
             $operation->delivery_at,
@@ -96,7 +97,7 @@ class LedgerController extends Controller
         return response()->streamDownload(function () use ($rows): void {
             $stream = fopen('php://output', 'w');
 
-            Csv::write($stream, ['compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'axes'], $rows);
+            Csv::write($stream, ['id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'axes'], $rows);
 
             fclose($stream);
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);

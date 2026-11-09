@@ -20,8 +20,9 @@ beforeEach(function () {
     $invoice->analyticLines()->create(['analytic_axis_id' => $training->id, 'percentage' => '62.50']);
     $invoice->analyticLines()->create(['analytic_axis_id' => $consulting->id, 'percentage' => '37.50']);
 
-    $this->former->operations()->create(['label' => '=SUM(A1:A9)', 'amount' => '40.00', 'delivery_at' => '2025-07-01'])
-        ->forceFill(['created_at' => '2025-07-02 12:00:00'])->save();
+    $this->invoice = $invoice;
+    $this->sum = $this->former->operations()->create(['label' => '=SUM(A1:A9)', 'amount' => '40.00', 'delivery_at' => '2025-07-01']);
+    $this->sum->forceFill(['created_at' => '2025-07-02 12:00:00'])->save();
 
     $this->former->delete();
 
@@ -36,9 +37,9 @@ test('the ledger export downloads every operation as a CSV file for French sprea
         ->assertDownload('grand-livre-cabinet-martin-2026-11-09.csv');
 
     expect($response->streamedContent())->toBe(implode("\r\n", [
-        "\u{FEFF}compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes",
-        "Banque;\"2026-01-11 09:00:00\";2026-01-10;\"Facture ; Alpha\";-1250,50;\"Conseil 37,5\u{A0}% | Formation 62,5\u{A0}%\"",
-        "'+Ancien;\"2025-07-02 12:00:00\";2025-07-01;'=SUM(A1:A9);40,00;",
+        "\u{FEFF}id;compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes",
+        "{$this->invoice->id};Banque;\"2026-01-11 09:00:00\";2026-01-10;\"Facture ; Alpha\";-1250,50;\"Conseil 37,5\u{A0}% | Formation 62,5\u{A0}%\"",
+        "{$this->sum->id};'+Ancien;\"2025-07-02 12:00:00\";2025-07-01;'=SUM(A1:A9);40,00;",
         '',
     ]));
 });
@@ -55,5 +56,5 @@ test('the ledger export of a portfolio without operation has its header alone', 
     $empty = $this->owner->portfolios()->create(['name' => 'Vide']);
 
     expect($this->get(route('ledger.export', $empty))->streamedContent())
-        ->toBe("\u{FEFF}compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes\r\n");
+        ->toBe("\u{FEFF}id;compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes\r\n");
 });
