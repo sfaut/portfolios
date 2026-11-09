@@ -2,6 +2,36 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.5.0 (2026-11-09)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.5.0, qui rend le tableau de bord plus lisible :
+
+- un graphe des ventes par mois, comparé à l'année précédente, avec le cumul de la période ;
+- les hausses et les baisses signalées d'un coup d'œil ;
+- un sélecteur de période plus clair.
+
+### ✨ Nouvelles fonctionnalités
+
+- Graphe principal du tableau de bord : les ventes de chaque mois en barres, dont la teinte fonce avec
+  le montant. Une barre grise plus fine donne le même mois un an plus tôt, et une courbe le cumul des
+  ventes de la période, sur un second axe. Les axes sont gradués, et chaque mois a son infobulle.
+  « Voir les chiffres » ajoute une colonne « Un an plus tôt ».
+- Tendances : les comparaisons à l'année précédente portent une icône et une couleur, vert en hausse,
+  rouge en baisse, gris si stable. Les lecteurs d'écran annoncent l'évolution en toutes lettres.
+- Le sélecteur de période passe dans le bandeau du tableau de bord, puisqu'il vaut pour toute la page.
+  Les chiffres clefs restent calculés au jour, avec leur date en légende.
+- Le choix d'une période se fait en deux panneaux, « Début » et « Fin », chacun avec son année. Le
+  champ affiche toute la période choisie.
+- Période par défaut : les 14 derniers mois, du même mois un an plus tôt moins un mois jusqu'au mois
+  en cours.
+
+### 🗑️ Fonctionnalités retirées
+
+- La courbe des ventes cumulées, comparée à l'année précédente, quitte le tableau de bord : le cumul
+  est désormais dans le graphe des ventes par mois.
+
 ## v1.4.0 (2026-11-09)
 
 ### 🚀 Lancement
