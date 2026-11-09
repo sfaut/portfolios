@@ -344,8 +344,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   défaut). `action` (`{ label, run }`) ajoute un bouton (« Annuler »…), qui lance `run()` puis
   ferme le toast ; `key` remplace le toast de même clef ; `position` choisit l'une des six places
   (`top-left` … `bottom-right`), celle de la région par défaut (`<x-toast-region position="…">`,
-  `App\View\Components\ToastRegion`, posée une fois par `layouts/app`, `bottom-right`). Trois toasts
-  au plus par place, le plus récent au bord. Durée : 5 s, 8 s avec une action, sans fin pour
+  `App\View\Components\ToastRegion`, posée une fois par `layouts/app`, `bottom-right`). Les toasts
+  s'empilent sans limite, le plus récent au bord, la pile défilant au-delà de l'écran. Durée : 5 s, 8 s avec une action, sans fin pour
   `danger` (`duration`, 0 sans fin) ; la minuterie s'arrête au survol, au focus et onglet caché, un
   filet montre le temps restant. Bande sombre (`gray-950`) comme `<x-tooltip>`, dans un popover
   manuel remonté à chaque toast. Un toast ne prend jamais le focus ; Échap ferme celui qui l'a.
