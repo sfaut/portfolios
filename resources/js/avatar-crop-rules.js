@@ -1,5 +1,5 @@
 /**
- * Calculs du recadrage de la photo de profil, sans DOM ni Alpine, pour que Node les teste
+ * Calculs de la photo de profil (recadrage, prise de vue), sans DOM ni Alpine, pour que Node les teste
  * (tests/js/avatar-crop-rules.test.js).
  *
  * L'image se place sur la scène par son échelle (pixels affichés par pixel de l'image) et par le
@@ -70,4 +70,37 @@ export function sourceRect(width, height, scale, offset, diameter) {
         y: height / 2 - offset.y / scale - size / 2,
         size,
     };
+}
+
+/**
+ * Carré central d'une image, en pixels de l'image : la partie de la vidéo de la caméra que montre la
+ * scène carrée (object-cover), et que garde la prise de vue.
+ *
+ * @param {number} width Largeur de l'image.
+ * @param {number} height Hauteur de l'image.
+ * @returns {{x: number, y: number, size: number}}
+ */
+export function centerSquare(width, height) {
+    const size = Math.min(width, height);
+
+    return { x: (width - size) / 2, y: (height - size) / 2, size };
+}
+
+/**
+ * Message à afficher quand la caméra ne s'ouvre pas, selon le nom de l'erreur de getUserMedia.
+ *
+ * @param {string|undefined} name Nom de l'erreur (DOMException.name).
+ * @returns {string}
+ */
+export function cameraError(name) {
+    switch (name) {
+        case "NotAllowedError":
+        case "SecurityError":
+            return "L'accès à la caméra est refusé. Autorisez-le dans les réglages du navigateur, ou importez une image.";
+        case "NotFoundError":
+        case "OverconstrainedError":
+            return "Aucune caméra n'est disponible.";
+        default:
+            return "La caméra ne répond pas. Réessayez, ou importez une image.";
+    }
 }
