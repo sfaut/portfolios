@@ -35,12 +35,12 @@ test('the two axes share their ticks, each with its round scale', function () {
         ->and(array_column($chart->ticks, 'right'))->toBe(['0', "1\u{202F}000", "2\u{202F}000", "3\u{202F}000", "4\u{202F}000"]);
 });
 
-test('the bars and the ghosts rise on the left axis, the bars darker for the best months', function () {
+test('the bars and the ghosts rise on the left axis, the gradient of the bars spanning the whole chart', function () {
     $chart = monthlySales([[3000.0, 6000.0, 3000.0], [1000.0, 0.0, 4000.0]]);
 
     expect(array_column($chart->columns, 'height'))->toBe([37.5, 12.5])
         ->and(array_column($chart->columns, 'ghost'))->toBe([75.0, 0.0])
-        ->and(array_column($chart->columns, 'shade'))->toBe([100.0, 56.67]);
+        ->and(array_column($chart->columns, 'gradient'))->toBe([266.67, 800.0]);
 });
 
 test('the running total starts from zero and goes through the middle of each month on the right axis', function () {
@@ -55,6 +55,6 @@ test('a period without sales draws flat bars on an axis from zero', function () 
     $chart = monthlySales([[0.0, 0.0, 0.0]]);
 
     expect(array_column($chart->columns, 'height'))->toBe([0.0])
-        ->and(array_column($chart->columns, 'shade'))->toBe([MonthlySales::MIN_SHADE])
+        ->and(array_column($chart->columns, 'gradient'))->toBe([100.0])
         ->and($chart->ticks[0]['left'])->toBe('0');
 });

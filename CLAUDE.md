@@ -221,8 +221,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
   comparaison au même jour un an plus tôt. Les graphiques se dessinent sans bibliothèque :
   `<x-chart.monthly-sales>` (`App\View\Components\Chart\MonthlySales`) met les ventes par mois en
-  barres (teinte qui fonce avec les ventes), le même mois un an plus tôt en barres fantômes, et le
-  cumul en courbe sur un axe secondaire ; ses deux axes ont le même nombre de pas ronds
+  barres (léger dégradé vertical, du clair en bas au foncé en haut, à l'échelle du graphe), le même
+  mois un an plus tôt en barres fantômes, et le cumul en courbe sur un axe secondaire ; ses deux axes
+  ont le même nombre de pas ronds
   (`App\Support\ChartScale`), donc les mêmes lignes de repère. `<x-chart.step-line>`
   (`App\View\Components\Chart\StepLine`, courbe en paliers de valeurs cumulées), inutilisé, reste
   disponible. Les courbes sont en SVG étiré, les textes en HTML, les barres en HTML et CSS, avec
