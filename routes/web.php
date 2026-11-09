@@ -64,6 +64,9 @@ Route::controller(OperationController::class)->middleware(['auth', 'verified'])-
 
 Route::controller(ProfileController::class)->middleware(['auth', 'password.confirm'])->group(function () {
     Route::get('/profile', 'edit')->name('profile.edit');
+    Route::get('/profile/preferences', 'preferences')->name('profile.preferences');
+    Route::get('/profile/password', 'password')->name('profile.password');
+    Route::get('/profile/account', 'account')->name('profile.account');
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy')->middleware('throttle:account-deletion');
 });

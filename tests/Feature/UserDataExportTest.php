@@ -29,7 +29,7 @@ test('the profile asks to confirm the password before exporting', function () {
 test('the profile offers to download the data', function () {
     $response = $this->actingAs(User::factory()->create())
         ->withSession(['auth.password_confirmed_at' => time()])
-        ->get(route('profile.edit'));
+        ->get(route('profile.account'));
 
     $response->assertSee('href="'.route('profile.export').'"', escape: false);
 });

@@ -11,17 +11,48 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * Profil de l'utilisateur connecté : informations, mot de passe (PasswordController) et suppression du
- * compte, derrière la confirmation du mot de passe (middleware `password.confirm`).
+ * Profil de l'utilisateur connecté, en quatre pages derrière la confirmation du mot de passe
+ * (middleware `password.confirm`) : informations, préférences (thème, ColorSchemeController), mot de
+ * passe (PasswordController), données et compte (export, suppression).
  */
 class ProfileController extends Controller
 {
     /**
-     * Affiche le profil.
+     * Affiche la première page du profil : ses informations.
      */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Affiche les préférences : le thème.
+     */
+    public function preferences(Request $request): View
+    {
+        return view('profile.preferences', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Affiche le changement du mot de passe.
+     */
+    public function password(Request $request): View
+    {
+        return view('profile.password', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Affiche les données et le compte : export des données, suppression du compte.
+     */
+    public function account(Request $request): View
+    {
+        return view('profile.account', [
             'user' => $request->user(),
         ]);
     }

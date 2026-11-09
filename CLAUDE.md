@@ -197,6 +197,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (« Comptes › Compte courant »), absent sur les pages de premier niveau. À droite viennent les
   actions de la page. Une nouvelle page d'un portfolio entre dans `PortfolioContext` (section) et
   dans `tests/Feature/NavigationTest.php`.
+  Le profil tient en quatre pages, toutes derrière `password.confirm`, dans `<x-profile-layout>` (titre
+  de la page, navigation latérale `<x-side-nav>` dont la page courante porte `aria-current="page"`) :
+  `profile.edit` (informations), `profile.preferences` (thème), `profile.password`, `profile.account`
+  (export des données, puis suppression du compte).
   La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
   comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé. Le compte

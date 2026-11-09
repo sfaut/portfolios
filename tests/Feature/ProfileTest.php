@@ -159,7 +159,7 @@ test('the administrator cannot delete their account', function () {
 test('the profile of the administrator offers no account deletion', function () {
     $admin = User::factory()->create(['is_admin' => true]);
 
-    $response = $this->actingAs($admin)->get('/profile');
+    $response = $this->actingAs($admin)->get(route('profile.account'));
 
     $response
         ->assertSee('Le compte administrateur ne peut pas être supprimé.')

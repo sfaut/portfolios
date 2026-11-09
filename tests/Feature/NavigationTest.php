@@ -59,7 +59,7 @@ test('the pages outside a portfolio have no portfolio navigation', function (str
     $response->assertOk()
         ->assertDontSee('aria-label="Pages du portfolio"', escape: false)
         ->assertDontSee('Portfolio : ');
-})->with(['portfolio.index', 'portfolio.create', 'profile.edit']);
+})->with(['portfolio.index', 'portfolio.create', 'profile.edit', 'profile.preferences', 'profile.password', 'profile.account']);
 
 test('the portfolio selector lists the portfolios of the user only, with the actions on portfolios', function () {
     $this->user->portfolios()->create(['name' => 'Association']);

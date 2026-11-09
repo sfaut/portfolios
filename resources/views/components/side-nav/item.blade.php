@@ -8,7 +8,8 @@
 {{--
     Lien d'une navigation latérale (<x-side-nav>), précédé d'une pastille d'état et suivi d'un nombre,
     tous deux facultatifs. La pastille porte aussi son état en texte, pour les lecteurs d'écran. Le lien
-    courant porte aria-current="true", posé par le serveur ($current) ou au défilement par sectionSpy.
+    courant est marqué par son attribut aria-current : "page" quand le serveur désigne la page
+    affichée ($current), "true" quand sectionSpy suit la section en lecture.
 
     @var string $href Adresse du lien, une ancre de la page (« #php »).
     @var bool $current Si le lien est le lien courant au chargement.
@@ -20,16 +21,16 @@
 <li class="flex shrink-0">
     <a
         href="{{ $href }}"
-        @if ($current) aria-current="true" @endif
+        @if ($current) aria-current="page" @endif
         {{
             $attributes->class([
                 'relative', 'flex', 'grow', 'items-center', 'gap-2.5', 'px-3', 'py-2', 'text-sm', 'whitespace-nowrap',
                 '-mb-px', 'border-b-2', 'lg:mb-0', 'lg:-ml-px', 'lg:border-b-0', 'lg:border-l-2', 'border-transparent',
                 'text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white',
                 'hover:border-gray-300', 'dark:hover:border-gray-500',
-                'aria-[current=true]:border-indigo-500', 'dark:aria-[current=true]:border-indigo-400',
-                'aria-[current=true]:font-semibold',
-                'aria-[current=true]:text-gray-900', 'dark:aria-[current=true]:text-white',
+                '[&[aria-current]]:border-indigo-500', 'dark:[&[aria-current]]:border-indigo-400',
+                '[&[aria-current]]:font-semibold',
+                '[&[aria-current]]:text-gray-900', 'dark:[&[aria-current]]:text-white',
                 'focus:outline-hidden', 'focus-visible:ring-2', 'focus-visible:ring-indigo-500',
             ])
         }}

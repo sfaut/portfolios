@@ -50,7 +50,7 @@ test('the destructive actions are confirmed in a dialog', function (string $rout
         'portfolio.edit' => $portfolio,
         'account.edit' => $account,
         'operation.edit' => $operation,
-        'profile.edit' => [],
+        'profile.account' => [],
     ][$route];
 
     $response = $this->actingAs($user)
@@ -69,5 +69,5 @@ test('the destructive actions are confirmed in a dialog', function (string $rout
     ['portfolio.edit', 'archive-portfolio'],
     ['account.edit', 'archive-account'],
     ['operation.edit', 'delete-operation'],
-    ['profile.edit', 'delete-user'],
+    ['profile.account', 'delete-user'],
 ]);
