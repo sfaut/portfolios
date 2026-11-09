@@ -251,7 +251,7 @@ test('the dashboard shows the figures and the sales of the period', function () 
     $response = $this->get(route('portfolio.dashboard', [$this->portfolio, 'period' => ['start' => '2026-03', 'end' => '2026-05']]));
 
     $response->assertOk()
-        ->assertSeeText('Chiffres au 9 novembre 2026')
+        ->assertSeeInOrder(['<header', 'Tableau de bord', 'name="period[start]"', '</header>', 'Au 9 novembre 2026'], escape: false)
         ->assertSeeText('reste à encaisser')
         ->assertSeeText(Number::amount(35, currency: 'EUR'))
         ->assertSeeText('de ventes de mars à mai 2026')

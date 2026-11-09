@@ -22,37 +22,64 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Tableau de bord</h2>
-        <div class="text-sm text-gray-500 dark:text-gray-400">Chiffres au {{ $today->translatedFormat('j F Y') }}</div>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <h2 class="text-xl font-semibold">Tableau de bord</h2>
+
+            @if ($period !== null)
+                <form
+                    method="get"
+                    action="{{ route('portfolio.dashboard', $portfolio) }}"
+                    x-data="{ period: @js($period) }"
+                    x-init="$watch('period', () => $nextTick(() => $el.requestSubmit()))"
+                    class="flex items-center gap-2"
+                >
+                    <x-month-picker
+                        name="period"
+                        label="Période"
+                        mode="range"
+                        :value="$period"
+                        :restriction="$restriction"
+                        placeholder="Période par défaut"
+                        x-model="period"
+                    />
+                    <noscript>
+                        <button type="submit" class="text-sm text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Afficher</button>
+                    </noscript>
+                </form>
+            @endif
+        </div>
     </x-slot>
 
     <div class="max-w-6xl mx-auto flex flex-col gap-6">
 
-        <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-md bg-gray-200 dark:bg-gray-700 shadow-sm">
-            <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5">
-                <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ trans_choice('{0,1} compte actif|[2,*] comptes actifs', $active_accounts) }}</dt>
-                <dd class="order-1 text-2xl font-semibold tabular-nums">{{ Number::format($active_accounts, locale: 'fr') }}</dd>
-                <dd class="order-3 text-xs text-gray-500 dark:text-gray-400">
-                    {{ trans_choice('{0} aucun compte archivé|{1} 1 compte archivé|[2,*] :count comptes archivés', $archived_accounts) }}
-                </dd>
-            </div>
-
-            @foreach ([$current_month, $previous_month, $last_twelve_months] as $figure)
+        <section aria-labelledby="figures-date" class="flex flex-col gap-2">
+            <h3 id="figures-date" class="text-sm text-gray-500 dark:text-gray-400">Au {{ $today->translatedFormat('j F Y') }}</h3>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-md bg-gray-200 dark:bg-gray-700 shadow-sm">
                 <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5">
-                    <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ $figure->label }}</dt>
-                    <dd class="order-1 text-2xl font-semibold tabular-nums whitespace-nowrap">{{ Number::amount($figure->amount, currency: 'EUR') }}</dd>
-                    <dd class="order-3 text-xs text-gray-500 dark:text-gray-400"><x-trend :comparison="$figure"/></dd>
+                    <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ trans_choice('{0,1} compte actif|[2,*] comptes actifs', $active_accounts) }}</dt>
+                    <dd class="order-1 text-2xl font-semibold tabular-nums">{{ Number::format($active_accounts, locale: 'fr') }}</dd>
+                    <dd class="order-3 text-xs text-gray-500 dark:text-gray-400">
+                        {{ trans_choice('{0} aucun compte archivé|{1} 1 compte archivé|[2,*] :count comptes archivés', $archived_accounts) }}
+                    </dd>
                 </div>
-            @endforeach
 
-            <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5 sm:col-span-2 lg:col-span-1">
-                <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">reste à encaisser</dt>
-                <dd class="order-1 text-2xl font-semibold tabular-nums whitespace-nowrap">{{ Number::amount($outstanding['amount'], currency: 'EUR') }}</dd>
-                <dd class="order-3 text-xs text-gray-500 dark:text-gray-400">
-                    {{ trans_choice('{0} tout est encaissé|{1} sur 1 compte|[2,*] sur :count comptes', $outstanding['accounts']) }}
-                </dd>
-            </div>
-        </dl>
+                @foreach ([$current_month, $previous_month, $last_twelve_months] as $figure)
+                    <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5">
+                        <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ $figure->label }}</dt>
+                        <dd class="order-1 text-2xl font-semibold tabular-nums whitespace-nowrap">{{ Number::amount($figure->amount, currency: 'EUR') }}</dd>
+                        <dd class="order-3 text-xs text-gray-500 dark:text-gray-400"><x-trend :comparison="$figure"/></dd>
+                    </div>
+                @endforeach
+
+                <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5 sm:col-span-2 lg:col-span-1">
+                    <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">reste à encaisser</dt>
+                    <dd class="order-1 text-2xl font-semibold tabular-nums whitespace-nowrap">{{ Number::amount($outstanding['amount'], currency: 'EUR') }}</dd>
+                    <dd class="order-3 text-xs text-gray-500 dark:text-gray-400">
+                        {{ trans_choice('{0} tout est encaissé|{1} sur 1 compte|[2,*] sur :count comptes', $outstanding['accounts']) }}
+                    </dd>
+                </div>
+            </dl>
+        </section>
 
         @if ($dashboard === null)
             <x-card>
@@ -67,35 +94,12 @@
             </x-card>
         @else
             <section aria-labelledby="period-sales" class="flex flex-col gap-6 rounded-md bg-white dark:bg-gray-800 p-6 shadow-sm">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1">
                         <h3 id="period-sales" class="text-2xl font-semibold">
                             <span class="tabular-nums whitespace-nowrap">{{ Number::amount($comparison->amount, currency: 'EUR') }}</span>
                             de ventes {{ $comparison->label }}
                         </h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400"><x-trend :comparison="$comparison" capitalize/></p>
-                    </div>
-
-                    <form
-                        method="get"
-                        action="{{ route('portfolio.dashboard', $portfolio) }}"
-                        x-data="{ period: @js($period) }"
-                        x-init="$watch('period', () => $nextTick(() => $el.requestSubmit()))"
-                        class="flex items-center gap-2"
-                    >
-                        <x-month-picker
-                            name="period"
-                            label="Période"
-                            mode="range"
-                            :value="$period"
-                            :restriction="$restriction"
-                            placeholder="Période par défaut"
-                            x-model="period"
-                        />
-                        <noscript>
-                            <button type="submit" class="text-sm text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Afficher</button>
-                        </noscript>
-                    </form>
                 </div>
 
                 @if ($comparison->amount > 0)

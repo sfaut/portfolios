@@ -214,7 +214,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`, tendance en icône et en couleur par
   `<x-trend>`),
   et reste à encaisser (soldes négatifs). Puis les ventes de la période (`SalesDashboard`, paramètre
-  `period`, `<x-month-picker mode="range">` borné aux mois d'opérations, une période refusée ignorée,
+  `period`, `<x-month-picker mode="range">` dans le bandeau de la page, les chiffres clefs restant au jour, borné aux mois d'opérations, une période refusée ignorée,
   par défaut janvier → mois de la dernière opération) : total, courbe des ventes cumulées comparée à
   un an plus tôt, ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
   « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
