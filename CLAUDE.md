@@ -37,7 +37,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Tests : `php artisan test`, un fichier `vendor/bin/pest tests/Feature/ProfileTest.php`, un test
   `php artisan test --filter="profile page is displayed"`. Tests JavaScript : `npm run test:js`, par le
   lanceur intégré à Node (`node:test`, sans dépendance), sur `tests/js/**/*.test.js` ; ils ne portent
-  que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`). Les cas que PHP
+  que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`,
+  `date-picker-rules.js`…). Les cas que PHP
   et JavaScript doivent appliquer à l'identique sont dans `tests/fixtures/*.json`, lus par les deux.
 - GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests JavaScript,
   tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
@@ -178,7 +179,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Toutes les routes métier sont dans `routes/web.php`, sous les middlewares `auth` et `verified` ;
   `routes/auth.php` y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
-  Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
+  Noms de route : `portfolio.*`, `account.*`, `operation.*`, `ledger.*`, `analytic-axis.*`, `profile.*`. Les axes
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`), faute de page
   parent qui l'accueille ; `edit`, `update` et `restore` portent `->withTrashed()`, comme pour les
   comptes. La page d'accueil après connexion est `portfolio.index` : le projet n'a pas la route
@@ -191,7 +192,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   la barre de défilement de les décaler d'une page à l'autre. Le portfolio et la section viennent de
   `App\Support\PortfolioContext`, qui les déduit du modèle lié par la route (portfolio, compte,
   opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
-  Sections : tableau de bord ; comptes (liste, compte, opération) ; axes analytiques ; aucune sur la
+  Sections : tableau de bord ; comptes (liste, compte, opération) ; grand livre ; axes analytiques ; aucune sur la
   modification du portfolio. Hors d'un portfolio (liste, création, profil), la barre n'a que le logo
   et le menu. Le titre du bandeau nomme la page, jamais le portfolio, que montre la barre. Sous le
   titre, `<x-breadcrumb :links="[url => texte]">` mène de la section à la page parente
@@ -226,9 +227,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   administrateur (`is_admin`) ne se supprime pas : le profil ne le propose pas, et l'action le refuse.
   Le profil propose aussi de télécharger ses données (`profile.export`, `DataExportController`) : une
   archive ZIP de CSV construite par `App\Support\UserDataExport`, archivés compris, lue sur les tables
-  et filtrée explicitement sur l'utilisateur. Les CSV suivent les tableurs français (BOM, « ; »,
-  décimales à virgule, dates ISO) et neutralisent par une apostrophe un texte qui commence comme une
-  formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier ; la photo y est
+  et filtrée explicitement sur l'utilisateur. Tout CSV s'écrit par `App\Support\Csv`, qui suit les
+  tableurs français (BOM, « ; », décimales à virgule, dates ISO) et neutralise par une apostrophe un
+  texte qui commence comme une formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier ; la photo y est
   `photo.webp`.
 - Administration : routes `admin.*` sous `/admin`, derrière les middlewares `auth`, `admin`
   (`App\Http\Middleware\EnsureUserIsAdmin`), `verified` et `password.confirm`. `admin` répond à tout
@@ -286,6 +287,22 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
   (« 2 comptes sur 14 ») se place à droite des filtres, sans changer la hauteur de la barre ; sans
   JavaScript, le formulaire recharge la page filtrée.
+- Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
+  portfolio, comptes archivés compris, avec compte, horodatage d'écriture (`created_at`), date
+  effective, libellé, montant et axes. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
+  opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
+  des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
+  absolue), `sort` et `dir`. `Ledger` construit la requête sur `Operation` (portées conservées), trie
+  sur chaque colonne (par défaut l'écriture la plus récente en tête, départage par identifiant, non
+  répartis en dernier pour les axes), calcule les totaux filtrés (nombre, ventes, paiements, solde) et
+  pagine par 50. Le bouton « Tout » garde sa préférence en session
+  (`LedgerController::SHOW_ALL_OPERATIONS`), comme pour un compte. Le composant Alpine `ledger`
+  (`resources/js/ledger.js`) recharge le fragment Blade `ledger` (totaux, outils, tableau) à chaque
+  changement de filtre, de tri ou de page ; sans JavaScript, le formulaire, les en-têtes et la
+  pagination rechargent la page. `ledger.export` télécharge la sélection triée en CSV, diffusée au fil
+  de la lecture. Un nouveau filtre entre dans `LedgerFilters` (lecture, `filterQuery()`, `state()`),
+  `Ledger::filtered()`, le formulaire, `ledger.js` et `tests/Feature/LedgerTest.php`.
 - Répartition analytique du formulaire d'opération : composant Alpine `analyticLines`
   (`resources/js/analytic-lines.js`, enregistré par `Alpine.data()` dans `app.js`), qui ajoute et retire
   les lignes, préremplit une nouvelle ligne du reste jusqu'à 100 % et affiche le total, dans la colonne
@@ -351,6 +368,23 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   initiale et calcule le libellé initial ; le parent lie la sélection par `x-model`
   (`x-modelable`). Clavier : flèches entre mois choisissables, Page préc. / suiv. pour l'année,
   Début / Fin, Échap.
+  Tout choix de jour passe par `<x-date-picker>` (`App\View\Components\DatePicker`, composant Alpine
+  `datePicker`), construit comme `<x-month-picker>` : mêmes modes (`single`, `multiple`, `range`, une
+  plage d'un jour ayant son début égal à sa fin), même popover, un panneau par mois en semaines à
+  partir du lundi, restriction `App\Support\DateRestriction` (jours « 2026-11-09 », plages
+  « 2026-01-01/2026-01-31 ») contrôlée par la règle `App\Rules\DateSelection`, règles et libellés
+  (« 1 – 30 nov. 2026 ») écrits en PHP et en JavaScript (`resources/js/date-picker-rules.js`) sur les
+  mêmes cas. En mode `range`, `:presets` propose des plages toutes faites (`App\Enums\DatePreset`),
+  calculées par le serveur et ramenées dans les bornes de la restriction. Clavier : flèches (jour,
+  semaine), Début / Fin (semaine), Page préc. / suiv. (mois, année avec Maj), Échap.
+  Toute sélection de plusieurs options passe par `<x-multi-select name="…" label="…" :options="…">`
+  (`App\View\Components\MultiSelect`, composant Alpine `multiSelect`) : un déclencheur qui résume la
+  sélection (« 3 comptes », par `noun`) et un popover de cases à cocher natives, envoyées dans
+  `name[]` sans JavaScript, avec un champ de recherche au-delà de 8 options. Son identifiant vient de
+  `name` : un nom par page.
+  Toute colonne triable d'un tableau passe par `<x-sortable-heading column="…" :sort :direction>`
+  (`App\View\Components\SortableHeading`) : un `<th>` à `aria-sort` dont le lien pose `sort` et `dir`
+  dans l'adresse courante, en gardant ses autres paramètres ; le contrôleur valide les deux valeurs.
   Toute navigation entre pages sœurs passe par `<x-segmented-nav label="…">` (contrôle segmenté :
   bande grise, page courante en relief), chaque lien par `<x-segmented-nav.item :href="…" :current="…">`,
   qui porte `aria-current="page"` sur la page courante ; `<x-portfolio-nav>` en est l'usage pour les

@@ -13,14 +13,14 @@ use Illuminate\Routing\Route;
  *
  * Le portfolio se déduit du modèle lié par la route : le portfolio lui-même, ou le parent d'un compte,
  * d'une opération ou d'un axe analytique. La section est celle de la navigation du portfolio
- * (<x-portfolio-nav>) : tableau de bord, comptes (liste des comptes, un compte, une opération) ou axes
- * analytiques ; aucune hors de ces pages (modification du portfolio).
+ * (<x-portfolio-nav>) : tableau de bord, comptes (liste des comptes, un compte, une opération), grand
+ * livre ou axes analytiques ; aucune hors de ces pages (modification du portfolio).
  */
 final readonly class PortfolioContext
 {
     /**
      * @param  Portfolio|null  $portfolio  Portfolio de la page, null hors d'un portfolio.
-     * @param  string  $section  Section courante : dashboard, accounts, analytic-axes, ou '' sans section.
+     * @param  string  $section  Section courante : dashboard, accounts, ledger, analytic-axes, ou '' sans section.
      */
     public function __construct(
         public ?Portfolio $portfolio,
@@ -49,6 +49,7 @@ final readonly class PortfolioContext
             $portfolio === null => '',
             $route->named('portfolio.dashboard') => 'dashboard',
             $route->named('portfolio.show', 'account.*', 'operation.*') => 'accounts',
+            $route->named('ledger.*') => 'ledger',
             $route->named('analytic-axis.*') => 'analytic-axes',
             default => '',
         };

@@ -57,6 +57,7 @@ test('pages escape the names and descriptions typed by the user', function (stri
     ['account.edit', 'account', []],
     ['operation.create', 'account', []],
     ['operation.edit', 'operation', []],
+    ['ledger.index', 'portfolio', []],
     ['analytic-axis.index', 'portfolio', []],
     ['analytic-axis.edit', 'analytic_axis', []],
 ]);
@@ -108,6 +109,27 @@ test('the account search escapes the search it repeats', function () {
         ->assertOk()
         ->assertSee('« &lt;b onmouseover=alert(1)&gt;introuvable »', escape: false)
         ->assertDontSee('<b onmouseover', escape: false);
+});
+
+test('the ledger escapes the label search it shows again', function () {
+    $response = $this->actingAs($this->owner)->get(route('ledger.index', [
+        $this->portfolio,
+        'label' => '"><b onmouseover=alert(1)>introuvable',
+    ]));
+
+    $response
+        ->assertOk()
+        ->assertSee('value="&quot;&gt;&lt;b onmouseover=alert(1)&gt;introuvable"', escape: false)
+        ->assertDontSee('<b onmouseover', escape: false);
+});
+
+test('the ledger export neutralizes the formulas typed by the user', function () {
+    $this->operation->update(['label' => '=HYPERLINK("https://example.com")']);
+
+    $content = $this->actingAs($this->owner)->get(route('ledger.export', $this->portfolio))->streamedContent();
+
+    expect($content)->toContain("\"'=HYPERLINK(\"\"https://example.com\"\")\"")
+        ->not->toContain(';=HYPERLINK');
 });
 
 test('the portfolio mails escape the portfolio name', function (string $mailable) {
