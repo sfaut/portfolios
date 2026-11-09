@@ -35,10 +35,10 @@ test('the user menu opens on the avatar, with the name spoken on a narrow screen
 
 test('with a photo, the avatar shows it at its versioned address instead of the initials', function () {
     $user = User::factory()->make(['first_name' => 'Sébastien', 'last_name' => 'Faut']);
-    $user->avatar_path = 'avatars/1/'.str_repeat('a', 40).'.webp';
+    $user->avatar_path = 'avatars/1-'.str_repeat('a', 40).'.webp';
 
     $view = $this->blade('<x-avatar :user="$user"/>', ['user' => $user]);
 
-    $view->assertSee('<img src="'.route('profile.avatar', ['v' => str_repeat('a', 40)]).'" alt="" class="size-full object-cover">', escape: false)
+    $view->assertSee('<img src="'.route('profile.avatar', ['v' => '1-'.str_repeat('a', 40)]).'" alt="" class="size-full object-cover">', escape: false)
         ->assertDontSee('SF');
 });

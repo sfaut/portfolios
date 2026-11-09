@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Storage;
  * Utilisateur de l'application, propriétaire de ses portfolios.
  *
  * Son adresse doit être vérifiée pour accéder aux pages métier (middleware `verified`). Sa photo de
- * profil, facultative, est rangée sur le disque privé `local` (`avatar_path`, '' sans photo), et
- * supprimée avec lui.
+ * profil, facultative, est rangée à plat sur le disque privé `local`, sous `avatars/{id}-{aléatoire}.webp`
+ * (`avatar_path`, '' sans photo), et supprimée avec lui.
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -59,8 +59,28 @@ class User extends Authenticatable implements MustVerifyEmail
     protected static function booted(): void
     {
         static::deleted(function (User $user): void {
-            Storage::disk('local')->deleteDirectory("avatars/{$user->id}");
+            $user->deleteAvatarFiles();
         });
+    }
+
+    /**
+     * Supprime les fichiers de photo de l'utilisateur, retrouvés par leur préfixe `avatars/{id}-` : sa
+     * photo, et tout orphelin d'un envoi interrompu entre l'écriture du fichier et son enregistrement
+     * en base. Le tiret du préfixe distingue l'utilisateur 1 de l'utilisateur 12.
+     *
+     * Le dossier `avatars` est listé en entier : un fichier par utilisateur qui a une photo.
+     *
+     * @param  string  $except  Chemin à garder, la photo qui vient d'être enregistrée ; '' pour aucun.
+     */
+    public function deleteAvatarFiles(string $except = ''): void
+    {
+        $disk = Storage::disk('local');
+        $prefix = "avatars/{$this->id}-";
+
+        $disk->delete(array_values(array_filter(
+            $disk->files('avatars'),
+            fn (string $path): bool => str_starts_with($path, $prefix) && $path !== $except,
+        )));
     }
 
     /**
