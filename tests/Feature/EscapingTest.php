@@ -3,6 +3,7 @@
 use App\Mail\PortfolioCreatedMail;
 use App\Mail\PortfolioDeletedMail;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -121,3 +122,24 @@ test('the portfolio mails escape the portfolio name', function (string $mailable
     PortfolioCreatedMail::class,
     PortfolioDeletedMail::class,
 ]);
+
+test('the server status escapes the name and the queue of a failed job', function () {
+    DB::table('failed_jobs')->insert([
+        'uuid' => (string) str()->uuid(),
+        'connection' => 'database',
+        'queue' => dangerousText(),
+        'payload' => json_encode(['displayName' => dangerousText()]),
+        'exception' => 'RuntimeException',
+        'failed_at' => now(),
+    ]);
+
+    $response = $this
+        ->actingAs(User::factory()->admin()->create())
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->get(route('admin.server'));
+
+    $response
+        ->assertOk()
+        ->assertSee('&lt;script&gt;', escape: false)
+        ->assertDontSee(dangerousText(), escape: false);
+});
