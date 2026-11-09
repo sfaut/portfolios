@@ -87,12 +87,12 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <x-dropdown-link :href="route('profile.edit')" icon="circle-user-round">
                             Profil
                         </x-dropdown-link>
 
                         @if (auth()->user()->is_admin)
-                            <x-dropdown-link :href="route('admin.server')">
+                            <x-dropdown-link :href="route('admin.server')" icon="server">
                                 État du serveur
                             </x-dropdown-link>
                         @endif
@@ -130,6 +130,7 @@
 
                             <x-dropdown-link
                                 :href="route('logout')"
+                                icon="log-out"
                                 onclick="event.preventDefault(); this.closest('form').submit()"
                             >
                                 Déconnexion

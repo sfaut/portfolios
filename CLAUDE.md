@@ -297,7 +297,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   au-dessus du déclencheur (en dessous faute de place), fond presque noir (`gray-950`).
   Toute icône vient de Lucide, par `mallardduck/blade-lucide-icons` (sur `blade-ui-kit/blade-icons`) :
   `<x-lucide-circle-help class="size-4" aria-hidden="true"/>`, ou `<x-dynamic-component>` pour un nom
-  calculé ; noms sur https://lucide.dev/icons. Pas de SVG copié dans les vues, hormis le logo
+  calculé ; noms sur https://lucide.dev/icons. Une entrée de menu déroulant prend la sienne par
+  `<x-dropdown-link icon="log-out">` ; les entrées simples du menu utilisateur en ont toutes une. Pas de SVG copié dans les vues, hormis le logo
   (`x-application-logo`). La taille passe par `size-*` et l'épaisseur du trait, 2 par défaut, par une
   classe (`stroke-1`, `stroke-[1.25]`) : un attribut `stroke-width` sortirait en double sur le `<svg>`.
   Tout choix de mois passe par `<x-month-picker>` (`App\View\Components\MonthPicker`, composant

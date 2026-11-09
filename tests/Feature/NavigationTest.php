@@ -84,3 +84,13 @@ test('the breadcrumb leads from the section to the parent page', function () {
         '</nav>',
     ], escape: false);
 });
+
+test('the simple entries of the user menu have an icon', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
+    $response = $this->get(route('portfolio.index'));
+
+    foreach (['Profil', 'État du serveur', 'Déconnexion'] as $entry) {
+        expect($response->getContent())->toMatch('/<svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg>\s*'.preg_quote($entry, '/').'\s*<\/a>/su');
+    }
+});
