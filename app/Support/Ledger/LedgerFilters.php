@@ -33,7 +33,7 @@ final readonly class LedgerFilters
      *
      * @var list<string>
      */
-    public const array SORTS = ['written', 'account', 'effective', 'label', 'amount', 'axes'];
+    public const array SORTS = ['written', 'id', 'account', 'effective', 'label', 'amount', 'axes'];
 
     /**
      * Sens du tri par défaut : les dernières écritures en tête.

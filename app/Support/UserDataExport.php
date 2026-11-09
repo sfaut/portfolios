@@ -148,7 +148,7 @@ class UserDataExport
                     ]),
             ),
             'operations.csv' => Csv::content(
-                ['id', 'compte_id', 'compte', 'date', 'libellé', 'montant', 'créée le'],
+                ['id', 'compte_id', 'compte', 'date effective', 'libellé', 'montant', 'horodatage écriture'],
                 DB::table('operations')
                     ->join('accounts', 'accounts.id', '=', 'operations.account_id')
                     ->whereIn('accounts.portfolio_id', $portfolio_ids)

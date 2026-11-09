@@ -97,6 +97,16 @@ test('the ledger lists the operations of every account, the last written first',
         ->assertSeeInOrder(['Facture Bêta', '−250,50', 'Formation', 'Études'], escape: false);
 });
 
+test('the ledger shows the identifier of each operation', function () {
+    ledger(['sort' => 'id', 'dir' => 'asc'])->assertSeeInOrder([
+        'ID',
+        "<td class=\"border px-3 py-2 text-right tabular-nums\">{$this->alpha->id}</td>",
+        'Facture Alpha',
+        "<td class=\"border px-3 py-2 text-right tabular-nums\">{$this->deposit->id}</td>",
+        'Acompte 100%',
+    ], escape: false);
+});
+
 test('the ledger marks the operations of an archived account and leaves them read only', function () {
     $response = ledger();
 
@@ -184,8 +194,10 @@ test('the ledger sorts its operations on each column, both ways', function (stri
 
     assertLedgerLists($response, $labels);
     $response->assertSee('aria-sort="'.($direction === 'asc' ? 'ascending' : 'descending').'"', escape: false);
-    expect(substr_count($response->getContent(), 'aria-sort="none"'))->toBe(5);
+    expect(substr_count($response->getContent(), 'aria-sort="none"'))->toBe(6);
 })->with([
+    ['id', 'asc', ['Facture Alpha', 'Règlement Alpha', 'Facture Bêta', 'Vente estivale', 'Acompte 100%']],
+    ['id', 'desc', ['Acompte 100%', 'Vente estivale', 'Facture Bêta', 'Règlement Alpha', 'Facture Alpha']],
     ['account', 'asc', ['Vente estivale', 'Facture Alpha', 'Règlement Alpha', 'Facture Bêta', 'Acompte 100%']],
     ['account', 'desc', ['Acompte 100%', 'Facture Bêta', 'Règlement Alpha', 'Facture Alpha', 'Vente estivale']],
     ['written', 'asc', ['Vente estivale', 'Facture Alpha', 'Règlement Alpha', 'Facture Bêta', 'Acompte 100%']],
