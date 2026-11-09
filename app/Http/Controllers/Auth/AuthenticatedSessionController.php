@@ -23,14 +23,18 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Connecte l'utilisateur, avec une nouvelle session, puis ouvre la liste de ses portfolios.
+     * Connecte l'utilisateur, avec une nouvelle session, puis rouvre la page qu'il demandait, à défaut
+     * la liste de ses portfolios.
+     *
+     * La page demandée est, par exemple, le lien de vérification reçu à l'inscription : la connexion
+     * vérifie alors l'adresse sans second clic.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();
 
-        return to_route('portfolio.index');
+        return redirect()->intended(route('portfolio.index', absolute: false));
     }
 
     /**

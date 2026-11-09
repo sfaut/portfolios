@@ -61,6 +61,22 @@ test('a new verification link can be requested', function () {
     Notification::assertSentTo($user, VerifyEmail::class);
 });
 
+test('a verification link opened logged out verifies the address once logged in', function () {
+    $user = User::factory()->unverified()->create();
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        ['id' => $user->id, 'hash' => sha1($user->email)]
+    );
+    $this->get($verificationUrl)->assertRedirect(route('login'));
+
+    $response = $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+
+    $response->assertRedirect($verificationUrl);
+    $this->get($verificationUrl)->assertRedirect(route('portfolio.index', absolute: false).'?verified=1');
+    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+});
+
 test('email is not verified with invalid hash', function () {
     $user = User::factory()->unverified()->create();
 
