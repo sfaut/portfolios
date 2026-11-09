@@ -4,6 +4,7 @@ import analyticLines from "./analytic-lines";
 import avatarEditor from "./avatar-editor";
 import datePicker from "./date-picker";
 import monthPicker from "./month-picker";
+import multiSelect from "./multi-select";
 import sectionSpy from "./section-spy";
 import theme from "./theme";
 
@@ -15,6 +16,7 @@ Alpine.data("analyticLines", analyticLines);
 Alpine.data("avatarEditor", avatarEditor);
 Alpine.data("datePicker", datePicker);
 Alpine.data("monthPicker", monthPicker);
+Alpine.data("multiSelect", multiSelect);
 Alpine.data("sectionSpy", sectionSpy);
 
 Alpine.start();
