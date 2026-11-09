@@ -222,16 +222,41 @@ test('sending a photo asks to confirm the password, then a verified address', fu
     expect(Storage::disk('local')->allFiles())->toBeEmpty();
 });
 
-test('the profile offers to choose a photo, and to remove it once there is one', function () {
-    $this->get(route('profile.edit'))
-        ->assertSeeInOrder(['enctype="multipart/form-data"', 'Choisir une photo', 'type="file"', 'name="avatar"', 'accept="image/jpeg,image/png'], escape: false)
-        ->assertDontSee('Retirer la photo');
+test('the profile opens the photo dialog by importing a photo or by taking one with the camera', function () {
+    $response = $this->get(route('profile.edit'));
+
+    $response->assertSeeInOrder([
+        'x-data="avatarEditor"',
+        'x-bind:hidden="false"', 'Importer une photo',
+        'x-bind:hidden="!cameraAvailable"', 'Prendre une photo',
+        'id="avatar-dialog"', 'Déclencher', '<span class="sr-only">Dans</span> 3 s', 'Enregistrer la photo',
+    ], escape: false);
+
+    preg_match_all('/<button[^>]*\shidden="hidden"[^>]*>/', $response->getContent(), $hidden_buttons);
+    expect($hidden_buttons[0])->toHaveCount(2);
+});
+
+test('without JavaScript, the profile sends the photo through a single file field', function () {
+    $content = $this->get(route('profile.edit'))->getContent();
+
+    preg_match('/<noscript>(.*?)<\/noscript>/s', $content, $noscript);
+    expect($noscript[1])
+        ->toContain('type="file" name="avatar" accept="image/jpeg,image/png')
+        ->toContain('Envoyer la photo');
+
+    $outside = str_replace($noscript[0], '', $content);
+    expect($outside)->toContain('x-bind:name="\'avatar\'"')
+        ->not->toMatch('/\sname="avatar"/');
+});
+
+test('the profile offers to remove the photo once there is one', function () {
+    $this->get(route('profile.edit'))->assertDontSee('Retirer la photo');
 
     $this->put(route('profile.avatar.update'), ['avatar' => avatarFile(halvesImage('png'), 'a.png')]);
 
     $this->get(route('profile.edit'))
         ->assertSee('Photo enregistrée.')
-        ->assertSeeInOrder(['src="'.$this->user->refresh()->avatarUrl().'"', 'Changer la photo', 'Retirer la photo'], escape: false);
+        ->assertSeeInOrder(['src="'.$this->user->refresh()->avatarUrl().'"', 'Retirer la photo'], escape: false);
 });
 
 test('an unverified address cannot send a photo from the profile', function () {

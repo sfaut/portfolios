@@ -203,10 +203,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `profile.edit` (photo, informations), `profile.preferences` (thème), `profile.password`,
   `profile.account` (export des données, puis suppression du compte).
   Photo de profil (`ProfileAvatarController`, `ProfileAvatarRequest`) : JPEG, PNG, GIF, WebP, et AVIF
-  si GD le lit, 8 Mo et 24 Mpx au plus, contrôlés sur l'en-tête avant tout décodage. Le composant
-  Alpine `avatarCropper` (`resources/js/avatar-cropper.js`, calculs purs dans
-  `avatar-crop-rules.js`, testés par Node) recadre dans un `<x-dialog>` sous un cercle, puis met à
-  la place du fichier un carré de 512 pixels ; sans JavaScript, la photo part telle quelle.
+  si GD le lit, 8 Mo et 24 Mpx au plus, contrôlés sur l'en-tête avant tout décodage. La carte offre
+  deux entrées, « Importer une photo » et « Prendre une photo », vers une même boîte
+  (`profile/partials/avatar-dialog`), menée par le composant Alpine `avatarEditor`
+  (`resources/js/avatar-editor.js`, calculs purs dans `avatar-crop-rules.js`, testés par Node).
+  Sa scène carrée garde son cercle : vidéo de la caméra en miroir, déclenchée aussitôt ou après un
+  retardateur de 3 s, puis image à recadrer ; la photo prise est en vue réelle, sans miroir. La
+  caméra (`getUserMedia`) demande un contexte sécurisé (HTTPS ou `*.localhost`), sans quoi le bouton
+  ne paraît pas, et s'éteint dès la prise de vue ou la fermeture. La boîte met à la place du fichier
+  un carré de 512 pixels ; sans JavaScript, un champ du `<noscript>` envoie la photo telle quelle.
   `App\Support\AvatarImage` décode toute photo reçue par GD, applique l'orientation EXIF, recadre
   au centre et réencode en WebP 512 × 512 : aucune métadonnée ni contenu glissé ne passe. Le fichier
   va sur le disque privé `local` (`avatars/{id}/{aléatoire}.webp`, colonne `users.avatar_path`, ''

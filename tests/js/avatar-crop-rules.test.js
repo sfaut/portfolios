@@ -1,10 +1,10 @@
 /**
- * Tests des calculs du recadrage de la photo (resources/js/avatar-crop-rules.js), lancés par le
+ * Tests des calculs de la photo de profil (resources/js/avatar-crop-rules.js), lancés par le
  * lanceur intégré à Node : npm run test:js.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "../../resources/js/avatar-crop-rules.js";
+import { cameraError, centerSquare, clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "../../resources/js/avatar-crop-rules.js";
 
 test("the minimal scale fits the short side of the image in the circle", () => {
     assert.equal(minScale(1200, 800, 200), 0.25);
@@ -35,4 +35,19 @@ test("the kept square is the part of the image under the circle", () => {
     assert.deepEqual(sourceRect(1200, 800, 0.25, { x: 50, y: 0 }, 200), { x: 0, y: 0, size: 800 });
     // Portrait image zoomed twice, moved 100 px up: a smaller square, lower in the image.
     assert.deepEqual(sourceRect(800, 1200, 0.5, { x: 0, y: -100 }, 200), { x: 200, y: 600, size: 400 });
+});
+
+test("the camera keeps the centre square of its video", () => {
+    assert.deepEqual(centerSquare(1280, 720), { x: 280, y: 0, size: 720 });
+    assert.deepEqual(centerSquare(720, 1280), { x: 0, y: 280, size: 720 });
+    assert.deepEqual(centerSquare(640, 640), { x: 0, y: 0, size: 640 });
+});
+
+test("a camera that does not open says why, and offers to import an image", () => {
+    assert.match(cameraError("NotAllowedError"), /^L'accès à la caméra est refusé\./);
+    assert.equal(cameraError("SecurityError"), cameraError("NotAllowedError"));
+    assert.equal(cameraError("NotFoundError"), "Aucune caméra n'est disponible.");
+    assert.equal(cameraError("OverconstrainedError"), cameraError("NotFoundError"));
+    assert.match(cameraError("NotReadableError"), /importez une image\.$/);
+    assert.equal(cameraError(undefined), cameraError("NotReadableError"));
 });

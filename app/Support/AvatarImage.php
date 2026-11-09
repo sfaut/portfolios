@@ -26,9 +26,9 @@ final class AvatarImage
     public const int SIZE = 512;
 
     /**
-     * Qualité de l'encodage WebP, de 0 à 100.
+     * Qualité de l'encodage WebP, de 0 à 100 : la plus haute.
      */
-    public const int QUALITY = 85;
+    public const int QUALITY = 100;
 
     /**
      * Nombre de pixels au plus de l'image reçue.
