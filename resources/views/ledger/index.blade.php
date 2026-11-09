@@ -91,7 +91,7 @@
             </div>
 
             <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Écrite le</span>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Date d'écriture</span>
                 <x-date-picker
                     name="written"
                     label="Date d'écriture"
@@ -226,7 +226,7 @@
                         <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                             <tr>
                                 <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left">Compte</x-sortable-heading>
-                                <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Écrite le</x-sortable-heading>
+                                <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Horodatage écriture</x-sortable-heading>
                                 <x-sortable-heading column="effective" :sort="$filters->sort" :direction="$filters->direction">Date effective</x-sortable-heading>
                                 <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left">Libellé</x-sortable-heading>
                                 <x-sortable-heading column="amount" :sort="$filters->sort" :direction="$filters->direction" align="right">Montant (€)</x-sortable-heading>

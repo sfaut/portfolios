@@ -36,7 +36,7 @@ test('the ledger export downloads every operation as a CSV file for French sprea
         ->assertDownload('grand-livre-cabinet-martin-2026-11-09.csv');
 
     expect($response->streamedContent())->toBe(implode("\r\n", [
-        "\u{FEFF}compte;\"écrite le\";\"date effective\";libellé;montant;axes",
+        "\u{FEFF}compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes",
         "Banque;\"2026-01-11 09:00:00\";2026-01-10;\"Facture ; Alpha\";-1250,50;\"Conseil 37,5\u{A0}% | Formation 62,5\u{A0}%\"",
         "'+Ancien;\"2025-07-02 12:00:00\";2025-07-01;'=SUM(A1:A9);40,00;",
         '',
@@ -55,5 +55,5 @@ test('the ledger export of a portfolio without operation has its header alone', 
     $empty = $this->owner->portfolios()->create(['name' => 'Vide']);
 
     expect($this->get(route('ledger.export', $empty))->streamedContent())
-        ->toBe("\u{FEFF}compte;\"écrite le\";\"date effective\";libellé;montant;axes\r\n");
+        ->toBe("\u{FEFF}compte;\"horodatage écriture\";\"date effective\";libellé;montant;axes\r\n");
 });

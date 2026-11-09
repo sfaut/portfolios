@@ -66,7 +66,7 @@
                         <th class="border px-3 py-2 whitespace-nowrap">Montant (€)</th>
                         <th class="border px-3 py-2">Analytique</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Solde (€)</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Horodatage création</th>
+                        <th class="border px-3 py-2 whitespace-nowrap">Horodatage écriture</th>
                         @unless ($account->trashed())
                             <th class="border px-3 py-2">Action</th>
                         @endunless
@@ -119,7 +119,7 @@
                             ])>
                                 {{ Number::amount($operation->amount_running_sum, signed: true) }}
                             </td>
-                            <td class="border px-3 py-2 text-center whitespace-nowrap">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
+                            <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
                             @unless ($account->trashed())
                                 <td class="border px-3 py-2 text-center">
                                     <a
