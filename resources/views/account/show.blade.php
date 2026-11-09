@@ -10,13 +10,10 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div>
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col gap-1">
                 <h2 class="text-xl font-semibold">Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    ➜ Portfolio
-                    <a href="{{ route('portfolio.show', $account->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $account->portfolio->name }}</a>
-                </div>
+                <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes']"/>
             </div>
             <x-link.secondary :target="route('account.edit', $account)">Modifier le compte</x-link.secondary>
         </div>

@@ -1,10 +1,7 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">
-            Modification du portfolio
-            <span class="text-indigo-700 dark:text-indigo-400">{{ $portfolio->name }}</span>
-        </h2>
+        <h2 class="text-xl font-semibold">Modification du portfolio</h2>
     </x-slot>
 
     <div class="max-w-xl mx-auto flex flex-col gap-6">

@@ -176,9 +176,23 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`), faute de page
   parent qui l'accueille ; `edit`, `update` et `restore` portent `->withTrashed()`, comme pour les
-  comptes. Les pages d'un portfolio (tableau de bord, comptes, axes analytiques) partagent la
-  navigation `<x-portfolio-nav>` de leur en-tête (contrôle segmenté `<x-segmented-nav>`). La page d'accueil après connexion est
-  `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
+  comptes. La page d'accueil après connexion est `portfolio.index` : le projet n'a pas la route
+  `dashboard` du code Breeze d'origine.
+- Navigation : la barre du haut (`layouts/navigation.blade.php`) dit où l'on est, le bandeau de la page
+  ce qu'est la page. La barre porte le logo, qui mène à la liste des portfolios, et le menu de
+  l'utilisateur. Dans un portfolio, elle porte aussi le sélecteur de portfolio, de largeur fixe (ses
+  portfolios, puis modifier, tous, créer), et `<x-portfolio-nav>`, toujours à la même place : ces deux
+  éléments passent sur une seconde ligne sur un écran étroit, et `scrollbar-gutter: stable` empêche
+  la barre de défilement de les décaler d'une page à l'autre. Le portfolio et la section viennent de
+  `App\Support\PortfolioContext`, qui les déduit du modèle lié par la route (portfolio, compte,
+  opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
+  Sections : tableau de bord ; comptes (liste, compte, opération) ; axes analytiques ; aucune sur la
+  modification du portfolio. Hors d'un portfolio (liste, création, profil), la barre n'a que le logo
+  et le menu. Le titre du bandeau nomme la page, jamais le portfolio, que montre la barre. Sous le
+  titre, `<x-breadcrumb :links="[url => texte]">` mène de la section à la page parente
+  (« Comptes › Compte courant »), absent sur les pages de premier niveau. À droite viennent les
+  actions de la page. Une nouvelle page d'un portfolio entre dans `PortfolioContext` (section) et
+  dans `tests/Feature/NavigationTest.php`.
   La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
   comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé. Le compte

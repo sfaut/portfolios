@@ -5,14 +5,9 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div>
+        <div class="flex flex-col gap-1">
             <h2 class="text-xl font-semibold">Axe analytique <span class="text-indigo-700 dark:text-indigo-400">{{ $analytic_axis->name }}</span></h2>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-                ➜ Portfolio
-                <a href="{{ route('portfolio.show', $analytic_axis->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $analytic_axis->portfolio->name }}</a>
-                ➜
-                <a href="{{ route('analytic-axis.index', $analytic_axis->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Axes analytiques</a>
-            </div>
+            <x-breadcrumb :links="[route('analytic-axis.index', $analytic_axis->portfolio) => 'Axes analytiques']"/>
         </div>
     </x-slot>
 

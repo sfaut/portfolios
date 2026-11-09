@@ -1,13 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
+        <div class="flex flex-col gap-1">
             <h2 class="text-xl font-semibold">Écriture d'une opération</h2>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-                ➜ Portfolio
-                <a href="{{ route('portfolio.show', $account->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $account->portfolio->name }}</a>
-                ➜ Compte
-                <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $account->name }}</a>
-            </div>
+            <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]"/>
         </div>
     </x-slot>
 

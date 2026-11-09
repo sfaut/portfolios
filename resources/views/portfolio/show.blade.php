@@ -18,21 +18,11 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h2 class="text-xl font-semibold">
-                    Portfolio <span class="text-indigo-700 dark:text-indigo-400">{{ $portfolio->name }}</span>
-                </h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ count($portfolio->accounts) }}
-                    {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
-                    {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <x-portfolio-nav :portfolio="$portfolio" current="accounts"/>
-                <x-link.secondary :target="route('portfolio.edit', $portfolio)">Modifier le portfolio</x-link.secondary>
-            </div>
+        <h2 class="text-xl font-semibold">Comptes</h2>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            {{ count($portfolio->accounts) }}
+            {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
+            {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
         </div>
     </x-slot>
 

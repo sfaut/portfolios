@@ -7,16 +7,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h2 class="text-xl font-semibold">Axes analytiques</h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    ➜ Portfolio
-                    <a href="{{ route('portfolio.dashboard', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $portfolio->name }}</a>
-                </div>
-            </div>
-            <x-portfolio-nav :portfolio="$portfolio" current="analytic-axes"/>
-        </div>
+        <h2 class="text-xl font-semibold">Axes analytiques</h2>
     </x-slot>
 
     <div class="max-w-4xl mx-auto flex flex-col gap-6">

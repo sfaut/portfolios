@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Support\PortfolioContext;
 use Closure;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +30,26 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerNumberFormats();
         $this->registerRateLimiters();
+        $this->registerViewComposers();
+    }
+
+    /**
+     * Passe à la barre de navigation le portfolio de la page, sa section et, dans un portfolio, la liste
+     * des portfolios de l'utilisateur pour le sélecteur (triés par nom).
+     */
+    private function registerViewComposers(): void
+    {
+        View::composer('layouts.navigation', function (ViewContract $view): void {
+            $context = PortfolioContext::fromRoute(request()->route());
+
+            $view->with([
+                'current_portfolio' => $context->portfolio,
+                'current_section' => $context->section,
+                'portfolios' => $context->portfolio === null
+                    ? collect()
+                    : auth()->user()->portfolios()->orderBy('name')->get(['id', 'name']),
+            ]);
+        });
     }
 
     /**
