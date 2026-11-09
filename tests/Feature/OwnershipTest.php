@@ -51,6 +51,7 @@ test('users cannot reach the data of another user', function (string $method, st
     ['post', 'operation.store', 'account'],
     ['get', 'operation.edit', 'operation'],
     ['put', 'operation.update', 'operation'],
+    ['patch', 'operation.tick', 'operation'],
     ['delete', 'operation.destroy', 'operation'],
     ['get', 'ledger.index', 'portfolio'],
     ['get', 'ledger.export', 'portfolio'],
@@ -121,6 +122,7 @@ test('guests are redirected to the login page', function (string $method, string
     ['post', 'operation.store', 'account'],
     ['get', 'operation.edit', 'operation'],
     ['put', 'operation.update', 'operation'],
+    ['patch', 'operation.tick', 'operation'],
     ['delete', 'operation.destroy', 'operation'],
     ['get', 'ledger.index', 'portfolio'],
     ['get', 'ledger.export', 'portfolio'],
@@ -233,6 +235,42 @@ test('an operation cannot be put in the account of another user', function (stri
     'creation' => ['post', 'operation.store', 'account'],
     'update' => ['put', 'operation.update', 'operation'],
 ]);
+
+test('the operation of another user can be neither ticked nor unticked', function (bool $saved, bool $sent) {
+    $this->operation->forceFill(['is_ticked' => $saved])->save();
+
+    $this->actingAs($this->stranger)->patchJson(route('operation.tick', $this->operation), ['is_ticked' => $sent])->assertNotFound();
+    $this->actingAs($this->stranger)->put(route('operation.update', $this->operation), [
+        'label' => 'Operation',
+        'amount' => '10.00',
+        'delivery_at' => '2026-01-15',
+        'is_ticked' => $sent ? '1' : '0',
+    ])->assertNotFound();
+
+    expect((bool) Operation::withoutGlobalScopes()->whereKey($this->operation->id)->value('is_ticked'))->toBe($saved);
+})->with([
+    'tick' => [false, true],
+    'untick' => [true, false],
+]);
+
+test('a guest cannot tick an operation', function () {
+    $this->patchJson(route('operation.tick', $this->operation), ['is_ticked' => true])->assertUnauthorized();
+
+    expect((bool) Operation::withoutGlobalScopes()->whereKey($this->operation->id)->value('is_ticked'))->toBeFalse();
+});
+
+test('the tick filter of the ledger keeps to the operations of its portfolio', function () {
+    $this->operation->forceFill(['is_ticked' => true])->save();
+    $stranger_account = $this->stranger->portfolios()->create(['name' => 'Portfolio du voisin'])
+        ->accounts()->create(['name' => 'Compte du voisin']);
+    $stranger_account->operations()->create(['label' => 'Opération du voisin', 'amount' => '5.00', 'delivery_at' => '2026-01-15'])
+        ->forceFill(['is_ticked' => true])->save();
+
+    $this->actingAs($this->owner)->get(route('ledger.index', [$this->portfolio, 'ticked' => 'yes']))
+        ->assertOk()
+        ->assertSee('Pointée : Operation')
+        ->assertDontSee('Opération du voisin');
+});
 
 test('an analytic axis cannot be put in the portfolio of another user', function (string $method, string $route, string $model) {
     $stranger_portfolio = $this->stranger->portfolios()->create(['name' => 'Portfolio du voisin']);

@@ -117,6 +117,18 @@
             </div>
 
             <div class="flex flex-col gap-1">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Pointage</span>
+                <x-switch
+                    label="Pointage des opérations"
+                    name="ticked"
+                    :options="['' => 'Toutes', 'yes' => 'Pointées', 'no' => 'Non pointées']"
+                    :value="$filters->ticked"
+                    model="ticked"
+                    class="py-0.5"
+                />
+            </div>
+
+            <div class="flex flex-col gap-1">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Montant (€)</span>
                 <div class="flex items-center gap-2">
                     <x-number-input
@@ -232,6 +244,7 @@
                                 <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left">Libellé</x-sortable-heading>
                                 <x-sortable-heading column="amount" :sort="$filters->sort" :direction="$filters->direction" align="right">Montant (€)</x-sortable-heading>
                                 <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left">Axes</x-sortable-heading>
+                                <x-sortable-heading column="ticked" :sort="$filters->sort" :direction="$filters->direction" align="center">Pointée ?</x-sortable-heading>
                                 <th scope="col" class="border px-3 py-2">Action</th>
                             </tr>
                         </thead>
@@ -273,6 +286,9 @@
                                             </x-tooltip>
                                         @endif
                                     </td>
+                                    <td class="relative border px-3 py-2 text-center">
+                                        <x-tick-box :operation="$operation" :disabled="$operation->account->trashed()"/>
+                                    </td>
                                     <td class="border px-3 py-2 text-center">
                                         @unless ($operation->account->trashed())
                                             <a
@@ -284,7 +300,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="p-6 text-center">
+                                    <td colspan="9" class="p-6 text-center">
                                         @if ($filters->isFiltered())
                                             Aucune opération ne correspond aux filtres.<br>
                                             <a href="{{ route('ledger.index', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Effacer les filtres</a>

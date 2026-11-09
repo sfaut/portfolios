@@ -66,6 +66,7 @@ Route::controller(OperationController::class)->middleware(['auth', 'verified'])-
     Route::post('/account/{account}/operation', 'store')->name('operation.store');
     Route::get('/operation/{operation}/edit', 'edit')->name('operation.edit');
     Route::put('/operation/{operation}', 'update')->name('operation.update');
+    Route::patch('/operation/{operation}/tick', 'tick')->name('operation.tick');
     Route::delete('/operation/{operation}', 'destroy')->name('operation.destroy');
 });
 

@@ -242,6 +242,7 @@ class Ledger
             ))
             ->when($filters->flow === 'sales', fn (Builder $query) => $query->where('operations.amount', '<', 0))
             ->when($filters->flow === 'payments', fn (Builder $query) => $query->where('operations.amount', '>', 0))
+            ->when($filters->ticked !== '', fn (Builder $query) => $query->where('operations.is_ticked', $filters->ticked === 'yes' ? 1 : 0))
             ->when($filters->amountMin !== '', fn (Builder $query) => $query->whereRaw('ABS(operations.amount) >= ?', [$filters->amountMin]))
             ->when($filters->amountMax !== '', fn (Builder $query) => $query->whereRaw('ABS(operations.amount) <= ?', [$filters->amountMax]))
             ->when($filters->axes !== [], fn (Builder $query) => $query->where(function (Builder $query) use ($filters, $axis_ids): void {
@@ -278,6 +279,7 @@ class Ledger
             'label' => $query->orderBy('operations.label', $direction),
             'amount' => $query->orderBy('operations.amount', $direction),
             'axes' => $this->orderByFirstAxis($query, $direction),
+            'ticked' => $query->orderBy('operations.is_ticked', $direction),
             default => $query->orderBy('operations.created_at', $direction),
         };
 

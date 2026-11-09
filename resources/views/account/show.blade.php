@@ -67,6 +67,7 @@
                         <th class="border px-3 py-2">Analytique</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Solde (€)</th>
                         <th class="border px-3 py-2 whitespace-nowrap">Horodatage écriture</th>
+                        <th class="border px-3 py-2 whitespace-nowrap">Pointée ?</th>
                         @unless ($account->trashed())
                             <th class="border px-3 py-2">Action</th>
                         @endunless
@@ -120,6 +121,9 @@
                                 {{ Number::amount($operation->amount_running_sum, signed: true) }}
                             </td>
                             <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
+                            <td class="relative border px-3 py-2 text-center">
+                                <x-tick-box :operation="$operation" :disabled="$account->trashed()"/>
+                            </td>
                             @unless ($account->trashed())
                                 <td class="border px-3 py-2 text-center">
                                     <a
@@ -136,7 +140,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $account->trashed() ? 7 : 8 }}" class="p-4 text-center">
+                            <td colspan="{{ $account->trashed() ? 8 : 9 }}" class="p-4 text-center">
                                 Pas encore d'opérations.<br>
                                 Mais ça ne saurait tarder...<br>
                             </td>

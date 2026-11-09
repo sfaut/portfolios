@@ -137,6 +137,33 @@ test('the ledger filters its operations', function (array $query, array $labels)
     'several filters' => [['flow' => 'sales', 'effective' => ['start' => '2026-01-01', 'end' => '2026-12-31'], 'amount' => ['max' => '200']], ['Facture Alpha']],
 ]);
 
+test('the ledger filters and sorts its operations on their tick', function () {
+    $this->alpha->forceFill(['is_ticked' => true])->save();
+    $this->deposit->forceFill(['is_ticked' => true])->save();
+
+    assertLedgerLists(ledger(['ticked' => 'yes']), ['Acompte 100%', 'Facture Alpha']);
+    assertLedgerLists(ledger(['ticked' => 'no']), ['Facture Bêta', 'Règlement Alpha', 'Vente estivale']);
+    assertLedgerLists(ledger(['ticked' => 'maybe']), ['Acompte 100%', 'Facture Bêta', 'Règlement Alpha', 'Facture Alpha', 'Vente estivale']);
+    assertLedgerLists(ledger(['sort' => 'ticked', 'dir' => 'asc']), ['Règlement Alpha', 'Facture Bêta', 'Vente estivale', 'Facture Alpha', 'Acompte 100%']);
+    assertLedgerLists(ledger(['sort' => 'ticked', 'dir' => 'desc']), ['Acompte 100%', 'Facture Alpha', 'Vente estivale', 'Facture Bêta', 'Règlement Alpha']);
+});
+
+test('the ledger shows the tick of each operation, which only the active accounts can change', function () {
+    $this->alpha->forceFill(['is_ticked' => true])->save();
+
+    $response = ledger(['sort' => 'id', 'dir' => 'asc'])->assertSee('Pointée ?');
+    $html = $response->getContent();
+
+    expect(substr_count($html, 'x-data="tickBox('))->toBe(4)
+        ->and($html)->toContain(route('operation.tick', $this->alpha->id))
+        ->and($html)->not->toContain(route('operation.tick', $this->summer->id))
+        ->and($html)->toContain('aria-label="Pointée : Vente estivale"');
+
+    expect(mb_strpos($html, 'Pointée : Facture Alpha'))->toBeGreaterThan(0)
+        ->and(preg_match('/<input[^>]*\schecked\s[^>]*aria-label="Pointée : Facture Alpha"/s', $html))->toBe(1)
+        ->and(preg_match('/<input[^>]*\schecked\s[^>]*aria-label="Pointée : Règlement Alpha"/s', $html))->toBe(0);
+});
+
 test('the ledger filters its operations by account, archived ones included', function () {
     assertLedgerLists(ledger(['accounts' => [(string) $this->cash->id]]), ['Acompte 100%', 'Facture Bêta']);
     assertLedgerLists(ledger(['accounts' => [(string) $this->bank->id, (string) $this->former->id]]), ['Règlement Alpha', 'Facture Alpha', 'Vente estivale']);
@@ -194,7 +221,7 @@ test('the ledger sorts its operations on each column, both ways', function (stri
 
     assertLedgerLists($response, $labels);
     $response->assertSee('aria-sort="'.($direction === 'asc' ? 'ascending' : 'descending').'"', escape: false);
-    expect(substr_count($response->getContent(), 'aria-sort="none"'))->toBe(6);
+    expect(substr_count($response->getContent(), 'aria-sort="none"'))->toBe(7);
 })->with([
     ['id', 'asc', ['Facture Alpha', 'Règlement Alpha', 'Facture Bêta', 'Vente estivale', 'Acompte 100%']],
     ['id', 'desc', ['Acompte 100%', 'Vente estivale', 'Facture Bêta', 'Règlement Alpha', 'Facture Alpha']],
