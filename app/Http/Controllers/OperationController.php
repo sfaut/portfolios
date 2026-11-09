@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OperationRequest;
+use App\Http\Requests\OperationTickRequest;
 use App\Models\Account;
 use App\Models\AnalyticAxis;
 use App\Models\AnalyticLine;
 use App\Models\Operation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -81,6 +83,36 @@ class OperationController extends Controller
         return to_route('account.show', $operation->account)
             ->with('alert', 'Opération modifiée avec succès.')
             ->with('updated_operation_id', $operation->id);
+    }
+
+    /**
+     * Pointe ou dépointe l'opération, sans toucher à ses autres champs.
+     *
+     * La case à cocher l'envoie par script et reçoit en JSON l'état enregistré et le message de son
+     * toast ; sans script, le formulaire revient à sa page, avec ce message en flash `toast`.
+     *
+     * @param  OperationTickRequest  $request  État voulu (is_ticked).
+     * @param  Operation  $operation  Opération à pointer, d'un compte non archivé (404 sinon).
+     */
+    public function tick(OperationTickRequest $request, Operation $operation): JsonResponse|RedirectResponse
+    {
+        $this->abortIfAccountArchived($operation);
+
+        $operation->is_ticked = $request->boolean('is_ticked');
+        $operation->save();
+
+        $message = $operation->is_ticked
+            ? "« {$operation->label} » pointée"
+            : "« {$operation->label} » dépointée";
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'is_ticked' => $operation->is_ticked,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('toast', ['type' => 'success', 'message' => $message]);
     }
 
     /**

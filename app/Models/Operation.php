@@ -19,8 +19,21 @@ class Operation extends Model
         'label',
         'amount',
         'delivery_at',
+        'is_ticked',
         'account_id',
     ];
+
+    /**
+     * Conversions des attributs : le pointage, colonne tinyint, en booléen.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_ticked' => 'boolean',
+        ];
+    }
 
     /**
      * Restreint les opérations à celles des comptes de l'utilisateur connecté.

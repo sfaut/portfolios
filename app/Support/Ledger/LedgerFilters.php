@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
  *   opération est gardée si elle répond à au moins une des valeurs ;
  * - flow : sales (montants négatifs) ou payments (montants positifs) ;
  * - amount[min], amount[max] : bornes de la valeur absolue du montant ;
+ * - ticked : yes (opérations pointées) ou no (non pointées) ;
  * - sort, dir : colonne de tri (SORTS) et sens (asc, desc).
  *
  * Une plage de dates sans fin reste ouverte : toutes les opérations depuis son début.
@@ -33,7 +34,7 @@ final readonly class LedgerFilters
      *
      * @var list<string>
      */
-    public const array SORTS = ['written', 'id', 'account', 'effective', 'label', 'amount', 'axes'];
+    public const array SORTS = ['written', 'id', 'account', 'effective', 'label', 'amount', 'axes', 'ticked'];
 
     /**
      * Sens du tri par défaut : les dernières écritures en tête.
@@ -53,6 +54,13 @@ final readonly class LedgerFilters
     public const array FLOWS = ['sales', 'payments'];
 
     /**
+     * États du pointage : pointées et non pointées.
+     *
+     * @var list<string>
+     */
+    public const array TICKS = ['yes', 'no'];
+
+    /**
      * Longueur maximale du texte cherché, celle de la colonne operations.label.
      */
     public const int LABEL_LENGTH = 150;
@@ -66,6 +74,7 @@ final readonly class LedgerFilters
      * @param  string  $flow  Sens des montants (FLOWS), vide pour tous.
      * @param  string  $amountMin  Valeur absolue minimale du montant, vide sans borne.
      * @param  string  $amountMax  Valeur absolue maximale du montant, vide sans borne.
+     * @param  string  $ticked  État du pointage (TICKS), vide pour tous.
      * @param  string  $sort  Colonne de tri (SORTS).
      * @param  string  $direction  Sens du tri : asc ou desc.
      */
@@ -78,6 +87,7 @@ final readonly class LedgerFilters
         public string $flow = '',
         public string $amountMin = '',
         public string $amountMax = '',
+        public string $ticked = '',
         public string $sort = self::SORTS[0],
         public string $direction = self::DEFAULT_DIRECTION,
     ) {
@@ -95,6 +105,7 @@ final readonly class LedgerFilters
         $label = $request->query('label');
         $flow = $request->query('flow');
         $amount = $request->query('amount');
+        $ticked = $request->query('ticked');
         $sort = $request->query('sort');
         $direction = $request->query('dir');
 
@@ -107,6 +118,7 @@ final readonly class LedgerFilters
             flow: in_array($flow, self::FLOWS, strict: true) ? $flow : '',
             amountMin: self::amount(is_array($amount) ? ($amount['min'] ?? null) : null),
             amountMax: self::amount(is_array($amount) ? ($amount['max'] ?? null) : null),
+            ticked: in_array($ticked, self::TICKS, strict: true) ? $ticked : '',
             sort: in_array($sort, self::SORTS, strict: true) ? $sort : self::SORTS[0],
             direction: in_array($direction, ['asc', 'desc'], strict: true) ? $direction : self::DEFAULT_DIRECTION,
         );
@@ -143,6 +155,7 @@ final readonly class LedgerFilters
             'written' => array_filter($this->written, fn (string $day): bool => $day !== ''),
             'flow' => $this->flow,
             'amount' => array_filter(['min' => $this->amountMin, 'max' => $this->amountMax], fn (string $bound): bool => $bound !== ''),
+            'ticked' => $this->ticked,
         ], fn (string|array $value): bool => $value !== '' && $value !== []);
     }
 
@@ -159,7 +172,7 @@ final readonly class LedgerFilters
     /**
      * État des filtres pour le composant Alpine ledger.
      *
-     * @return array{label: string, accounts: list<string>, axes: list<string>, effective: array{start: string, end: string}, written: array{start: string, end: string}, flow: string, amountMin: string, amountMax: string}
+     * @return array{label: string, accounts: list<string>, axes: list<string>, effective: array{start: string, end: string}, written: array{start: string, end: string}, flow: string, amountMin: string, amountMax: string, ticked: string}
      */
     public function state(): array
     {
@@ -172,6 +185,7 @@ final readonly class LedgerFilters
             'flow' => $this->flow,
             'amountMin' => $this->amountMin,
             'amountMax' => $this->amountMax,
+            'ticked' => $this->ticked,
         ];
     }
 

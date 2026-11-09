@@ -37,7 +37,7 @@ class UserDataExport
         - utilisateur.csv : votre profil.
         - portfolios.csv : vos portfolios ; « horodatage archivage » est vide pour un portfolio actif.
         - comptes.csv : les comptes de vos portfolios, archivés compris.
-        - operations.csv : les opérations de ces comptes.
+        - operations.csv : les opérations de ces comptes ; « pointée » vaut 1 pour une opération pointée, 0 sinon.
         - axes-analytiques.csv : les axes analytiques de vos portfolios, archivés compris.
         - repartitions-analytiques.csv : la part (en pourcentage) de chaque opération attribuée à un axe.
         - photo.webp : votre photo de profil, si vous en avez une.
@@ -148,7 +148,7 @@ class UserDataExport
                     ]),
             ),
             'operations.csv' => Csv::content(
-                ['id', 'compte_id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant'],
+                ['id', 'compte_id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'pointée'],
                 DB::table('operations')
                     ->join('accounts', 'accounts.id', '=', 'operations.account_id')
                     ->whereIn('accounts.portfolio_id', $portfolio_ids)
@@ -162,6 +162,7 @@ class UserDataExport
                         $operation->delivery_at,
                         Csv::text($operation->label),
                         Csv::decimal($operation->amount),
+                        $operation->is_ticked ? 1 : 0,
                     ]),
             ),
             'axes-analytiques.csv' => Csv::content(

@@ -87,6 +87,7 @@ class LedgerController extends Controller
             $operation->delivery_at,
             Csv::text($operation->label),
             Csv::decimal($operation->amount),
+            $operation->is_ticked ? 1 : 0,
             Csv::text($operation->analyticLines
                 ->sortBy(fn (AnalyticLine $line): string => $line->analyticAxis->name, SORT_NATURAL | SORT_FLAG_CASE)
                 ->map(fn (AnalyticLine $line): string => "{$line->analyticAxis->name} ".Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr'))
@@ -98,7 +99,7 @@ class LedgerController extends Controller
         return response()->streamDownload(function () use ($rows): void {
             $stream = fopen('php://output', 'w');
 
-            Csv::write($stream, ['id', 'compte_id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'axes'], $rows);
+            Csv::write($stream, ['id', 'compte_id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'pointée', 'axes'], $rows);
 
             fclose($stream);
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);

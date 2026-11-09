@@ -127,10 +127,21 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (solde, nombre
   d'opérations, première et dernière date) et `operation_reports` (cumul `amount_running_sum` par compte,
   ordonné par `delivery_at`, `id`) sont créées dans la migration
-  `database/migrations/2024_12_21_222937_create_operation_table.php` et lues par les modèles en lecture
+  `database/migrations/2024_12_21_222937_create_operation_table.php` (`operation_reports` recréée par
+  `2026_11_10_003926_add_is_ticked_to_operations_table.php`) et lues par les modèles en lecture
   seule `AccountReport` / `OperationReport`. L'affichage les utilise (`Portfolio::accountsReport()`,
   `Account::operationsReport()`) ; les écritures passent par `Account` / `Operation`. Changer les colonnes
   de `accounts` ou `operations` demande de recréer ces vues dans une nouvelle migration.
+- Pointage : une opération est pointée ou non (`operations.is_ticked`, tinyint non signé, 0 par
+  défaut, converti en booléen), au sens que l'utilisateur lui donne. `<x-tick-box :operation
+  :disabled>` en fait une case dans la liste d'un compte et dans le Grand livre : avec JavaScript
+  (composant Alpine `tickBox`, `resources/js/tick-box.js`), son étiquette couvre la cellule
+  (`relative`), un clic enregistre aussitôt (`PATCH operation.tick`, `OperationController::tick()`,
+  réponse JSON) et un toast confirme, avec « Annuler » ; un échec remet la case et le dit dans un
+  toast `danger`. La requête porte l'état voulu, jamais une inversion, et un clic pendant l'envoi
+  part à sa fin. Sans JavaScript, un bouton envoie le formulaire, qui revient à la page avec le
+  flash `toast`. Le formulaire d'opération a aussi sa case « Pointée » (`is_ticked`, facultatif).
+  Compte archivé : case désactivée, `tick` en 404. Les deux exports ont une colonne `pointée` (0 / 1).
 - Analytique : un portfolio a des axes (`AnalyticAxis`, table `analytic_axes`, nom unique dans le
   portfolio, archivés par `SoftDeletes`) ; une ligne analytique (`AnalyticLine`) attribue à un axe une
   part en pourcentage (deux décimales) d'une opération. Les lignes d'une opération sont facultatives ;
@@ -289,11 +300,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   JavaScript, le formulaire recharge la page filtrée.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
-  effective, libellé, montant et axes. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  effective, libellé, montant, axes et pointage. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
   des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
-  absolue), `sort` et `dir`. `Ledger` construit la requête sur `Operation` (portées conservées), trie
+  absolue), `ticked` (`yes` / `no`), `sort` et `dir`. `Ledger` construit la requête sur `Operation` (portées conservées), trie
   sur chaque colonne (par défaut l'écriture la plus récente en tête, départage par identifiant, non
   répartis en dernier pour les axes), calcule les totaux filtrés (nombre, ventes, paiements, solde) et
   pagine par 50. Le bouton « Tout » garde sa préférence en session
@@ -344,8 +355,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   défaut). `action` (`{ label, run }`) ajoute un bouton (« Annuler »…), qui lance `run()` puis
   ferme le toast ; `key` remplace le toast de même clef ; `position` choisit l'une des six places
   (`top-left` … `bottom-right`), celle de la région par défaut (`<x-toast-region position="…">`,
-  `App\View\Components\ToastRegion`, posée une fois par `layouts/app`, `bottom-right`). Trois toasts
-  au plus par place, le plus récent au bord. Durée : 5 s, 8 s avec une action, sans fin pour
+  `App\View\Components\ToastRegion`, posée une fois par `layouts/app`, `bottom-right`). Les toasts
+  s'empilent sans limite, le plus récent au bord, la pile défilant au-delà de l'écran. Durée : 5 s, 8 s avec une action, sans fin pour
   `danger` (`duration`, 0 sans fin) ; la minuterie s'arrête au survol, au focus et onglet caché, un
   filet montre le temps restant. Bande sombre (`gray-950`) comme `<x-tooltip>`, dans un popover
   manuel remonté à chaque toast. Un toast ne prend jamais le focus ; Échap ferme celui qui l'a.

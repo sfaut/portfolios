@@ -22,6 +22,7 @@ class OperationReport extends Model
         return [
             'delivery_at' => 'datetime',
             'amount' => 'decimal:2',
+            'is_ticked' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

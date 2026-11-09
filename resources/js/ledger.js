@@ -18,6 +18,7 @@
  * @param {string} filters.flow "sales", "payments" or "".
  * @param {string} filters.amountMin Lowest absolute amount, "" without bound.
  * @param {string} filters.amountMax Highest absolute amount, "" without bound.
+ * @param {string} filters.ticked "yes" (ticked), "no" (not ticked) or "".
  */
 export default function ledger(filters) {
     /**
@@ -81,6 +82,7 @@ export default function ledger(filters) {
                 flow: this.flow,
                 "amount[min]": String(this.amountMin ?? ""),
                 "amount[max]": String(this.amountMax ?? ""),
+                ticked: this.ticked,
             };
 
             return Object.fromEntries(Object.entries(parameters).filter(([, value]) => value.length > 0));

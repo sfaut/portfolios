@@ -4,7 +4,8 @@
 
     La région est un popover manuel qui couvre l'écran sans retenir le pointeur : placée dans la
     couche supérieure, et remontée à chaque toast, elle passe au-dessus des boîtes de dialogue et
-    des en-têtes collants. Elle tient une pile par place, où le plus récent est au plus près du bord,
+    des en-têtes collants. Elle tient une pile par place, sans limite, où le plus récent est au plus
+    près du bord, et qui défile quand elle dépasse la hauteur de l'écran,
     et deux régions vivantes qui annoncent les messages : alert pour un danger, status sinon. Un toast
     ne prend jamais le focus ; Échap ferme celui qui l'a. Sans JavaScript, le flash de session
     s'affiche en bas à droite, sans fermeture.
@@ -26,7 +27,7 @@
 
     <template x-for="position in $store.toasts.positions" :key="position">
         <ol
-            class="fixed left-4 right-4 flex flex-col gap-2 sm:w-96"
+            class="fixed left-4 right-4 flex max-h-[calc(100dvh-2rem)] flex-col gap-2 overflow-y-auto overscroll-contain sm:w-96"
             x-bind:class="$store.toasts.stackClass(position)"
             x-show="$store.toasts.at(position).length > 0"
         >

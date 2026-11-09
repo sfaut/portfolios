@@ -166,4 +166,21 @@
         <x-text-input type="date" id="delivery_at" name="delivery_at" class="w-full" :value="old('delivery_at', $operation->delivery_at ?? date('Y-m-d'))"/>
         <x-input-error :messages="$errors->get('delivery_at')"/>
     </div>
+
+    {{-- Pointage, au sens que l'utilisateur lui donne ; le champ caché envoie 0 quand la case est décochée. --}}
+    <div class="flex flex-col gap-1">
+        <input type="hidden" name="is_ticked" value="0">
+        <label for="is_ticked" class="inline-flex cursor-pointer items-center gap-2 self-start">
+            <input
+                type="checkbox"
+                id="is_ticked"
+                name="is_ticked"
+                value="1"
+                @checked((bool) old('is_ticked', $operation->is_ticked ?? false))
+                class="size-4 rounded-sm border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900 dark:focus:ring-offset-gray-800"
+            >
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Pointée</span>
+        </label>
+        <x-input-error :messages="$errors->get('is_ticked')"/>
+    </div>
 </form>

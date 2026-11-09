@@ -80,7 +80,7 @@ test('the export holds the data of the user, archived included, and nothing of a
     expect(array_column(csvRows($files['portfolios.csv']), 1))->toBe(['nom', 'Famille', 'Ancien'])
         ->and(array_column(csvRows($files['comptes.csv']), 3))->toBe(['nom', 'Compte courant', 'Livret clos'])
         ->and(csvRows($files['operations.csv'])[1])->toBe([
-            (string) $operation->id, (string) $account->id, 'Compte courant', $operation->created_at->format('Y-m-d H:i:s'), '2026-11-05', 'Loyer', '-750,50',
+            (string) $operation->id, (string) $account->id, 'Compte courant', $operation->created_at->format('Y-m-d H:i:s'), '2026-11-05', 'Loyer', '-750,50', '0',
         ])
         ->and(count(csvRows($files['operations.csv'])))->toBe(2)
         ->and(array_column(csvRows($files['axes-analytiques.csv']), 3))->toBe(['nom', 'Logement', 'Vacances'])

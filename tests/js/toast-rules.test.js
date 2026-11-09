@@ -70,11 +70,12 @@ group("queue", () => {
         assert.deepEqual(dropped.map((item) => item.id), [1]);
     });
 
-    test("drops the oldest toast of a full place, and of that place only", () => {
-        const { list, dropped } = enqueue([toast(1), toast(2, "top-left"), toast(3), toast(4)], toast(5), 3);
+    test("stacks the toasts without limit", () => {
+        const list = Array.from({ length: 20 }, (_, index) => toast(index + 1));
+        const result = enqueue(list, toast(21));
 
-        assert.deepEqual(list.map((item) => item.id), [2, 3, 4, 5]);
-        assert.deepEqual(dropped.map((item) => item.id), [1]);
+        assert.equal(result.list.length, 21);
+        assert.deepEqual(result.dropped, []);
     });
 });
 

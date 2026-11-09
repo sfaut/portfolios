@@ -20,11 +20,6 @@ export const POSITIONS = ["top-left", "top-center", "top-right", "bottom-left", 
 export const DEFAULT_POSITION = "bottom-right";
 
 /**
- * Toasts shown at once in a place: a newer one closes the oldest of the place.
- */
-export const LIMIT = 3;
-
-/**
  * Display time of a toast, in milliseconds.
  */
 export const DURATION = 5000;
@@ -90,16 +85,15 @@ export function durationOf(options) {
 }
 
 /**
- * Adds a toast to the list: it takes the place of the toast of the same key, or else comes last,
- * the oldest ones of its place being dropped beyond the limit.
+ * Adds a toast to the list: it takes the place of the toast of the same key, or else comes last.
+ * The toasts stack without limit.
  *
- * @template {{key?: string|null, position: string}} T
+ * @template {{key?: string|null}} T
  * @param {T[]} list Toasts shown, oldest first.
  * @param {T} toast
- * @param {number} limit
- * @returns {{list: T[], dropped: T[]}} New list, and the toasts it no longer holds.
+ * @returns {{list: T[], dropped: T[]}} New list, and the toast it no longer holds.
  */
-export function enqueue(list, toast, limit = LIMIT) {
+export function enqueue(list, toast) {
     const index = toast.key ? list.findIndex((item) => item.key === toast.key) : -1;
 
     if (index !== -1) {
@@ -109,10 +103,7 @@ export function enqueue(list, toast, limit = LIMIT) {
         return { list: next, dropped: [replaced] };
     }
 
-    const same = list.filter((item) => item.position === toast.position);
-    const dropped = same.slice(0, Math.max(0, same.length + 1 - limit));
-
-    return { list: [...list.filter((item) => !dropped.includes(item)), toast], dropped };
+    return { list: [...list, toast], dropped: [] };
 }
 
 /**

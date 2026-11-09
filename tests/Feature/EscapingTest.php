@@ -99,6 +99,16 @@ test('flash messages escape the name they quote', function (string $method, stri
     'analytic axis archiving' => ['delete', 'analytic-axis.destroy', 'analytic_axis', []],
 ]);
 
+test('the toast of the operation tick escapes the label it quotes', function () {
+    $this->actingAs($this->owner)
+        ->from(route('account.show', [$this->account, 'page' => 1]))
+        ->followingRedirects()
+        ->patch(route('operation.tick', $this->operation), ['is_ticked' => '1'])
+        ->assertOk()
+        ->assertSee('« &lt;script&gt;alert(', escape: false)
+        ->assertDontSee(dangerousText(), escape: false);
+});
+
 test('the toasts escape the message of the session', function () {
     $this->actingAs($this->owner)
         ->withSession(['toast' => ['type' => 'success', 'message' => dangerousText()]])

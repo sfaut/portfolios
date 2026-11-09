@@ -41,6 +41,7 @@ class OperationRequest extends FormRequest
             'label' => ['required', 'string', 'max:150'],
             'amount' => ['required', 'numeric', 'max:99999999', 'decimal:0,2'],
             'delivery_at' => ['required', 'date'], // https://laravel.com/docs/11.x/validation#rule-date-format
+            'is_ticked' => ['sometimes', 'boolean'],
             'analytic_lines' => ['array'],
             'analytic_lines.*.analytic_axis_id' => [
                 'required', 'integer', 'distinct',
@@ -106,6 +107,7 @@ class OperationRequest extends FormRequest
             'label' => 'Libellé',
             'amount' => 'Montant',
             'delivery_at' => 'Date effective',
+            'is_ticked' => 'Pointée',
             'analytic_lines' => 'Répartition analytique',
             'analytic_lines.*.analytic_axis_id' => 'Axe analytique',
             'analytic_lines.*.percentage' => 'Pourcentage',

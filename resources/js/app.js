@@ -7,6 +7,7 @@ import ledger from "./ledger";
 import monthPicker from "./month-picker";
 import multiSelect from "./multi-select";
 import sectionSpy from "./section-spy";
+import tickBox from "./tick-box";
 import theme from "./theme";
 import toasts from "./toasts";
 
@@ -22,5 +23,6 @@ Alpine.data("ledger", ledger);
 Alpine.data("monthPicker", monthPicker);
 Alpine.data("multiSelect", multiSelect);
 Alpine.data("sectionSpy", sectionSpy);
+Alpine.data("tickBox", tickBox);
 
 Alpine.start();
