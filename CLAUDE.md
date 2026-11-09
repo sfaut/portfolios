@@ -165,7 +165,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   à la page `verification.notice`. Le profil reste hors de `verified`, pour corriger une adresse mal
   saisie ; une nouvelle adresse y perd sa vérification et reçoit un lien. Il passe en revanche par
   `password.confirm` : le mot de passe est redemandé au-delà de trois heures (`auth.password_timeout`),
-  et un test du profil pose `auth.password_confirmed_at` dans la session. Les mails d'auth partent
+  et un test du profil pose `auth.password_confirmed_at` dans la session. Les formulaires d'auth ont
+  leurs limites de débit (`throttle:<nom>`), déclarées dans `AppServiceProvider::registerRateLimiters()` :
+  au-delà, le formulaire revient avec le délai d'attente sous un champ. Les mails d'auth partent
   pendant la requête : `MAIL_FROM_ADDRESS` doit être renseignée, sans quoi l'inscription répond 500
   (`phpunit.xml` en fixe une pour les tests).
 - Toutes les routes métier sont dans `routes/web.php`, sous les middlewares `auth` et `verified` ;

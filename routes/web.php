@@ -61,7 +61,7 @@ Route::controller(OperationController::class)->middleware(['auth', 'verified'])-
 Route::controller(ProfileController::class)->middleware(['auth', 'password.confirm'])->group(function () {
     Route::get('/profile', 'edit')->name('profile.edit');
     Route::patch('/profile', 'update')->name('profile.update');
-    Route::delete('/profile', 'destroy')->name('profile.destroy');
+    Route::delete('/profile', 'destroy')->name('profile.destroy')->middleware('throttle:account-deletion');
 });
 
 require __DIR__.'/auth.php';
