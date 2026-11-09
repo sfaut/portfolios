@@ -110,6 +110,15 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
+
+  /*
+    The place of the vertical scrollbar is kept on every page, scrolling or
+    not: the centered content, and the navigation bar with it, stay at the same
+    pixel from one page to the next.
+  */
+  html {
+    scrollbar-gutter: stable;
+  }
 }
 
 /*

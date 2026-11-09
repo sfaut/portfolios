@@ -22,20 +22,8 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h2 class="text-xl font-semibold">
-                    Portfolio <span class="text-indigo-700 dark:text-indigo-400">{{ $portfolio->name }}</span>
-                </h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Chiffres au {{ $today->translatedFormat('j F Y') }}
-                </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-4">
-                <x-portfolio-nav :portfolio="$portfolio" current="dashboard"/>
-                <x-link.secondary :target="route('portfolio.edit', $portfolio)">Modifier le portfolio</x-link.secondary>
-            </div>
-        </div>
+        <h2 class="text-xl font-semibold">Tableau de bord</h2>
+        <div class="text-sm text-gray-500 dark:text-gray-400">Chiffres au {{ $today->translatedFormat('j F Y') }}</div>
     </x-slot>
 
     <div class="max-w-6xl mx-auto flex flex-col gap-6">

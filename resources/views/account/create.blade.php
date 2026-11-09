@@ -1,10 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Création de compte</h2>
-
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            ➜ Portfolio
-            <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $portfolio->name }}</a>
+        <div class="flex flex-col gap-1">
+            <h2 class="text-xl font-semibold">Création de compte</h2>
+            <x-breadcrumb :links="[route('portfolio.show', $portfolio) => 'Comptes']"/>
         </div>
     </x-slot>
 
