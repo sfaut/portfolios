@@ -49,6 +49,7 @@ test('pages escape the names and descriptions typed by the user', function (stri
         ->assertSee('&lt;script&gt;alert(', escape: false)
         ->assertDontSee(dangerousText(), escape: false);
 })->with([
+    ['portfolio.dashboard', 'portfolio', []],
     ['portfolio.show', 'portfolio', []],
     ['portfolio.edit', 'portfolio', []],
     ['account.show', 'account', ['page' => 1]],
@@ -58,6 +59,18 @@ test('pages escape the names and descriptions typed by the user', function (stri
     ['analytic-axis.index', 'portfolio', []],
     ['analytic-axis.edit', 'analytic_axis', []],
 ]);
+
+test('the dashboard escapes the analytic axis names of the sales', function () {
+    $this->operation->update(['amount' => '-10.00']);
+
+    $response = $this->actingAs($this->owner)->get(route('portfolio.dashboard', $this->portfolio));
+
+    $response
+        ->assertOk()
+        ->assertSee('Répartition analytique')
+        ->assertDontSee(dangerousText(), escape: false);
+    expect(substr_count($response->getContent(), '&lt;script&gt;alert('))->toBeGreaterThan(1);
+});
 
 test('the portfolio list and its flash message escape the name of a new portfolio', function () {
     $response = $this->actingAs($this->owner)->followingRedirects()->post(route('portfolio.store'), [

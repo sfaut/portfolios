@@ -21,12 +21,13 @@ Route::controller(PortfolioController::class)->middleware(['auth', 'verified'])-
     Route::get('/portfolios', 'index')->name('portfolio.index');
     Route::get('/portfolio/create', 'create')->name('portfolio.create');
     Route::post('/portfolio', 'store')->name('portfolio.store');
+    Route::get('/portfolio/{portfolio}/dashboard', 'dashboard')->name('portfolio.dashboard');
     Route::get('/portfolio/{portfolio}/show', 'show')->name('portfolio.show');
     Route::get('/portfolio/{portfolio}/edit', 'edit')->name('portfolio.edit');
     Route::put('/portfolio/{portfolio}', 'update')->name('portfolio.update');
     Route::delete('/portfolio/{portfolio}', 'destroy')->name('portfolio.destroy');
 
-    Route::get('/portfolio/{id}', fn (int $id) => to_route('portfolio.show', ['portfolio' => $id]))->whereNumber('id');
+    Route::get('/portfolio/{id}', fn (int $id) => to_route('portfolio.dashboard', ['portfolio' => $id]))->whereNumber('id');
 });
 
 Route::controller(AccountController::class)->middleware(['auth', 'verified'])->group(function () {

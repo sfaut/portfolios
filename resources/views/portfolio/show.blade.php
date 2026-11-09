@@ -18,7 +18,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h2 class="text-xl font-semibold">
                     Portfolio <span class="text-indigo-700 dark:text-indigo-400">{{ $portfolio->name }}</span>
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <x-link.secondary :target="route('analytic-axis.index', $portfolio)">Axes analytiques</x-link.secondary>
+                <x-portfolio-nav :portfolio="$portfolio" current="accounts"/>
                 <x-link.secondary :target="route('portfolio.edit', $portfolio)">Modifier le portfolio</x-link.secondary>
             </div>
         </div>

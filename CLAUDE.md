@@ -174,10 +174,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `routes/auth.php` y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
   Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
-  analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`, liée depuis
-  `portfolio/show`), faute de page parent qui l'accueille ; `edit`, `update` et `restore` portent
-  `->withTrashed()`, comme pour les comptes. La page d'accueil après
-  connexion est `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
+  analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`), faute de page
+  parent qui l'accueille ; `edit`, `update` et `restore` portent `->withTrashed()`, comme pour les
+  comptes. Les pages d'un portfolio (tableau de bord, comptes, axes analytiques) partagent la
+  navigation `<x-portfolio-nav>` de leur en-tête. La page d'accueil après connexion est
+  `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
   La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
   comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé. Le compte
@@ -190,6 +191,21 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.
+- Tableau de bord d'un portfolio (`portfolio.dashboard`, `PortfolioController::dashboard()`) : sa page
+  d'accueil, où mènent la liste des portfolios et l'ancienne adresse `/portfolio/{id}`. Il suit les
+  ventes, selon la convention du métier : un montant négatif est une vente, comptée en valeur absolue,
+  un montant positif un paiement, et un compte soldé à zéro a ses ventes payées. Les ventes se lisent
+  par `App\Support\PortfolioSales` (comptes archivés compris, par `delivery_at`). En tête, les chiffres
+  clefs à la date du jour (`SalesFigures`) : comptes actifs, ventes du mois en cours (à date), du mois
+  précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`),
+  et reste à encaisser (soldes négatifs). Puis les ventes de la période (`SalesDashboard`, paramètre
+  `period`, `<x-month-picker mode="range">` borné aux mois d'opérations, une période refusée ignorée,
+  par défaut janvier → mois de la dernière opération) : total, courbe des ventes cumulées comparée à
+  un an plus tôt, ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
+  « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
+  comparaison au même jour un an plus tôt. Les graphiques se dessinent sans bibliothèque :
+  `<x-chart.step-line>` (`App\View\Components\Chart\StepLine`, SVG étiré, textes en HTML) pour une
+  courbe, des barres en HTML et CSS ailleurs, avec `<x-tooltip>`.
 - Comptes archivés : `portfolio/show` les liste dans une section « Comptes archivés », sous les comptes
   actifs, repliée par défaut (Alpine) et suivie de leur nombre. Les routes `account.show`, `account.edit`, `account.update` et `account.restore` (désarchivage,
   proposé par `account/edit` à la place de l'archivage) portent `->withTrashed()` ; `account.destroy` non.

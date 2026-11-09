@@ -28,7 +28,7 @@
         @foreach($portfolios as $portfolio)
 
             <a
-                href="{{ route('portfolio.show', $portfolio) }}"
+                href="{{ route('portfolio.dashboard', $portfolio) }}"
 
                 @class([
                     'group', 'flex', 'items-center', 'justify-between', 'gap-4',
