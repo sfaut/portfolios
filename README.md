@@ -56,9 +56,9 @@ version qui suit v1.1.1.
 
 ### Prérequis
 
-- PHP 8.5, en ligne de commande et en FPM, avec les extensions `intl`, `pdo_mysql` et `mbstring`
-  (OPcache recommandé). Sur Debian ou Ubuntu, les paquets `php8.5-fpm`, `php8.5-cli`, `php8.5-intl`,
-  `php8.5-mysql` et `php8.5-mbstring` viennent du dépôt d'Ondřej Surý.
+- PHP 8.5, en ligne de commande et en FPM, avec les extensions `intl`, `pdo_mysql`, `mbstring` et
+  `zip` (OPcache recommandé). Sur Debian ou Ubuntu, les paquets `php8.5-fpm`, `php8.5-cli`,
+  `php8.5-intl`, `php8.5-mysql`, `php8.5-mbstring` et `php8.5-zip` viennent du dépôt d'Ondřej Surý.
 - MySQL 8.0 ou plus récent : les vues de l'application utilisent des fonctions de fenêtrage et la
   collation `utf8mb4_0900_ai_ci`.
 - Nginx, `curl`, systemd et `mysqldump` (client MySQL, installé avec le serveur MySQL), dont se sert

@@ -15,6 +15,8 @@
 
         @include('profile.partials.update-password-form')
 
+        @include('profile.partials.export-data-form')
+
         @include('profile.partials.delete-user-form')
 
     </div>

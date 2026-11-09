@@ -21,6 +21,7 @@
         "php": "^8.5",
         "ext-intl": "*",
         "ext-pdo_mysql": "*",
+        "ext-zip": "*",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "mallardduck/blade-lucide-icons": "^2.0"

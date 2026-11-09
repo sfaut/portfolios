@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AnalyticAxisController;
+use App\Http\Controllers\DataExportController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
@@ -63,5 +64,9 @@ Route::controller(ProfileController::class)->middleware(['auth', 'password.confi
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy')->middleware('throttle:account-deletion');
 });
+
+Route::get('/profile/export', DataExportController::class)
+    ->middleware(['auth', 'password.confirm'])
+    ->name('profile.export');
 
 require __DIR__.'/auth.php';

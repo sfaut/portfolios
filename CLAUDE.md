@@ -9,7 +9,7 @@ Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regr
 (montants datés).
 
 Pile : PHP 8.5+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
-Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`), extension `intl` requise. Tout montant
+Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`), extensions `intl` et `zip` requises (`zip` pour l'export des données). Tout montant
 affiché passe par la macro `Number::amount($montant, signed: false, currency: '')` (déclarée dans
 `AppServiceProvider`) : deux décimales en français, signe moins typographique « − » (U+2212) devant un
 négatif, jamais le tiret « - » de `Number::format()` / `Number::currency()` ; `signed` ajoute « + »
@@ -182,6 +182,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
   comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé. Le compte
   administrateur (`is_admin`) ne se supprime pas : le profil ne le propose pas, et l'action le refuse.
+  Le profil propose aussi de télécharger ses données (`profile.export`, `DataExportController`) : une
+  archive ZIP de CSV construite par `App\Support\UserDataExport`, archivés compris, lue sur les tables
+  et filtrée explicitement sur l'utilisateur. Les CSV suivent les tableurs français (BOM, « ; »,
+  décimales à virgule, dates ISO) et neutralisent par une apostrophe un texte qui commence comme une
+  formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.
