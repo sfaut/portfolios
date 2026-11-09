@@ -2,6 +2,72 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.4.0 (2026-11-09)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.4.0, qui donne à chaque portfolio son tableau de bord et une
+navigation stable, et renforce la sécurité des comptes :
+
+- un tableau de bord des ventes pour chaque portfolio ;
+- une navigation entre les pages d'un portfolio, toujours à la même place ;
+- un nouveau logo ;
+- une inscription et une connexion plus sûres, entièrement en français ;
+- l'export de ses données et la suppression de son compte.
+
+### ✨ Nouvelles fonctionnalités
+
+- Tableau de bord d'un portfolio, devenu sa page d'accueil. Les montants négatifs y comptent comme des
+  ventes. En tête, les chiffres clefs du jour : comptes actifs, ventes du mois en cours, du mois
+  précédent et des 12 derniers mois, chacune comparée à un an plus tôt, et reste à encaisser. Puis les
+  ventes d'une période au choix : total, courbe des ventes cumulées comparée à l'année précédente,
+  ventes par mois et répartition par axe analytique.
+- Navigation d'un portfolio : sur toutes ses pages, la barre du haut porte un sélecteur de portfolio
+  (qui permet aussi de modifier ou de créer un portfolio) et les sections Tableau de bord, Comptes et
+  Axes analytiques. Le titre de chaque page nomme la page, avec un fil d'Ariane court
+  (« Comptes › Compte courant »). Le lien « Portfolios » de la barre disparaît : le logo mène à la
+  liste.
+- Nouveau logo, avec son favicon, placé à côté du nom sur les pages de connexion.
+- Export des données : le profil propose une archive ZIP de fichiers CSV, lisibles par les tableurs
+  français, avec les portfolios, comptes, opérations et axes, archivés compris.
+- Suppression de son compte, après saisie du mot de passe : toutes ses données sont supprimées. Le
+  compte administrateur ne peut pas être supprimé.
+- Après la connexion, on revient sur la page demandée.
+- Les pages de confirmation du mot de passe, de vérification de l'adresse et de réinitialisation,
+  ainsi que les mails, sont en français.
+
+### 💥 Changements majeurs
+
+- Les pages métier demandent une adresse e-mail vérifiée. Une migration marque comme vérifiés les
+  utilisateurs existants, et une nouvelle adresse saisie dans le profil reçoit un lien de
+  vérification.
+- L'inscription ne connecte plus : elle envoie le lien de vérification, et la connexion se fait en le
+  suivant.
+- Le profil redemande le mot de passe au-delà de trois heures.
+- L'extension PHP `zip` est requise, pour l'export des données.
+
+### 🔒 Sécurité
+
+- L'inscription et « Mot de passe oublié » répondent de la même façon, qu'une adresse ait un compte
+  ou non. Le titulaire d'une adresse déjà inscrite est prévenu par mail.
+- Les formulaires d'authentification ont des limites de débit (connexion, inscription,
+  réinitialisation, confirmation et changement du mot de passe, suppression du compte). Au-delà, le
+  formulaire indique le délai d'attente.
+- L'inscription crée l'utilisateur à partir des seules valeurs validées, et l'identifiant d'une
+  opération ne peut plus être fixé par le formulaire.
+- Les tests vérifient davantage le cloisonnement entre utilisateurs, l'échappement des saisies et la
+  protection des comptes.
+
+### 🐞 Corrections
+
+- L'ancienne adresse d'un portfolio, avec un identifiant non numérique (`/portfolio/abc`), provoquait
+  une erreur 500.
+
+### ⚙️ Améliorations internes
+
+- Ajout de la dépendance de plateforme `ext-zip` (`*`), pour l'export des données.
+- Dépendances directes, Composer et npm, à jour : aucune version n'a changé depuis v1.3.1.
+
 ## v1.3.1 (2026-11-08)
 
 ### 🚀 Lancement
