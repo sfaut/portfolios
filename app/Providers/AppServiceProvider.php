@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Support\PortfolioContext;
+use App\View\Components\ChoiceSwitch;
 use Closure;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
@@ -31,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
         $this->registerNumberFormats();
         $this->registerRateLimiters();
         $this->registerViewComposers();
+
+        Blade::component('switch', ChoiceSwitch::class);
     }
 
     /**
