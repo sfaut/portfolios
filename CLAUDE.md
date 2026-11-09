@@ -368,10 +368,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (`max-w-* mx-auto flex flex-col gap-6`) ; un champ groupe label, saisie et erreur en
   `flex flex-col gap-1`. Seuls les décalages de positionnement gardent une marge (panneau absolu de
   `x-dropdown`, centrage `m-auto` de `x-dialog`).
-- Thème clair / sombre / système, choisi dans le menu utilisateur (store Alpine `theme`,
-  `resources/js/theme.js`) et gardé par navigateur dans le `localStorage` (clef `theme`, absente pour
-  « système »). Le choix devient la classe `light` ou `dark` de `<html>`, posée avant le premier rendu
-  par le script en ligne de `layouts/empty`. `resources/css/app.css` redéfinit la variante `dark:`
+- Thème clair / sombre / système (`App\Enums\ColorScheme`), choisi par l'interrupteur de la barre du
+  haut (store Alpine `theme`, `resources/js/theme.js`) et enregistré sur le profil (`users.color_scheme`,
+  `PUT /profile/color-scheme`, hors de `password.confirm`, réponse 204 au script). Pour un utilisateur
+  connecté, `layouts/empty` pose sur `<html>` la classe `light` ou `dark` et `data-color-scheme` ; le
+  script en ligne recopie ce choix dans le `localStorage` (clef `theme`, absente pour « système »),
+  que les pages d'invité appliquent avant le premier rendu. `resources/css/app.css` redéfinit la variante `dark:`
   (`@custom-variant`) : la classe `dark` l'active, la classe `light` l'écarte, et sans classe le système
   décide (`prefers-color-scheme`) ; chaque règle `dark:` sort donc en double dans le CSS. `<html>` porte
   `scheme-light dark:scheme-dark` pour les contrôles natifs. Les pages d'erreur viennent de Laravel,

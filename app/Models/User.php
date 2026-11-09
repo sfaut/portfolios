@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ColorScheme;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $attributes = [
         'is_admin' => false,
+        'color_scheme' => 'system',
     ];
 
     protected $fillable = [
@@ -27,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name',
         'email',
         'password',
+        'color_scheme',
     ];
 
     protected $hidden = [
@@ -39,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'color_scheme' => ColorScheme::class,
             'email_verified_at' => 'datetime',
         ];
     }

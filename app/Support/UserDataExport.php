@@ -107,11 +107,12 @@ class UserDataExport
 
         return [
             'utilisateur.csv' => $this->csv(
-                ['nom', 'prénom', 'e-mail', 'e-mail vérifié le', 'inscrit le'],
+                ['nom', 'prénom', 'e-mail', 'thème', 'e-mail vérifié le', 'inscrit le'],
                 [[
                     $this->text($this->user->last_name),
                     $this->text($this->user->first_name),
                     $this->text($this->user->email),
+                    $this->user->color_scheme->value,
                     $this->dateTime($this->user->email_verified_at),
                     $this->dateTime($this->user->created_at),
                 ]],

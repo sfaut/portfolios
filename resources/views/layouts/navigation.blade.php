@@ -63,7 +63,16 @@
                 </div>
             @endif
 
-            <div class="order-2 sm:order-3 ml-auto flex items-center">
+            <div class="order-2 sm:order-3 ml-auto flex items-center gap-3">
+                {{-- Thème, enregistré sur le profil par le store theme (resources/js/theme.js). --}}
+                <x-switch
+                    label="Thème"
+                    variant="color-scheme"
+                    :value="auth()->user()->color_scheme->value"
+                    model="$store.theme.mode"
+                    x-on:change="$store.theme.set($event.target.value)"
+                />
+
                 <x-dropdown align="right" width="56">
                     <x-slot name="trigger">
                         <button
@@ -97,33 +106,7 @@
                             </x-dropdown-link>
                         @endif
 
-                        {{-- Theme selector (resources/js/theme.js); a click keeps the menu open. --}}
-
-                        <div class="flex flex-col gap-1.5 border-y border-gray-100 dark:border-gray-600 px-4 pt-2 pb-3" @click.stop>
-                            <div id="theme-label" class="text-xs text-gray-500 dark:text-gray-400">Thème</div>
-
-                            <div role="group" aria-labelledby="theme-label" class="grid grid-cols-3 gap-1 rounded-md bg-gray-100 dark:bg-gray-800 p-1">
-                                @foreach (['light' => ['Clair', 'sun'], 'dark' => ['Sombre', 'moon'], 'system' => ['Système', 'monitor']] as $mode => [$label, $icon])
-                                    <button
-                                        type="button"
-                                        :aria-pressed="$store.theme.mode === '{{ $mode }}'"
-                                        @click="$store.theme.set('{{ $mode }}')"
-                                        @class([
-                                            'flex', 'flex-col', 'items-center', 'gap-1',
-                                            'rounded-sm', 'px-1', 'py-1.5',
-                                            'text-xs', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-200',
-                                            'aria-pressed:bg-white', 'aria-pressed:text-gray-900', 'aria-pressed:shadow-sm',
-                                            'dark:aria-pressed:bg-gray-600', 'dark:aria-pressed:text-white',
-                                            'focus:outline-hidden', 'focus-visible:ring-2', 'focus-visible:ring-indigo-500',
-                                            'transition', 'ease-in-out', 'duration-150',
-                                        ])
-                                    >
-                                        <x-dynamic-component :component="'lucide-'.$icon" class="size-4" aria-hidden="true"/>
-                                        {{ $label }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
+                        <div class="border-t border-gray-100 dark:border-gray-600"></div>
 
                         <form method="post" action="{{ route('logout') }}">
                             @csrf

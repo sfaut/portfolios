@@ -63,7 +63,8 @@ class AppServiceProvider extends ServiceProvider
      * de la limite par adresse de LoginRequest ; `registration` et `password-reset` (demande du lien et
      * nouveau mot de passe) par IP ; par utilisateur, les formulaires qui vérifient le mot de passe actuel
      * (`password-confirmation`, `password-update`, `account-deletion`). Au-delà, le formulaire revient
-     * avec un message sous le champ indiqué, à la place de la page 429.
+     * avec un message sous le champ indiqué, à la place de la page 429. `color-scheme` borne par
+     * utilisateur l'enregistrement du thème, que l'interrupteur de la barre envoie par script.
      */
     private function registerRateLimiters(): void
     {
@@ -86,6 +87,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('password-update', fn (Request $request) => Limit::perMinute(5)
             ->by((string) $request->user()?->id)
             ->response($this->throttledForm('current_password', bag: 'updatePassword')));
+
+        RateLimiter::for('color-scheme', fn (Request $request) => Limit::perMinute(30)
+            ->by((string) $request->user()?->id));
 
         RateLimiter::for('account-deletion', fn (Request $request) => Limit::perMinute(5)
             ->by((string) $request->user()?->id)

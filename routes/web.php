@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\ServerStatusController;
 use App\Http\Controllers\AnalyticAxisController;
+use App\Http\Controllers\ColorSchemeController;
 use App\Http\Controllers\DataExportController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
@@ -66,6 +67,11 @@ Route::controller(ProfileController::class)->middleware(['auth', 'password.confi
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy')->middleware('throttle:account-deletion');
 });
+
+// Thème : hors de password.confirm, l'interrupteur de la barre l'envoie depuis n'importe quelle page.
+Route::put('/profile/color-scheme', ColorSchemeController::class)
+    ->middleware(['auth', 'throttle:color-scheme'])
+    ->name('profile.color-scheme');
 
 Route::get('/profile/export', DataExportController::class)
     ->middleware(['auth', 'password.confirm'])
