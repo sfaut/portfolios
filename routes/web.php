@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ServerStatusController;
 use App\Http\Controllers\AnalyticAxisController;
 use App\Http\Controllers\ColorSchemeController;
 use App\Http\Controllers\DataExportController;
+use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileAvatarController;
@@ -53,6 +54,11 @@ Route::controller(AnalyticAxisController::class)->middleware(['auth', 'verified'
     Route::put('/analytic-axis/{analytic_axis}', 'update')->name('analytic-axis.update')->withTrashed();
     Route::patch('/analytic-axis/{analytic_axis}/restore', 'restore')->name('analytic-axis.restore')->withTrashed();
     Route::delete('/analytic-axis/{analytic_axis}', 'destroy')->name('analytic-axis.destroy');
+});
+
+Route::controller(LedgerController::class)->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/portfolio/{portfolio}/ledger', 'index')->name('ledger.index');
+    Route::get('/portfolio/{portfolio}/ledger/export', 'export')->name('ledger.export');
 });
 
 Route::controller(OperationController::class)->middleware(['auth', 'verified'])->group(function () {

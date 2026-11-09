@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -18,20 +17,12 @@ use ZipArchive;
  * lisent sur les tables, filtrées explicitement sur l'utilisateur : l'export ne dépend ni de
  * l'utilisateur connecté ni des portées globales des modèles.
  *
- * Les CSV suivent l'usage des tableurs français : UTF-8 avec BOM, séparateur « ; », fins de ligne CRLF,
- * décimales à virgule, dates au format ISO (« 2026-11-09 », « 2026-11-09 14:30:00 »). Un texte qui
- * commence par « = », « + », « - », « @ », une tabulation ou un retour chariot est précédé d'une
- * apostrophe, pour qu'un tableur ne l'exécute pas comme une formule.
+ * Les CSV sont écrits par App\Support\Csv, selon l'usage des tableurs français : UTF-8 avec BOM,
+ * séparateur « ; », fins de ligne CRLF, décimales à virgule, dates au format ISO (« 2026-11-09 »,
+ * « 2026-11-09 14:30:00 »), textes qui commencent comme une formule neutralisés par une apostrophe.
  */
 class UserDataExport
 {
-    /**
-     * Débuts de texte qu'un tableur interprète comme une formule.
-     *
-     * @var list<string>
-     */
-    public const array FORMULA_PREFIXES = ['=', '+', '-', '@', "\t", "\r"];
-
     /**
      * Description du format, placée dans l'archive sous LISEZMOI.txt.
      */
@@ -115,31 +106,31 @@ class UserDataExport
         $portfolio_ids = DB::table('portfolios')->where('user_id', $this->user->id)->pluck('id');
 
         return [
-            'utilisateur.csv' => $this->csv(
+            'utilisateur.csv' => Csv::content(
                 ['nom', 'prénom', 'e-mail', 'thème', 'e-mail vérifié le', 'inscrit le'],
                 [[
-                    $this->text($this->user->last_name),
-                    $this->text($this->user->first_name),
-                    $this->text($this->user->email),
+                    Csv::text($this->user->last_name),
+                    Csv::text($this->user->first_name),
+                    Csv::text($this->user->email),
                     $this->user->color_scheme->value,
-                    $this->dateTime($this->user->email_verified_at),
-                    $this->dateTime($this->user->created_at),
+                    Csv::dateTime($this->user->email_verified_at),
+                    Csv::dateTime($this->user->created_at),
                 ]],
             ),
-            'portfolios.csv' => $this->csv(
+            'portfolios.csv' => Csv::content(
                 ['id', 'nom', 'description', 'créé le', 'archivé le'],
                 DB::table('portfolios')
                     ->whereIn('id', $portfolio_ids)
                     ->lazyById()
                     ->map(fn (object $portfolio): array => [
                         $portfolio->id,
-                        $this->text($portfolio->name),
-                        $this->text($portfolio->description),
-                        $this->dateTime($portfolio->created_at),
-                        $this->dateTime($portfolio->deleted_at),
+                        Csv::text($portfolio->name),
+                        Csv::text($portfolio->description),
+                        Csv::dateTime($portfolio->created_at),
+                        Csv::dateTime($portfolio->deleted_at),
                     ]),
             ),
-            'comptes.csv' => $this->csv(
+            'comptes.csv' => Csv::content(
                 ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'créé le', 'archivé le'],
                 DB::table('accounts')
                     ->join('portfolios', 'portfolios.id', '=', 'accounts.portfolio_id')
@@ -149,14 +140,14 @@ class UserDataExport
                     ->map(fn (object $account): array => [
                         $account->id,
                         $account->portfolio_id,
-                        $this->text($account->portfolio_name),
-                        $this->text($account->name),
-                        $this->text($account->description),
-                        $this->dateTime($account->created_at),
-                        $this->dateTime($account->deleted_at),
+                        Csv::text($account->portfolio_name),
+                        Csv::text($account->name),
+                        Csv::text($account->description),
+                        Csv::dateTime($account->created_at),
+                        Csv::dateTime($account->deleted_at),
                     ]),
             ),
-            'operations.csv' => $this->csv(
+            'operations.csv' => Csv::content(
                 ['id', 'compte_id', 'compte', 'date', 'libellé', 'montant', 'créée le'],
                 DB::table('operations')
                     ->join('accounts', 'accounts.id', '=', 'operations.account_id')
@@ -166,14 +157,14 @@ class UserDataExport
                     ->map(fn (object $operation): array => [
                         $operation->id,
                         $operation->account_id,
-                        $this->text($operation->account_name),
+                        Csv::text($operation->account_name),
                         $operation->delivery_at,
-                        $this->text($operation->label),
-                        $this->decimal($operation->amount),
-                        $this->dateTime($operation->created_at),
+                        Csv::text($operation->label),
+                        Csv::decimal($operation->amount),
+                        Csv::dateTime($operation->created_at),
                     ]),
             ),
-            'axes-analytiques.csv' => $this->csv(
+            'axes-analytiques.csv' => Csv::content(
                 ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'créé le', 'archivé le'],
                 DB::table('analytic_axes')
                     ->join('portfolios', 'portfolios.id', '=', 'analytic_axes.portfolio_id')
@@ -183,14 +174,14 @@ class UserDataExport
                     ->map(fn (object $axis): array => [
                         $axis->id,
                         $axis->portfolio_id,
-                        $this->text($axis->portfolio_name),
-                        $this->text($axis->name),
-                        $this->text($axis->description),
-                        $this->dateTime($axis->created_at),
-                        $this->dateTime($axis->deleted_at),
+                        Csv::text($axis->portfolio_name),
+                        Csv::text($axis->name),
+                        Csv::text($axis->description),
+                        Csv::dateTime($axis->created_at),
+                        Csv::dateTime($axis->deleted_at),
                     ]),
             ),
-            'repartitions-analytiques.csv' => $this->csv(
+            'repartitions-analytiques.csv' => Csv::content(
                 ['operation_id', 'axe_id', 'axe', 'pourcentage'],
                 DB::table('analytic_lines')
                     ->join('analytic_axes', 'analytic_axes.id', '=', 'analytic_lines.analytic_axis_id')
@@ -200,64 +191,10 @@ class UserDataExport
                     ->map(fn (object $line): array => [
                         $line->operation_id,
                         $line->analytic_axis_id,
-                        $this->text($line->axis_name),
-                        $this->decimal($line->percentage),
+                        Csv::text($line->axis_name),
+                        Csv::decimal($line->percentage),
                     ]),
             ),
         ];
-    }
-
-    /**
-     * Écrit un fichier CSV : BOM, en-tête puis lignes.
-     *
-     * @param  list<string>  $header  Noms des colonnes.
-     * @param  iterable<list<int|string>>  $rows  Lignes, déjà formatées.
-     */
-    private function csv(array $header, iterable $rows): string
-    {
-        $stream = fopen('php://temp', 'r+');
-
-        fwrite($stream, "\u{FEFF}");
-        fputcsv($stream, $header, separator: ';', escape: '', eol: "\r\n");
-
-        foreach ($rows as $row) {
-            fputcsv($stream, $row, separator: ';', escape: '', eol: "\r\n");
-        }
-
-        rewind($stream);
-        $content = stream_get_contents($stream);
-        fclose($stream);
-
-        return $content;
-    }
-
-    /**
-     * Texte saisi, neutralisé s'il commence comme une formule de tableur.
-     */
-    private function text(string $value): string
-    {
-        foreach (self::FORMULA_PREFIXES as $prefix) {
-            if (str_starts_with($value, $prefix)) {
-                return "'{$value}";
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * Nombre décimal de la base (« -10.50 »), à virgule (« -10,50 »).
-     */
-    private function decimal(string $value): string
-    {
-        return str_replace('.', ',', $value);
-    }
-
-    /**
-     * Horodatage à la seconde (« 2026-11-09 14:30:00 »), vide s'il est absent.
-     */
-    private function dateTime(Carbon|string|null $value): string
-    {
-        return $value === null ? '' : Carbon::parse($value)->format('Y-m-d H:i:s');
     }
 }

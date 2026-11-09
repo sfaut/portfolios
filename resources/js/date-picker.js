@@ -271,15 +271,16 @@ export default function datePicker({ mode, value, restriction, placeholder, pres
          * @returns {?string}
          */
         focusKey(panel) {
-            const cells = this.cells(panel).filter((cell) => cell.active);
+            // Every day of the panel asks for this key at each render: only the keys are read here.
+            const days = daysOf(this.months[panel]).filter((key) => this.isChoosableIn(panel, key));
             const own_end = { start: this.range?.[0], end: this.range?.[1] }[panel];
 
             return (
-                cells.find((cell) => cell.key === this.focused)?.key
-                ?? cells.find((cell) => cell.key === own_end)?.key
-                ?? cells.find((cell) => cell.selected)?.key
-                ?? cells.find((cell) => cell.current)?.key
-                ?? cells[0]?.key
+                days.find((key) => key === this.focused)
+                ?? days.find((key) => key === own_end)
+                ?? days.find((key) => this.isSelected(key))
+                ?? days.find((key) => key === this.today)
+                ?? days[0]
                 ?? null
             );
         },

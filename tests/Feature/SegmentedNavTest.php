@@ -37,5 +37,6 @@ test('the portfolio pages mark their own page in the navigation', function (stri
 })->with([
     ['portfolio.dashboard', 'Tableau de bord'],
     ['portfolio.show', 'Comptes'],
+    ['ledger.index', 'Grand livre'],
     ['analytic-axis.index', 'Axes analytiques'],
 ]);
