@@ -7,6 +7,7 @@ use App\Http\Controllers\ColorSchemeController;
 use App\Http\Controllers\DataExportController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\ProfileAvatarController;
 use App\Http\Controllers\ProfileController;
 // use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,17 @@ Route::controller(ProfileController::class)->middleware(['auth', 'password.confi
     Route::get('/profile/account', 'account')->name('profile.account');
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy')->middleware('throttle:account-deletion');
+});
+
+// Photo de profil : affichée sur toutes les pages (barre du haut), changée depuis le profil.
+Route::controller(ProfileAvatarController::class)->group(function () {
+    Route::get('/profile/avatar', 'show')->middleware('auth')->name('profile.avatar');
+    Route::put('/profile/avatar', 'update')
+        ->middleware(['auth', 'verified', 'password.confirm', 'throttle:avatar'])
+        ->name('profile.avatar.update');
+    Route::delete('/profile/avatar', 'destroy')
+        ->middleware(['auth', 'verified', 'password.confirm'])
+        ->name('profile.avatar.destroy');
 });
 
 // Thème : hors de password.confirm, l'interrupteur de la barre l'envoie depuis n'importe quelle page.

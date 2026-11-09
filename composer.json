@@ -19,6 +19,8 @@
     ],
     "require": {
         "php": "^8.5",
+        "ext-exif": "*",
+        "ext-gd": "*",
         "ext-intl": "*",
         "ext-pdo_mysql": "*",
         "ext-zip": "*",

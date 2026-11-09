@@ -4,7 +4,8 @@
 ])
 
 {{--
-    Avatar d'un utilisateur : une pastille ronde à ses initiales (« SF »), sur fond indigo pâle.
+    Avatar d'un utilisateur : une pastille ronde, sa photo s'il en a une, sinon ses initiales (« SF »)
+    sur fond indigo pâle. La photo ne se sert qu'à l'utilisateur connecté (route profile.avatar).
 
     Il double le nom, toujours écrit à côté ou dans le titre de la carte : il est donc masqué aux
     lecteurs d'écran (aria-hidden).
@@ -26,4 +27,4 @@
             'size-32 text-4xl' => $size === 'lg',
         ])
     }}
->{{ $user->initials() }}</span>
+>@if ($user->avatarUrl() !== '')<img src="{{ $user->avatarUrl() }}" alt="" class="size-full object-cover">@else{{ $user->initials() }}@endif</span>

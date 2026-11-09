@@ -9,7 +9,7 @@ Chaque utilisateur possède des portfolios, qui regroupent des comptes, qui regr
 (montants datés).
 
 Pile : PHP 8.5+, Laravel 13, Blade + Alpine.js + Tailwind CSS 4 (base Breeze), Pest 5, MySQL, Vite 8.
-Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`), extensions `intl` et `zip` requises (`zip` pour l'export des données). Tout montant
+Interface en français (`APP_LOCALE=fr`, fuseau `Europe/Paris`), extensions `intl`, `zip`, `gd` et `exif` requises (`zip` pour l'export des données, `gd` et `exif` pour les photos de profil). Tout montant
 affiché passe par la macro `Number::amount($montant, signed: false, currency: '')` (déclarée dans
 `AppServiceProvider`) : deux décimales en français, signe moins typographique « − » (U+2212) devant un
 négatif, jamais le tiret « - » de `Number::format()` / `Number::currency()` ; `signed` ajoute « + »
@@ -199,8 +199,20 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   dans `tests/Feature/NavigationTest.php`.
   Le profil tient en quatre pages, toutes derrière `password.confirm`, dans `<x-profile-layout>` (titre
   de la page, navigation latérale `<x-side-nav>` dont la page courante porte `aria-current="page"`) :
-  `profile.edit` (informations), `profile.preferences` (thème), `profile.password`, `profile.account`
-  (export des données, puis suppression du compte).
+  `profile.edit` (photo, informations), `profile.preferences` (thème), `profile.password`,
+  `profile.account` (export des données, puis suppression du compte).
+  Photo de profil (`ProfileAvatarController`, `ProfileAvatarRequest`) : JPEG, PNG, GIF, WebP, et AVIF
+  si GD le lit, 8 Mo et 24 Mpx au plus, contrôlés sur l'en-tête avant tout décodage. Le composant
+  Alpine `avatarCropper` (`resources/js/avatar-cropper.js`, calculs purs dans
+  `avatar-crop-rules.js`, testés par Node) recadre dans un `<x-dialog>` sous un cercle, puis met à
+  la place du fichier un carré de 512 pixels ; sans JavaScript, la photo part telle quelle.
+  `App\Support\AvatarImage` décode toute photo reçue par GD, applique l'orientation EXIF, recadre
+  au centre et réencode en WebP 512 × 512 : aucune métadonnée ni contenu glissé ne passe. Le fichier
+  va sur le disque privé `local` (`avatars/{id}/{aléatoire}.webp`, colonne `users.avatar_path`, ''
+  sans photo) ; l'ancien est supprimé au remplacement, au retrait et avec l'utilisateur
+  (`User::booted()`). `profile.avatar` le sert au seul utilisateur connecté, sans identifiant dans
+  l'adresse, versionné par `?v=` et gardé un an dans le cache privé du navigateur. L'envoi demande
+  une adresse vérifiée ; il est limité par `throttle:avatar`.
   La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
   comprises ; aucun mail de portfolio ne part alors, l'observateur n'étant pas appelé. Le compte
@@ -209,7 +221,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   archive ZIP de CSV construite par `App\Support\UserDataExport`, archivés compris, lue sur les tables
   et filtrée explicitement sur l'utilisateur. Les CSV suivent les tableurs français (BOM, « ; »,
   décimales à virgule, dates ISO) et neutralisent par une apostrophe un texte qui commence comme une
-  formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier.
+  formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier ; la photo y est
+  `photo.webp`.
 - Administration : routes `admin.*` sous `/admin`, derrière les middlewares `auth`, `admin`
   (`App\Http\Middleware\EnsureUserIsAdmin`), `verified` et `password.confirm`. `admin` répond à tout
   autre utilisateur la 404 d'une adresse inconnue, avant même la vérification de l'adresse, et pose
@@ -303,8 +316,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `<x-lucide-circle-help class="size-4" aria-hidden="true"/>`, ou `<x-dynamic-component>` pour un nom
   calculé ; noms sur https://lucide.dev/icons. Une entrée de menu déroulant prend la sienne par
   `<x-dropdown-link icon="log-out">` ; les entrées simples du menu utilisateur en ont toutes une.
-  `<x-avatar :user size="sm|md|lg">` représente un utilisateur par une pastille ronde à ses initiales
-  (`User::initials()`), masquée aux lecteurs d'écran : le nom est toujours écrit à côté.
+  `<x-avatar :user size="sm|md|lg">` représente un utilisateur par une pastille ronde, sa photo
+  (`User::avatarUrl()`) ou ses initiales (`User::initials()`), masquée aux lecteurs d'écran : le nom
+  est toujours écrit à côté.
   `<x-switch label="…">` (`App\View\Components\ChoiceSwitch`, enregistré sous ce nom, Switch étant
   réservé en PHP) est un interrupteur de 2 ou 3 options en radios natifs, au curseur glissant en CSS ;
   `variant="color-scheme"` donne clair / système / sombre, `model` le lie à Alpine. Pas de SVG copié dans les vues, hormis le logo

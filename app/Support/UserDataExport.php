@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use ZipArchive;
 
@@ -12,7 +13,8 @@ use ZipArchive;
  * Archive ZIP des données d'un utilisateur, en fichiers CSV lisibles dans un tableur.
  *
  * L'archive contient son profil, ses portfolios, comptes, opérations, axes analytiques et répartitions
- * analytiques, archivés compris, et un fichier LISEZMOI.txt qui en décrit le format. Les données se
+ * analytiques, archivés compris, sa photo de profil s'il en a une, et un fichier LISEZMOI.txt qui en
+ * décrit le format. Les données se
  * lisent sur les tables, filtrées explicitement sur l'utilisateur : l'export ne dépend ni de
  * l'utilisateur connecté ni des portées globales des modèles.
  *
@@ -47,6 +49,7 @@ class UserDataExport
         - operations.csv : les opérations de ces comptes.
         - axes-analytiques.csv : les axes analytiques de vos portfolios, archivés compris.
         - repartitions-analytiques.csv : la part (en pourcentage) de chaque opération attribuée à un axe.
+        - photo.webp : votre photo de profil, si vous en avez une.
 
         Les colonnes « id », « portfolio_id », « compte_id », « operation_id » et « axe_id » relient les
         fichiers entre eux.
@@ -89,6 +92,12 @@ class UserDataExport
 
         foreach ($this->csvFiles() as $name => $content) {
             $zip->addFromString($name, $content);
+        }
+
+        $avatar = $this->user->avatar_path === '' ? null : Storage::disk('local')->get($this->user->avatar_path);
+
+        if ($avatar !== null) {
+            $zip->addFromString('photo.webp', $avatar);
         }
 
         if (! $zip->close()) {

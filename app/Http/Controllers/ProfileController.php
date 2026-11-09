@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileAvatarRequest;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\AvatarImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +20,14 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Affiche la première page du profil : ses informations.
+     * Affiche la première page du profil : sa photo, puis ses informations.
      */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'avatar_accept' => implode(',', array_keys(AvatarImage::supportedTypes())),
+            'avatar_formats' => ProfileAvatarRequest::formats().', '.(ProfileAvatarRequest::MAX_KILOBYTES / 1024).' Mo au plus.',
         ]);
     }
 
