@@ -179,13 +179,38 @@ const dateOf = (key) => {
 };
 
 /**
+ * Formatters already built, by language and options: building one costs far more than using it,
+ * and a calendar names each of its days at every render.
+ *
+ * @type {Map<string, Intl.DateTimeFormat>}
+ */
+const formatters = new Map();
+
+/**
+ * Date formatter of a language and options, built once.
+ *
+ * @param {string} lang Language of the page.
+ * @param {Intl.DateTimeFormatOptions} options
+ * @returns {Intl.DateTimeFormat}
+ */
+const formatterOf = (lang, options) => {
+    const id = `${lang}|${JSON.stringify(options)}`;
+
+    if (!formatters.has(id)) {
+        formatters.set(id, new Intl.DateTimeFormat(lang, options));
+    }
+
+    return formatters.get(id);
+};
+
+/**
  * Short name of the month of a day: "nov.".
  *
  * @param {string} key
  * @param {string} lang Language of the page.
  * @returns {string}
  */
-const shortMonthOf = (key, lang) => new Intl.DateTimeFormat(lang, { month: "short" }).format(dateOf(key));
+const shortMonthOf = (key, lang) => formatterOf(lang, { month: "short" }).format(dateOf(key));
 
 /**
  * Full name of a day: "lundi 9 novembre 2026".
@@ -195,7 +220,7 @@ const shortMonthOf = (key, lang) => new Intl.DateTimeFormat(lang, { month: "shor
  * @returns {string}
  */
 export function nameOf(key, lang) {
-    return new Intl.DateTimeFormat(lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(dateOf(key));
+    return formatterOf(lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(dateOf(key));
 }
 
 /**
@@ -206,7 +231,7 @@ export function nameOf(key, lang) {
  * @returns {string}
  */
 export function monthTitle(month_key, lang) {
-    const name = new Intl.DateTimeFormat(lang, { month: "long", year: "numeric" }).format(dateOf(`${month_key}-01`));
+    const name = formatterOf(lang, { month: "long", year: "numeric" }).format(dateOf(`${month_key}-01`));
 
     return name.charAt(0).toLocaleUpperCase(lang) + name.slice(1);
 }
