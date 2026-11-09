@@ -9,6 +9,7 @@ $attributes = $attributes->merge([
         . 'focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 '
         . 'focus:outline-hidden focus:ring-2 focus:ring-indigo-500 '
         . 'focus:ring-offset-2 dark:focus:ring-offset-gray-800 '
+        . 'disabled:opacity-25 disabled:pointer-events-none '
         . 'transition ease-in-out duration-150',
 ]);
 
