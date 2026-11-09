@@ -14,7 +14,7 @@ test('the side navigation is named and shows the status of each link', function 
         '<nav aria-label="Sections de test"',
         'mt-2',
         'href="#first"',
-        'aria-current="true"',
+        'aria-current="page"',
         'bg-emerald-500',
         'Première',
         'href="#second"',
@@ -29,7 +29,7 @@ test('the side navigation is named and shows the status of each link', function 
         'href="#fourth"',
         'Quatrième',
     ], escape: false);
-    expect(substr_count((string) $view, 'aria-current'))->toBe(1)
+    expect(substr_count((string) $view, 'aria-current="'))->toBe(1)
         ->and(substr_count((string) $view, 'rounded-full'))->toBe(4);
 });
 

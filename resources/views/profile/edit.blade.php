@@ -1,24 +1,12 @@
 {{--
-    Profil : informations, mot de passe et suppression du compte, derrière la confirmation du mot de
-    passe (middleware password.confirm).
+    Profil, première page : la photo, puis les informations de l'utilisateur (nom, prénom, adresse).
 
     @var \App\Models\User $user Utilisateur connecté, lu par les formulaires inclus.
+    @var string $avatar_accept Types MIME acceptés pour la photo.
+    @var string $avatar_formats Formats et poids acceptés pour la photo.
 --}}
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold">Profil</h2>
-    </x-slot>
+<x-profile-layout title="Profil" current="profile.edit">
+    @include('profile.partials.update-avatar-form')
 
-    <div class="max-w-xl mx-auto flex flex-col gap-6">
-
-        @include('profile.partials.update-profile-information-form')
-
-        @include('profile.partials.update-password-form')
-
-        @include('profile.partials.export-data-form')
-
-        @include('profile.partials.delete-user-form')
-
-    </div>
-
-</x-app-layout>
+    @include('profile.partials.update-profile-information-form')
+</x-profile-layout>

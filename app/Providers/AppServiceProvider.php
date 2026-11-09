@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Support\PortfolioContext;
+use App\View\Components\ChoiceSwitch;
 use Closure;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Number;
@@ -31,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
         $this->registerNumberFormats();
         $this->registerRateLimiters();
         $this->registerViewComposers();
+
+        Blade::component('switch', ChoiceSwitch::class);
     }
 
     /**
@@ -59,7 +63,9 @@ class AppServiceProvider extends ServiceProvider
      * de la limite par adresse de LoginRequest ; `registration` et `password-reset` (demande du lien et
      * nouveau mot de passe) par IP ; par utilisateur, les formulaires qui vérifient le mot de passe actuel
      * (`password-confirmation`, `password-update`, `account-deletion`). Au-delà, le formulaire revient
-     * avec un message sous le champ indiqué, à la place de la page 429.
+     * avec un message sous le champ indiqué, à la place de la page 429. `color-scheme` borne par
+     * utilisateur l'enregistrement du thème, que l'interrupteur de la barre envoie par script, et
+     * `avatar` l'envoi de la photo de profil, que le serveur décode et réencode.
      */
     private function registerRateLimiters(): void
     {
@@ -82,6 +88,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('password-update', fn (Request $request) => Limit::perMinute(5)
             ->by((string) $request->user()?->id)
             ->response($this->throttledForm('current_password', bag: 'updatePassword')));
+
+        RateLimiter::for('color-scheme', fn (Request $request) => Limit::perMinute(30)
+            ->by((string) $request->user()?->id));
+
+        RateLimiter::for('avatar', fn (Request $request) => Limit::perMinute(10)
+            ->by((string) $request->user()?->id));
 
         RateLimiter::for('account-deletion', fn (Request $request) => Limit::perMinute(5)
             ->by((string) $request->user()?->id)
