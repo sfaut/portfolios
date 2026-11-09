@@ -22,6 +22,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     protected $attributes = [
         'is_admin' => false,
         'color_scheme' => 'system',
