@@ -143,3 +143,11 @@ test('the server status escapes the name and the queue of a failed job', functio
         ->assertSee('&lt;script&gt;', escape: false)
         ->assertDontSee(dangerousText(), escape: false);
 });
+
+test('the avatar escapes the initials', function () {
+    $user = User::factory()->make(['first_name' => '<b>', 'last_name' => '&']);
+
+    $view = $this->blade('<x-avatar :user="$user"/>', ['user' => $user]);
+
+    $view->assertSee('>&lt;&amp;</span>', escape: false)->assertDontSee('<&', escape: false);
+});

@@ -79,12 +79,16 @@
                             @class([
                                 'inline-flex', 'items-center', 'gap-2',
                                 'rounded-md', 'bg-white', 'dark:bg-gray-800',
-                                'px-3', 'py-2',
+                                'px-2', 'py-1.5', 'sm:px-3',
                                 'text-sm', 'leading-4', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300',
                                 'transition', 'ease-in-out', 'duration-150',
                             ])
                         >
-                            <div class="text-end">
+                            <x-avatar :user="auth()->user()"/>
+
+                            <span class="sr-only sm:hidden">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</span>
+
+                            <div class="hidden text-start sm:block">
                                 <span>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</span><br>
                                 <span class="text-xs font-normal text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span><br>
                             </div>

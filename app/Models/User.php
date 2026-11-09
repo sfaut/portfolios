@@ -47,6 +47,20 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    /**
+     * Initiales de l'utilisateur, en capitales, accents gardés : la première lettre du prénom, puis
+     * celle du nom (« SF ») ; avec un seul des deux, sa lettre ; sans aucun, celle de l'adresse.
+     */
+    public function initials(): string
+    {
+        $letters = array_filter(
+            [mb_substr(trim($this->first_name ?? ''), 0, 1), mb_substr(trim($this->last_name ?? ''), 0, 1)],
+            fn (string $letter): bool => $letter !== '',
+        );
+
+        return mb_strtoupper(implode('', $letters) ?: mb_substr((string) $this->email, 0, 1));
+    }
+
     public function portfolios(): HasMany
     {
         return $this->hasMany(Portfolio::class);
