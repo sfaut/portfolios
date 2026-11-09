@@ -4,7 +4,8 @@
     mois en dessous, légende. Chaque colonne a son infobulle, et la classe calcule toutes les positions.
 
     @var list<array{percent: float, left: string, right: string}> $ticks Graduations des deux axes.
-    @var list<array<string, mixed>> $columns Colonnes, une par mois, avec leurs positions.
+    @var list<array<string, mixed>> $columns Colonnes, une par mois, avec leurs positions et la hauteur
+        du dégradé de leur barre, celle du graphe.
     @var string $line Points de la courbe du cumul, boîte de 100 × 100.
     @var string $years Année ou années de la période.
     @var string $previousYears Année ou années un an plus tôt.
@@ -52,8 +53,8 @@
                                 style="height: {{ $column['ghost'] }}%"
                             ></span>
                             <span
-                                class="block w-full rounded-t-sm bg-[color-mix(in_oklab,var(--color-indigo-700)_var(--shade),var(--color-indigo-300))] dark:bg-[color-mix(in_oklab,var(--color-indigo-300)_var(--shade),var(--color-indigo-700))]"
-                                style="height: {{ $column['height'] }}%; --shade: {{ $column['shade'] }}%"
+                                class="block w-full rounded-t-sm bg-linear-to-t from-indigo-400 to-indigo-600 dark:from-indigo-300 dark:to-indigo-500 bg-bottom bg-no-repeat"
+                                style="height: {{ $column['height'] }}%; background-size: 100% {{ $column['gradient'] }}%"
                             ></span>
                         </span>
                         <x-slot:content>

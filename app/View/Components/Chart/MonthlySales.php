@@ -11,8 +11,10 @@ use Illuminate\View\Component;
  * cumul des ventes de la période en courbe, sur un axe secondaire, sans bibliothèque.
  *
  * Les deux axes ont le même nombre de pas (ChartScale), donc les mêmes lignes de repère : à gauche les
- * ventes du mois (barres et fantômes), à droite le cumul. La teinte d'une barre fonce avec ses ventes,
- * rapportées au meilleur mois de la période. La courbe part de zéro, au bord gauche, et passe par le
+ * ventes du mois (barres et fantômes), à droite le cumul. Les barres portent un léger dégradé vertical,
+ * du plus clair en bas au plus foncé en haut, ancré sur la hauteur du graphe et non sur celle de la
+ * barre : sa taille est agrandie à celle du graphe et calée en bas, si bien que le haut d'une barre
+ * fonce d'autant plus qu'elle monte. La courbe part de zéro, au bord gauche, et passe par le
  * cumul de chaque mois, au-dessus du centre de sa barre, elle-même centrée dans la colonne du mois
  * (le fantôme s'accroche à sa gauche) : un SVG étiré sur sa boîte (preserveAspectRatio="none", traits
  * d'épaisseur constante par vector-effect), ses points en HTML pour rester ronds.
@@ -25,12 +27,6 @@ class MonthlySales extends Component
     public const int STEPS = 4;
 
     /**
-     * Part minimale de la teinte foncée dans le dégradé des barres (%), pour qu'un petit mois reste
-     * lisible.
-     */
-    public const float MIN_SHADE = 35.0;
-
-    /**
      * Graduations partagées : position (%), valeur de l'axe gauche et de l'axe droit.
      *
      * @var list<array{percent: float, left: string, right: string}>
@@ -39,7 +35,8 @@ class MonthlySales extends Component
 
     /**
      * Colonnes, une par mois : données du mois (SalesDashboard::monthly()), hauteurs de la barre et du
-     * fantôme (%), part de la teinte foncée (%) et position du point de la courbe (%).
+     * fantôme (%), hauteur du dégradé rapportée à la barre (%, celle du graphe) et position du point de
+     * la courbe (%).
      *
      * @var list<array<string, mixed>>
      */
@@ -53,8 +50,7 @@ class MonthlySales extends Component
     /**
      * Prépare les échelles et la géométrie du graphe.
      *
-     * @param  list<array{month: string, label: string, initial: string, year: string, sales: float, count: int, payments: float, cumulative: float, previous: float}>  $months
-     *                                                                                                                                                                           Ventes de chaque mois de la période (SalesDashboard::monthly()).
+     * @param  list<array{month: string, label: string, initial: string, year: string, sales: float, count: int, payments: float, cumulative: float, previous: float}>  $months  Ventes de chaque mois de la période (SalesDashboard::monthly()).
      * @param  string  $years  Année ou années de la période, pour la légende (« 2026 »).
      * @param  string  $previousYears  Année ou années un an plus tôt (« 2025 »).
      * @param  string  $label  Description accessible du graphe.
@@ -67,7 +63,6 @@ class MonthlySales extends Component
     ) {
         $left = new ChartScale(max([0.0, ...array_column($months, 'sales'), ...array_column($months, 'previous')]), self::STEPS);
         $right = new ChartScale(max([0.0, ...array_column($months, 'cumulative')]), self::STEPS);
-        $best = max([0.0, ...array_column($months, 'sales')]);
         $count = max(1, count($months));
 
         $this->ticks = array_map(
@@ -84,7 +79,7 @@ class MonthlySales extends Component
             ...$month,
             'height' => $left->percent($month['sales']),
             'ghost' => $left->percent($month['previous']),
-            'shade' => $best > 0 ? round(self::MIN_SHADE + (100 - self::MIN_SHADE) * $month['sales'] / $best, 2) : self::MIN_SHADE,
+            'gradient' => $month['sales'] > 0 ? round(100 * 100 / $left->percent($month['sales']), 2) : 100.0,
             'x' => round(($index + 0.5) / $count * 100, 4),
             'y' => $right->percent($month['cumulative']),
         ], array_keys($months), $months);
