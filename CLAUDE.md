@@ -121,7 +121,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Hiérarchie `User` → `Portfolio` → `Account` → `Operation`, clefs étrangères en cascade.
   `Portfolio` et `Account` utilisent `SoftDeletes` (l'interface parle d'« archivage ») ; `Operation` est
   supprimée physiquement. Les horodatages sont en précision 6, d'où `$dateFormat = 'Y-m-d H:i:s.u'` sur
-  les modèles.
+  les modèles, `User` compris : sans lui, Laravel écrit les dates à la seconde (`.000000`). Un nouveau
+  modèle le reprend et s'ajoute à `tests/Feature/TimestampPrecisionTest.php`.
 - Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (solde, nombre
   d'opérations, première et dernière date) et `operation_reports` (cumul `amount_running_sum` par compte,
   ordonné par `delivery_at`, `id`) sont créées dans la migration
