@@ -231,15 +231,16 @@ test('the analytic split shares the sales by axis, archived axes included, the u
         ->and(array_column($axes, 'percent'))->toBe(["50\u{202F}%", "28\u{202F}%", "1\u{202F}%", "21\u{202F}%"]);
 });
 
-test('the dashboard period defaults to January up to the month of the last operation, not before the first one', function (array $operations, array $period) {
+test('the dashboard period defaults to the thirteen months before the current one, up to the last operation, not before the first one', function (array $operations, array $period) {
     operations($this->account, $operations);
 
     $response = $this->get(route('portfolio.dashboard', $this->portfolio));
 
     $response->assertOk()->assertViewHas('period', $period);
 })->with([
-    'whole year' => [[['2025-06-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-01', 'end' => '2026-10']],
-    'first operation in the year' => [[['2026-03-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-03', 'end' => '2026-10']],
+    'up to the current month' => [[['2024-06-01', '-1.00'], ['2026-12-15', '-1.00']], ['start' => '2025-10', 'end' => '2026-11']],
+    'up to the last operation' => [[['2024-06-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2025-09', 'end' => '2026-10']],
+    'from the first operation' => [[['2026-03-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-03', 'end' => '2026-10']],
 ]);
 
 test('the dashboard keeps a chosen period, in order, and ignores one outside the operations', function (array $query, array $period) {
@@ -251,9 +252,9 @@ test('the dashboard keeps a chosen period, in order, and ignores one outside the
 })->with([
     'chosen' => [['period' => ['start' => '2025-07', 'end' => '2025-12']], ['start' => '2025-07', 'end' => '2025-12']],
     'reversed' => [['period' => ['start' => '2025-12', 'end' => '2025-07']], ['start' => '2025-07', 'end' => '2025-12']],
-    'before the first operation' => [['period' => ['start' => '2025-05', 'end' => '2025-12']], ['start' => '2026-01', 'end' => '2026-10']],
-    'incomplete' => [['period' => ['start' => '2025-07']], ['start' => '2026-01', 'end' => '2026-10']],
-    'not a range' => [['period' => '2025-07'], ['start' => '2026-01', 'end' => '2026-10']],
+    'before the first operation' => [['period' => ['start' => '2025-05', 'end' => '2025-12']], ['start' => '2025-09', 'end' => '2026-10']],
+    'incomplete' => [['period' => ['start' => '2025-07']], ['start' => '2025-09', 'end' => '2026-10']],
+    'not a range' => [['period' => '2025-07'], ['start' => '2025-09', 'end' => '2026-10']],
 ]);
 
 test('the dashboard shows the figures and the sales of the period', function () {

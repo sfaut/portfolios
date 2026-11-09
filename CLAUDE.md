@@ -215,8 +215,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
   ventes de la période (`SalesDashboard`), choisie dans le bandeau de la page par
   `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
-  refusée ignorée, par défaut de janvier au mois de la dernière opération) ; les chiffres clefs
-  restent au jour. Pour la période : total,
+  refusée ignorée, par défaut de M − 13 à M, M étant le mois en cours ou celui de la dernière
+  opération s'il est antérieur) ; les chiffres clefs restent au jour. Pour la période : total,
   graphe des ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
   « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
   comparaison au même jour un an plus tôt. Les graphiques se dessinent sans bibliothèque :
