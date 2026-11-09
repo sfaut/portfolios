@@ -161,12 +161,15 @@ test('a period running past today stops at today, and so does its comparison', f
         ->and($comparison->reference)->toBe('la même période un an plus tôt, à date');
 });
 
-test('the monthly sales list every month of the period with its sales, count, payments and running total', function () {
+test('the monthly sales list every month of the period with its sales, count, payments, running total and sales a year earlier', function () {
     operations($this->account, [
         ['2026-03-05', '-10.00'],
         ['2026-03-20', '-30.00'],
         ['2026-03-25', '15.00'],
         ['2026-05-02', '-20.00'],
+        ['2025-03-31', '-7.00'],
+        ['2025-05-01', '-3.00'],
+        ['2025-06-01', '-99.00'],
     ]);
 
     $months = (new SalesDashboard($this->portfolio, '2026-03', '2026-05', CarbonImmutable::today()))->monthly();
@@ -176,7 +179,15 @@ test('the monthly sales list every month of the period with its sales, count, pa
         ->and(array_column($months, 'count'))->toBe([2, 0, 1])
         ->and(array_column($months, 'payments'))->toBe([15.0, 0.0, 0.0])
         ->and(array_column($months, 'cumulative'))->toBe([40.0, 40.0, 60.0])
-        ->and(array_column($months, 'ratio'))->toBe([1.0, 0.0, 0.5]);
+        ->and(array_column($months, 'previous'))->toBe([7.0, 0.0, 3.0]);
+});
+
+test('the sales a year earlier of the current month stop on the same day', function () {
+    operations($this->account, [['2025-11-09', '-4.00'], ['2025-11-10', '-50.00']]);
+
+    $months = (new SalesDashboard($this->portfolio, '2026-11', '2026-11', CarbonImmutable::today()))->monthly();
+
+    expect(array_column($months, 'previous'))->toBe([4.0]);
 });
 
 test('the cumulative sales step up on each day of sale', function () {
@@ -256,7 +267,10 @@ test('the dashboard shows the figures and the sales of the period', function () 
         ->assertSeeText(Number::amount(35, currency: 'EUR'))
         ->assertSeeText('de ventes de mars à mai 2026')
         ->assertSeeText('Aucune vente sur la même période de 2025')
-        ->assertSeeText('Ventes par mois')
+        ->assertSeeText('€ par mois')
+        ->assertSeeText('€ cumulés')
+        ->assertSeeText('Ventes 2026')
+        ->assertSeeText('Ventes 2025, même mois')
         ->assertSeeText('Non réparti');
 });
 
@@ -281,7 +295,7 @@ test('the dashboard of a portfolio without operations invites to fill its accoun
     $response->assertOk()
         ->assertSeeText('Pas encore de vente')
         ->assertSee('href="'.route('portfolio.show', $this->portfolio).'"', escape: false)
-        ->assertDontSeeText('Ventes par mois');
+        ->assertDontSeeText('€ par mois');
 });
 
 test('the dashboard of a period without sales says so', function () {
@@ -291,7 +305,7 @@ test('the dashboard of a period without sales says so', function () {
 
     $response->assertOk()
         ->assertSeeText('Aucune vente en mars 2026.')
-        ->assertDontSeeText('Ventes par mois');
+        ->assertDontSeeText('€ par mois');
 });
 
 test('the portfolio list leads to the dashboard of each portfolio', function () {

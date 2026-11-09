@@ -77,7 +77,6 @@ class PortfolioController extends Controller
             'period' => $period,
             'dashboard' => $dashboard,
             'comparison' => $dashboard?->comparison(),
-            'cumulative' => $dashboard?->cumulative(),
             'months' => $dashboard?->monthly() ?? [],
             'axes' => $dashboard?->byAnalyticAxis() ?? [],
         ]);

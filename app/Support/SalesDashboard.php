@@ -132,11 +132,11 @@ final readonly class SalesDashboard
 
     /**
      * Ventes de chaque mois de la période, mois sans vente compris : total, nombre de ventes,
-     * paiements, cumul depuis le début de la période, et hauteur de la barre, rapportée au meilleur
-     * mois (0 à 1). Le libellé court est l'initiale du mois, l'année n'est donnée qu'en janvier et au
-     * premier mois.
+     * paiements, cumul depuis le début de la période, et ventes du même mois un an plus tôt, arrêtées
+     * au même jour pour le mois en cours. Le libellé court est l'initiale du mois, l'année n'est
+     * donnée qu'en janvier et au premier mois.
      *
-     * @return list<array{month: string, label: string, initial: string, year: string, sales: float, count: int, payments: float, cumulative: float, ratio: float}>
+     * @return list<array{month: string, label: string, initial: string, year: string, sales: float, count: int, payments: float, cumulative: float, previous: float}>
      */
     public function monthly(): array
     {
@@ -150,7 +150,13 @@ final readonly class SalesDashboard
             ->get()
             ->keyBy('month');
 
-        $best = (float) ($rows->max('sales') ?? 0);
+        $previous = $this->sales->operations($this->from->subYearNoOverflow(), $this->until->subYearNoOverflow())
+            ->toBase()
+            ->selectRaw("DATE_FORMAT(DATE_ADD(delivery_at, INTERVAL 1 YEAR), '%Y-%m') AS month")
+            ->selectRaw('-SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) AS sales')
+            ->groupBy('month')
+            ->pluck('sales', 'month');
+
         $cumulative = 0.0;
         $months = [];
 
@@ -169,7 +175,7 @@ final readonly class SalesDashboard
                 'count' => (int) ($row->sale_count ?? 0),
                 'payments' => (float) ($row->payments ?? 0),
                 'cumulative' => round($cumulative, 2),
-                'ratio' => $best > 0 ? $sales / $best : 0.0,
+                'previous' => (float) ($previous->get($key) ?? 0),
             ];
         }
 

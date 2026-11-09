@@ -211,16 +211,22 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   un montant positif un paiement, et un compte soldé à zéro a ses ventes payées. Les ventes se lisent
   par `App\Support\PortfolioSales` (comptes archivés compris, par `delivery_at`). En tête, les chiffres
   clefs à la date du jour (`SalesFigures`) : comptes actifs, ventes du mois en cours (à date), du mois
-  précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`, tendance en icône et en couleur par
-  `<x-trend>`),
-  et reste à encaisser (soldes négatifs). Puis les ventes de la période (`SalesDashboard`, paramètre
-  `period`, `<x-month-picker mode="range">` dans le bandeau de la page, les chiffres clefs restant au jour, borné aux mois d'opérations, une période refusée ignorée,
-  par défaut janvier → mois de la dernière opération) : total, courbe des ventes cumulées comparée à
-  un an plus tôt, ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
+  précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`,
+  tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
+  ventes de la période (`SalesDashboard`), choisie dans le bandeau de la page par
+  `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
+  refusée ignorée, par défaut de janvier au mois de la dernière opération) ; les chiffres clefs
+  restent au jour. Pour la période : total,
+  graphe des ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
   « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
   comparaison au même jour un an plus tôt. Les graphiques se dessinent sans bibliothèque :
-  `<x-chart.step-line>` (`App\View\Components\Chart\StepLine`, SVG étiré, textes en HTML) pour une
-  courbe, des barres en HTML et CSS ailleurs, avec `<x-tooltip>`.
+  `<x-chart.monthly-sales>` (`App\View\Components\Chart\MonthlySales`) met les ventes par mois en
+  barres (teinte qui fonce avec les ventes), le même mois un an plus tôt en barres fantômes, et le
+  cumul en courbe sur un axe secondaire ; ses deux axes ont le même nombre de pas ronds
+  (`App\Support\ChartScale`), donc les mêmes lignes de repère. `<x-chart.step-line>`
+  (`App\View\Components\Chart\StepLine`, courbe en paliers de valeurs cumulées), inutilisé, reste
+  disponible. Les courbes sont en SVG étiré, les textes en HTML, les barres en HTML et CSS, avec
+  `<x-tooltip>`.
 - Comptes archivés : `portfolio/show` les liste dans une section « Comptes archivés », sous les comptes
   actifs, repliée par défaut (Alpine) et suivie de leur nombre. Les routes `account.show`, `account.edit`, `account.update` et `account.restore` (désarchivage,
   proposé par `account/edit` à la place de l'archivage) portent `->withTrashed()` ; `account.destroy` non.
