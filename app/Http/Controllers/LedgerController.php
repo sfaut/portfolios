@@ -96,7 +96,7 @@ class LedgerController extends Controller
         return response()->streamDownload(function () use ($rows): void {
             $stream = fopen('php://output', 'w');
 
-            Csv::write($stream, ['compte', 'écrite le', 'date effective', 'libellé', 'montant', 'axes'], $rows);
+            Csv::write($stream, ['compte', 'horodatage écriture', 'date effective', 'libellé', 'montant', 'axes'], $rows);
 
             fclose($stream);
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);
