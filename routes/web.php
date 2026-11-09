@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\ServerStatusController;
 use App\Http\Controllers\AnalyticAxisController;
 use App\Http\Controllers\DataExportController;
 use App\Http\Controllers\OperationController;
@@ -69,5 +70,14 @@ Route::controller(ProfileController::class)->middleware(['auth', 'password.confi
 Route::get('/profile/export', DataExportController::class)
     ->middleware(['auth', 'password.confirm'])
     ->name('profile.export');
+
+// Administration : `admin` répond 404 à qui n'est pas administrateur, avant `verified` et
+// `password.confirm`. La dernière route renvoie aussi 404 à toute autre adresse et toute autre
+// méthode de la zone, qui sans elle répondraient 405 et trahiraient une route existante.
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'verified', 'password.confirm'])->group(function () {
+    Route::get('/server', ServerStatusController::class)->name('server');
+
+    Route::any('/{path?}', fn () => abort(404))->where('path', '.*');
+});
 
 require __DIR__.'/auth.php';

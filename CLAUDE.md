@@ -89,6 +89,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - `tests/Feature/EscapingTest.php` vérifie l'échappement des saisies (noms, descriptions, libellés,
   recherche) dans les pages, les messages flash et les mails : une nouvelle page qui affiche une saisie
   s'y ajoute.
+- `tests/Feature/AdminIntrusionTest.php` attaque la zone d'administration comme un utilisateur
+  malveillant : méthodes et variantes d'adresse, `is_admin` glissé dans les formulaires, session
+  (adresse non vérifiée, mot de passe non confirmé, déconnexion, rétrogradation), paramètres forgés,
+  fuite de secrets, en-têtes. Une nouvelle route d'administration s'y ajoute.
 
 ## Conventions
 
@@ -202,6 +206,19 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   et filtrée explicitement sur l'utilisateur. Les CSV suivent les tableurs français (BOM, « ; »,
   décimales à virgule, dates ISO) et neutralisent par une apostrophe un texte qui commence comme une
   formule. Une nouvelle table de données de l'utilisateur y ajoute son fichier.
+- Administration : routes `admin.*` sous `/admin`, derrière les middlewares `auth`, `admin`
+  (`App\Http\Middleware\EnsureUserIsAdmin`), `verified` et `password.confirm`. `admin` répond à tout
+  autre utilisateur la 404 d'une adresse inconnue, avant même la vérification de l'adresse, et pose
+  `Cache-Control: no-store, private` et `X-Robots-Tag: noindex, nofollow` sur les réponses de
+  l'administrateur. La dernière route du groupe renvoie 404 à toute autre adresse ou méthode de la
+  zone, qui sans elle répondrait 405. Le menu de l'utilisateur ne montre l'entrée « État du serveur »
+  qu'à l'administrateur. La page `admin.server` (`Admin\ServerStatusController`) affiche le relevé de
+  `App\Support\ServerStatus\ServerStatus` : six sections (`StatusSection`) de lignes (`StatusItem`,
+  niveau `ok` / `warning` / `danger`, jauge facultative), les alertes en tête. Seuils et règles dans
+  son docblock : aucune valeur secrète affichée, toute mesure absente « Non disponible », le worker
+  de file jugé par l'âge des tâches en attente, sans commande système. Les mesures de la machine
+  (`/proc`, charge, disque) passent par des méthodes protégées, que `ServerStatusTest` remplace par
+  une sous-classe liée dans le conteneur ; elles sont « Non disponible » sous Windows.
 - Par entité : un contrôleur, une FormRequest partagée par `store` et `update` (avec `attributes()` en
   français), des vues `resources/views/<entité>/{index,show,create,edit}.blade.php` et un formulaire commun
   `partials/form.blade.php`.
@@ -307,6 +324,14 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   bande grise, page courante en relief), chaque lien par `<x-segmented-nav.item :href="…" :current="…">`,
   qui porte `aria-current="page"` sur la page courante ; `<x-portfolio-nav>` en est l'usage pour les
   pages d'un portfolio.
+  Toute navigation entre les sections d'une page passe par `<x-side-nav label="…">` : une colonne
+  collante sur grand écran, une bande horizontale défilante et collante sur écran étroit. Chaque lien
+  `<x-side-nav.item href="#…" status="…" :count="…">` porte une pastille d'état (`ok`, `warning`,
+  `danger`, doublée d'un texte pour les lecteurs d'écran) et un nombre facultatifs. Le composant
+  Alpine `sectionSpy` (`resources/js/section-spy.js`), posé sur la racine, met `aria-current="true"`
+  sur le lien de la section en lecture (filet indigo) et le centre dans la bande.
+  `<x-meter :value="0.42" level="…">` dessine une jauge fine, colorée selon le niveau, qui double une
+  mesure écrite (`aria-hidden`).
   Tout bouton à deux états passe par `<x-toggle-button name="…" :pressed="…">` (bouton poussoir) :
   un bouton d'envoi qui porte `aria-pressed` et envoie l'état opposé (`name=1` pour l'enfoncer,
   `name=0` pour le relâcher), dans un formulaire GET, sans JavaScript. Relâché, il a l'allure blanche

@@ -91,6 +91,12 @@
                             Profil
                         </x-dropdown-link>
 
+                        @if (auth()->user()->is_admin)
+                            <x-dropdown-link :href="route('admin.server')">
+                                État du serveur
+                            </x-dropdown-link>
+                        @endif
+
                         {{-- Theme selector (resources/js/theme.js); a click keeps the menu open. --}}
 
                         <div class="flex flex-col gap-1.5 border-y border-gray-100 dark:border-gray-600 px-4 pt-2 pb-3" @click.stop>
