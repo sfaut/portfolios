@@ -336,6 +336,19 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   sans attribut `title` : popover manuel ouvert par Alpine au survol et au focus, dans la couche
   supérieure (il échappe à un parent en `overflow-hidden`), placé par le positionnement d'ancre CSS
   au-dessus du déclencheur (en dessous faute de place), fond presque noir (`gray-950`).
+  Toute notification passagère passe par un toast : `Alpine.store('toasts').show({ message, type,
+  action, duration, key, position })` (`resources/js/toasts.js`, règles pures dans
+  `toast-rules.js`, testées par Node), ou par le flash de session `toast`
+  (`['type' => …, 'message' => …]`, ou le message seul), que la région affiche au chargement et,
+  sans JavaScript, dans un `<noscript>`. Types, icônes et rôles ARIA de `<x-alert>` (`info` par
+  défaut). `action` (`{ label, run }`) ajoute un bouton (« Annuler »…), qui lance `run()` puis
+  ferme le toast ; `key` remplace le toast de même clef ; `position` choisit l'une des six places
+  (`top-left` … `bottom-right`), celle de la région par défaut (`<x-toast-region position="…">`,
+  `App\View\Components\ToastRegion`, posée une fois par `layouts/app`, `bottom-right`). Trois toasts
+  au plus par place, le plus récent au bord. Durée : 5 s, 8 s avec une action, sans fin pour
+  `danger` (`duration`, 0 sans fin) ; la minuterie s'arrête au survol, au focus et onglet caché, un
+  filet montre le temps restant. Bande sombre (`gray-950`) comme `<x-tooltip>`, dans un popover
+  manuel remonté à chaque toast. Un toast ne prend jamais le focus ; Échap ferme celui qui l'a.
   Toute icône vient de Lucide, par `mallardduck/blade-lucide-icons` (sur `blade-ui-kit/blade-icons`) :
   `<x-lucide-circle-help class="size-4" aria-hidden="true"/>`, ou `<x-dynamic-component>` pour un nom
   calculé ; noms sur https://lucide.dev/icons. Une entrée de menu déroulant prend la sienne par

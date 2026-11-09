@@ -99,6 +99,15 @@ test('flash messages escape the name they quote', function (string $method, stri
     'analytic axis archiving' => ['delete', 'analytic-axis.destroy', 'analytic_axis', []],
 ]);
 
+test('the toasts escape the message of the session', function () {
+    $this->actingAs($this->owner)
+        ->withSession(['toast' => ['type' => 'success', 'message' => dangerousText()]])
+        ->get(route('portfolio.index'))
+        ->assertOk()
+        ->assertSee('&lt;script&gt;alert(', escape: false)
+        ->assertDontSee(dangerousText(), escape: false);
+});
+
 test('the account search escapes the search it repeats', function () {
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', [
         $this->portfolio,
