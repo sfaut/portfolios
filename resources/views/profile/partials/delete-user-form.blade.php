@@ -16,9 +16,9 @@
 <x-card danger>
     <x-slot:title>Suppression de compte</x-slot:title>
     <x-slot:description>
-        Une fois votre compte supprimé, toutes ses ressources et données seront définitivement perdues.
-        Avant de supprimer votre compte, veuillez télécharger les données
-        ou informations que vous souhaitez conserver.
+        Une fois votre compte supprimé, toutes ses données seront définitivement perdues.
+        Avant de le supprimer, téléchargez celles que vous souhaitez conserver
+        (« Téléchargement des données », ci-dessus).
     </x-slot:description>
 
     <x-slot:footer>

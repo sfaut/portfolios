@@ -135,6 +135,7 @@ test('guests are redirected to the login page from the pages without model', fun
     ['get', 'profile.edit'],
     ['patch', 'profile.update'],
     ['delete', 'profile.destroy'],
+    ['get', 'profile.export'],
 ]);
 
 test('users cannot reach the archived analytic axis of another user', function (string $method, string $route) {
