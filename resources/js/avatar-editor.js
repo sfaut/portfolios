@@ -28,10 +28,10 @@ const TIMER_SECONDS = 3;
  *   curseur, boutons, + et −) et couvre toujours le cercle.
  *
  * Une image importée ou déposée sur la scène ouvre le recadrage. « Enregistrer » dessine le carré du
- * cercle dans un canvas de 512 pixels, en WebP (en PNG si le navigateur n'encode pas le WebP), le
- * met à la place du fichier dans le champ, puis envoie le formulaire : le serveur le valide et le
- * normalise comme tout autre envoi. Une image que le navigateur ne sait pas lire part telle quelle,
- * et le serveur dit pourquoi il la refuse. Fermer la boîte vide le champ.
+ * cercle dans un canvas de 512 pixels, en WebP de qualité maximale (en PNG si le navigateur n'encode
+ * pas le WebP), le met à la place du fichier dans le champ, puis envoie le formulaire : le serveur
+ * le valide et le normalise comme tout autre envoi. Une image que le navigateur ne sait pas lire
+ * part telle quelle, et le serveur dit pourquoi il la refuse. Fermer la boîte vide le champ.
  *
  * Le champ de fichier ne reçoit son nom (`avatar`) que par Alpine : sans JavaScript, seul le champ
  * du <noscript> part avec le formulaire.
@@ -353,7 +353,7 @@ export default () => {
             context.imageSmoothingQuality = "high";
             context.drawImage(this.image, rect.x, rect.y, rect.size, rect.size, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
-            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.92));
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 1));
 
             if (blob) {
                 const transfer = new DataTransfer();
