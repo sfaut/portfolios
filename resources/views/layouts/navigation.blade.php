@@ -12,7 +12,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('portfolio.index') }}">
-                        <x-application-logo class="block h-8 w-auto fill-current text-indigo-800 dark:text-gray-200"/>
+                        <x-application-logo class="block h-8 w-auto text-indigo-800 dark:text-gray-200"/>
                     </a>
                 </div>
 
