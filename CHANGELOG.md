@@ -2,6 +2,19 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.5.1 (2026-11-09)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.5.1, qui affine le graphe des ventes par mois du tableau
+de bord.
+
+### ✨ Nouvelles fonctionnalités
+
+- Les barres des ventes par mois portent un léger dégradé vertical, du plus clair en bas au plus foncé
+  en haut, à l'échelle du graphe : le haut d'une barre fonce d'autant plus qu'elle monte, et toutes
+  les barres se lisent sur la même échelle.
+
 ## v1.5.0 (2026-11-09)
 
 ### 🚀 Lancement
