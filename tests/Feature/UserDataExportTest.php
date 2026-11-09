@@ -80,7 +80,7 @@ test('the export holds the data of the user, archived included, and nothing of a
     expect(array_column(csvRows($files['portfolios.csv']), 1))->toBe(['nom', 'Famille', 'Ancien'])
         ->and(array_column(csvRows($files['comptes.csv']), 3))->toBe(['nom', 'Compte courant', 'Livret clos'])
         ->and(csvRows($files['operations.csv'])[1])->toBe([
-            (string) $operation->id, (string) $account->id, 'Compte courant', '2026-11-05', 'Loyer', '-750,50', $operation->created_at->format('Y-m-d H:i:s'),
+            (string) $operation->id, (string) $account->id, 'Compte courant', $operation->created_at->format('Y-m-d H:i:s'), '2026-11-05', 'Loyer', '-750,50',
         ])
         ->and(count(csvRows($files['operations.csv'])))->toBe(2)
         ->and(array_column(csvRows($files['axes-analytiques.csv']), 3))->toBe(['nom', 'Logement', 'Vacances'])
@@ -95,7 +95,7 @@ test('the export marks the archived records with their archiving date', function
 
     $rows = csvRows((new UserDataExport($user))->csvFiles()['portfolios.csv']);
 
-    expect($rows[0][4])->toBe('archivé le')
+    expect($rows[0][4])->toBe('horodatage archivage')
         ->and($rows[1][4])->toBe('2026-11-09 10:00:00');
 });
 
@@ -104,7 +104,7 @@ test('the export writes csv files for a French spreadsheet', function () {
 
     $content = (new UserDataExport($user))->csvFiles()['portfolios.csv'];
 
-    expect($content)->toStartWith("\u{FEFF}id;nom;description;\"créé le\";\"archivé le\"\r\n");
+    expect($content)->toStartWith("\u{FEFF}id;nom;description;\"horodatage création\";\"horodatage archivage\"\r\n");
 });
 
 test('the export neutralizes texts that a spreadsheet would run as a formula', function (string $label) {
@@ -115,8 +115,8 @@ test('the export neutralizes texts that a spreadsheet would run as a formula', f
 
     $row = csvRows((new UserDataExport($user))->csvFiles()['operations.csv'])[1];
 
-    expect($row[4])->toBe("'{$label}")
-        ->and($row[5])->toBe('-1,00');
+    expect($row[5])->toBe("'{$label}")
+        ->and($row[6])->toBe('-1,00');
 })->with([
     'equals' => '=HYPERLINK("http://example.com")',
     'plus' => '+33 1 23 45 67 89',

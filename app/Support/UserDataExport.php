@@ -35,7 +35,7 @@ class UserDataExport
         ou @ est précédé d'une apostrophe, pour qu'un tableur ne l'exécute pas comme une formule.
 
         - utilisateur.csv : votre profil.
-        - portfolios.csv : vos portfolios ; « archivé le » est vide pour un portfolio actif.
+        - portfolios.csv : vos portfolios ; « horodatage archivage » est vide pour un portfolio actif.
         - comptes.csv : les comptes de vos portfolios, archivés compris.
         - operations.csv : les opérations de ces comptes.
         - axes-analytiques.csv : les axes analytiques de vos portfolios, archivés compris.
@@ -107,7 +107,7 @@ class UserDataExport
 
         return [
             'utilisateur.csv' => Csv::content(
-                ['nom', 'prénom', 'e-mail', 'thème', 'e-mail vérifié le', 'inscrit le'],
+                ['nom', 'prénom', 'e-mail', 'thème', 'horodatage vérification e-mail', 'horodatage inscription'],
                 [[
                     Csv::text($this->user->last_name),
                     Csv::text($this->user->first_name),
@@ -118,7 +118,7 @@ class UserDataExport
                 ]],
             ),
             'portfolios.csv' => Csv::content(
-                ['id', 'nom', 'description', 'créé le', 'archivé le'],
+                ['id', 'nom', 'description', 'horodatage création', 'horodatage archivage'],
                 DB::table('portfolios')
                     ->whereIn('id', $portfolio_ids)
                     ->lazyById()
@@ -131,7 +131,7 @@ class UserDataExport
                     ]),
             ),
             'comptes.csv' => Csv::content(
-                ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'créé le', 'archivé le'],
+                ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'horodatage création', 'horodatage archivage'],
                 DB::table('accounts')
                     ->join('portfolios', 'portfolios.id', '=', 'accounts.portfolio_id')
                     ->whereIn('accounts.portfolio_id', $portfolio_ids)
@@ -148,7 +148,7 @@ class UserDataExport
                     ]),
             ),
             'operations.csv' => Csv::content(
-                ['id', 'compte_id', 'compte', 'date effective', 'libellé', 'montant', 'horodatage écriture'],
+                ['id', 'compte_id', 'compte', 'horodatage écriture', 'date effective', 'libellé', 'montant'],
                 DB::table('operations')
                     ->join('accounts', 'accounts.id', '=', 'operations.account_id')
                     ->whereIn('accounts.portfolio_id', $portfolio_ids)
@@ -158,14 +158,14 @@ class UserDataExport
                         $operation->id,
                         $operation->account_id,
                         Csv::text($operation->account_name),
+                        Csv::dateTime($operation->created_at),
                         $operation->delivery_at,
                         Csv::text($operation->label),
                         Csv::decimal($operation->amount),
-                        Csv::dateTime($operation->created_at),
                     ]),
             ),
             'axes-analytiques.csv' => Csv::content(
-                ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'créé le', 'archivé le'],
+                ['id', 'portfolio_id', 'portfolio', 'nom', 'description', 'horodatage création', 'horodatage archivage'],
                 DB::table('analytic_axes')
                     ->join('portfolios', 'portfolios.id', '=', 'analytic_axes.portfolio_id')
                     ->whereIn('analytic_axes.portfolio_id', $portfolio_ids)
