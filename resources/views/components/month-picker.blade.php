@@ -1,8 +1,11 @@
 {{--
     Sélecteur de mois (App\View\Components\MonthPicker, composant Alpine monthPicker) : un déclencheur
-    à l'allure d'un champ, et un panneau « une année, douze mois » dans la couche supérieure
-    (popover auto : Échap et clic dehors le ferment), placé sous le déclencheur par le positionnement
-    d'ancre CSS, au-dessus faute de place. Le parent lie la sélection par x-model (x-modelable).
+    à l'allure d'un champ, et un popover dans la couche supérieure (Échap et clic dehors le ferment),
+    placé sous le déclencheur par le positionnement d'ancre CSS, au-dessus ou de l'autre côté faute
+    de place. Le popover a un panneau « une année, douze mois », ou deux en mode range, « Début » et
+    « Fin », côte à côte, empilés sur un écran étroit. En mode range, le déclencheur est plus large,
+    pour la plus longue plage (« Septembre 2025 – décembre 2026 »). Le parent lie la sélection par
+    x-model (x-modelable).
 
     Validation : $config porte une copie de la restriction (App\Support\MonthRestriction), qui ne
     sert qu'à griser les mois interdits. Le serveur contrôle la valeur reçue avec sa propre
@@ -37,7 +40,11 @@
 
     <div
         x-bind:style="{ anchorName: `--${$id('month-picker')}` }"
-        class="flex w-52 items-center rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-300 focus-within:border-indigo-500 dark:focus-within:border-indigo-600 focus-within:shadow-md"
+        @class([
+            'flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-300 focus-within:border-indigo-500 dark:focus-within:border-indigo-600 focus-within:shadow-md',
+            'w-52' => $mode !== 'range',
+            'w-80' => $mode === 'range',
+        ])
     >
         <button
             type="button"
@@ -86,8 +93,10 @@
         x-on:toggle="onToggle($event)"
         x-on:keydown="onKeydown($event)"
         @class([
-            '[position-area:bottom_span-right]', '[position-try-fallbacks:flip-block]',
-            'inset-auto', 'm-0', 'my-1', 'w-72',
+            '[position-area:bottom_span-right]', '[position-try-fallbacks:flip-block,flip-inline,flip-block_flip-inline]',
+            'inset-auto', 'm-0', 'my-1',
+            'w-72' => $mode !== 'range',
+            'w-[calc(100vw-2rem)] sm:w-[34rem]' => $mode === 'range',
             'open:flex', 'flex-col', 'gap-3',
             'rounded-md', 'border-0', 'bg-white', 'dark:bg-gray-800', 'p-3', 'shadow-lg',
             'ring-1', 'ring-gray-200', 'dark:ring-gray-700',
@@ -97,45 +106,59 @@
             'motion-reduce:transition-none',
         ])
     >
-        <div class="flex items-center justify-between">
-            <button
-                type="button"
-                x-on:click="previousYear()"
-                x-bind:disabled="! hasPreviousYear"
-                aria-label="Année précédente"
-                class="flex size-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-indigo-500"
-            >
-                <x-lucide-chevron-left class="size-4" aria-hidden="true"/>
-            </button>
-            <span class="text-base font-semibold tabular-nums" aria-live="polite" x-text="year"></span>
-            <button
-                type="button"
-                x-ref="nextYear"
-                x-on:click="nextYear()"
-                x-bind:disabled="! hasNextYear"
-                aria-label="Année suivante"
-                class="flex size-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-indigo-500"
-            >
-                <x-lucide-chevron-right class="size-4" aria-hidden="true"/>
-            </button>
-        </div>
+        <div @class(['grid gap-4', 'sm:grid-cols-2' => $mode === 'range'])>
+            <template x-for="panel in panels" x-bind:key="panel.id">
+                <div
+                    x-bind:data-panel="panel.id"
+                    x-bind:role="panel.title === '' ? null : 'group'"
+                    x-bind:aria-label="panel.title === '' ? null : panel.title"
+                    class="flex flex-col gap-3"
+                >
+                    <div class="flex items-center justify-between gap-2">
+                        <button
+                            type="button"
+                            x-on:click="previousYear(panel.id)"
+                            x-bind:disabled="! hasPreviousYear(panel.id)"
+                            aria-label="Année précédente"
+                            class="flex size-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-indigo-500"
+                        >
+                            <x-lucide-chevron-left class="size-4" aria-hidden="true"/>
+                        </button>
+                        <span class="flex items-baseline gap-2" aria-live="polite">
+                            <span x-show="panel.title !== ''" x-text="panel.title" class="text-gray-500 dark:text-gray-400"></span>
+                            <span class="text-base font-semibold tabular-nums" x-text="years[panel.id]"></span>
+                        </span>
+                        <button
+                            type="button"
+                            data-next-year
+                            x-on:click="nextYear(panel.id)"
+                            x-bind:disabled="! hasNextYear(panel.id)"
+                            aria-label="Année suivante"
+                            class="flex size-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-indigo-500"
+                        >
+                            <x-lucide-chevron-right class="size-4" aria-hidden="true"/>
+                        </button>
+                    </div>
 
-        <div class="grid grid-cols-3 gap-1" x-on:mouseleave="hovered = ''">
-            <template x-for="cell in cells" x-bind:key="cell.key">
-                <button
-                    type="button"
-                    x-bind:data-month="cell.key"
-                    x-bind:disabled="! cell.active"
-                    x-bind:aria-label="cell.name"
-                    x-bind:aria-pressed="cell.selected"
-                    x-bind:tabindex="cell.key === focusKey ? 0 : -1"
-                    x-bind:class="cellClass(cell)"
-                    x-on:click="choose(cell.key)"
-                    x-on:mouseenter="hovered = cell.key"
-                    x-on:focus="focused = cell.key; hovered = cell.key"
-                    x-text="cell.short"
-                    class="rounded-md py-2 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
-                ></button>
+                    <div class="grid grid-cols-3 gap-1" x-on:mouseleave="hovered = ''">
+                        <template x-for="cell in cells(panel.id)" x-bind:key="cell.key">
+                            <button
+                                type="button"
+                                x-bind:data-month="cell.key"
+                                x-bind:disabled="! cell.active"
+                                x-bind:aria-label="cell.name"
+                                x-bind:aria-pressed="cell.selected"
+                                x-bind:tabindex="cell.key === focusKey(panel.id) ? 0 : -1"
+                                x-bind:class="cellClass(cell)"
+                                x-on:click="choose(panel.id, cell.key)"
+                                x-on:mouseenter="hover(panel.id, cell.key)"
+                                x-on:focus="focused = cell.key; hover(panel.id, cell.key)"
+                                x-text="cell.short"
+                                class="rounded-md py-2 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+                            ></button>
+                        </template>
+                    </div>
+                </div>
             </template>
         </div>
 

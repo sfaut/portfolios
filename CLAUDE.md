@@ -280,7 +280,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Safari et Firefox sur ordinateur n'affichent qu'en champ texte : un déclencheur à l'allure d'un
   champ, et un popover « une année, douze mois » placé comme `<x-tooltip>`. Trois modes : `single`
   (« 2026-11 », champ `name`), `multiple` (liste, champs `name[]`) et `range` (`start` / `end`,
-  champs `name[start]` / `name[end]`). Saisie libre par défaut, ou restreinte par
+  champs `name[start]` / `name[end]`). En mode `range`, le déclencheur est plus large (`w-80`, la
+  plus longue plage y tient) et le popover a deux panneaux, « Début » et « Fin », chacun avec son
+  année : un mois choisi dans « Début » passe le focus à « Fin », qui grise les mois antérieurs, et
+  un mois choisi dans « Fin » applique la plage. Saisie libre par défaut, ou restreinte par
   `:restriction` (`App\Support\MonthRestriction`) : bornes `min` / `max`, liste blanche `allow` et
   liste noire `deny`, combinables, de mois (« 2026-11 ») et de plages en intervalle ISO 8601
   (« 2025-01/2025-06 ») ; en mode `range`, seules les bornes de la plage doivent être autorisées.
