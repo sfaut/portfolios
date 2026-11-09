@@ -6,7 +6,11 @@ use App\Http\Requests\PortfolioRequest;
 use App\Models\Operation;
 use App\Models\Portfolio;
 use App\Support\MonthRestriction;
+use App\Support\SalesDashboard;
+use App\Support\SalesFigures;
 use App\View\Components\MonthPicker;
+use Carbon\CarbonImmutable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -37,6 +41,46 @@ class PortfolioController extends Controller
 
         return to_route('portfolio.index')
             ->with('message', trans('portfolio.store.success', ['name' => $data['name']]));
+    }
+
+    /**
+     * Tableau de bord du portfolio, sa page d'accueil : chiffres clefs à la date du jour, puis ventes
+     * de la période choisie (paramètre period, plage de mois « period[start] » / « period[end] »).
+     *
+     * La période se choisit entre le premier et le dernier mois où le portfolio a des opérations ; une
+     * période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur, comme il convient
+     * à un filtre. Par défaut, elle va de janvier au mois de la dernière opération, dans l'année de
+     * celle-ci (sans remonter avant la première opération).
+     *
+     * @param  Request  $request  Requête, avec la période éventuelle.
+     * @param  Portfolio  $portfolio  Portfolio affiché.
+     */
+    public function dashboard(Request $request, Portfolio $portfolio): View
+    {
+        $today = CarbonImmutable::today();
+        $months = $portfolio->operationMonths();
+        $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
+        $period = $this->dashboardPeriod($request->query('period'), $months, $restriction);
+        $figures = new SalesFigures($portfolio, $today);
+        $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today);
+
+        return view('portfolio.dashboard', [
+            'portfolio' => $portfolio,
+            'today' => $today,
+            'active_accounts' => $figures->activeAccountCount(),
+            'archived_accounts' => $figures->archivedAccountCount(),
+            'current_month' => $figures->currentMonth(),
+            'previous_month' => $figures->previousMonth(),
+            'last_twelve_months' => $figures->lastTwelveMonths(),
+            'outstanding' => $figures->outstanding(),
+            'restriction' => $restriction,
+            'period' => $period,
+            'dashboard' => $dashboard,
+            'comparison' => $dashboard?->comparison(),
+            'cumulative' => $dashboard?->cumulative(),
+            'months' => $dashboard?->monthly() ?? [],
+            'axes' => $dashboard?->byAnalyticAxis() ?? [],
+        ]);
     }
 
     /**
@@ -113,6 +157,30 @@ class PortfolioController extends Controller
 
         return response($view->fragmentIf($request->ajax(), 'accounts'))
             ->header('Vary', 'X-Requested-With');
+    }
+
+    /**
+     * Période du tableau de bord : celle reçue si ses deux bornes sont choisissables (remises dans
+     * l'ordre), sinon la période par défaut ; null quand le portfolio n'a aucune opération.
+     *
+     * @param  mixed  $value  Valeur reçue du paramètre period, de n'importe quel type.
+     * @param  list<string>  $months  Mois où le portfolio a des opérations, du plus récent au plus ancien.
+     * @param  MonthRestriction  $restriction  Mois choisissables.
+     * @return array{start: string, end: string}|null
+     */
+    private function dashboardPeriod(mixed $value, array $months, MonthRestriction $restriction): ?array
+    {
+        if ($months === []) {
+            return null;
+        }
+
+        if (is_array($value) && $restriction->isChoosable($value['start'] ?? null) && $restriction->isChoosable($value['end'] ?? null)) {
+            return ['start' => min($value['start'], $value['end']), 'end' => max($value['start'], $value['end'])];
+        }
+
+        $last = $months[0];
+
+        return ['start' => max(substr($last, 0, 4).'-01', end($months)), 'end' => $last];
     }
 
     public function edit(Portfolio $portfolio)

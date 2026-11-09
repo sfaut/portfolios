@@ -35,6 +35,7 @@ test('users cannot reach the data of another user', function (string $method, st
 
     $response->assertNotFound();
 })->with([
+    ['get', 'portfolio.dashboard', 'portfolio'],
     ['get', 'portfolio.show', 'portfolio'],
     ['get', 'portfolio.edit', 'portfolio'],
     ['put', 'portfolio.update', 'portfolio'],
@@ -67,6 +68,7 @@ test('users can reach their own data', function (string $route, string $model, a
 
     $response->assertOk();
 })->with([
+    ['portfolio.dashboard', 'portfolio', []],
     ['portfolio.show', 'portfolio', []],
     ['portfolio.edit', 'portfolio', []],
     ['account.create', 'portfolio', []],
@@ -99,6 +101,7 @@ test('guests are redirected to the login page', function (string $method, string
 
     $response->assertRedirect(route('login'));
 })->with([
+    ['get', 'portfolio.dashboard', 'portfolio'],
     ['get', 'portfolio.show', 'portfolio'],
     ['get', 'portfolio.edit', 'portfolio'],
     ['put', 'portfolio.update', 'portfolio'],
