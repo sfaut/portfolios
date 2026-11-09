@@ -32,18 +32,50 @@ final readonly class SalesComparison
      */
     public function change(): ?string
     {
-        if ($this->previous === null) {
+        $percent = $this->percent();
+
+        if ($percent === null) {
             return null;
         }
 
-        $change = (int) round(($this->amount - $this->previous) / $this->previous * 100);
         $sign = match (true) {
-            $change > 0 => '+',
-            $change < 0 => "\u{2212}",
+            $percent > 0 => '+',
+            $percent < 0 => "\u{2212}",
             default => '',
         };
 
-        return $sign.Number::format(abs($change), locale: 'fr')."\u{202F}%";
+        return $sign.Number::format(abs($percent), locale: 'fr')."\u{202F}%";
+    }
+
+    /**
+     * Tendance, d'après l'évolution arrondie : up (hausse), down (baisse), flat (0 %), ou null quand
+     * la référence n'a pas de vente.
+     */
+    public function trend(): ?string
+    {
+        return match (true) {
+            $this->percent() === null => null,
+            $this->percent() > 0 => 'up',
+            $this->percent() < 0 => 'down',
+            default => 'flat',
+        };
+    }
+
+    /**
+     * Évolution en toutes lettres, pour les lecteurs d'écran : « en hausse de 8 % », « en baisse de
+     * 3 % », « stable », ou '' quand la référence n'a pas de vente.
+     */
+    public function spokenChange(): string
+    {
+        $percent = $this->percent();
+        $amount = $percent === null ? '' : Number::format(abs($percent), locale: 'fr')."\u{202F}%";
+
+        return match ($this->trend()) {
+            'up' => "en hausse de {$amount}",
+            'down' => "en baisse de {$amount}",
+            'flat' => 'stable',
+            default => '',
+        };
     }
 
     /**
@@ -56,5 +88,16 @@ final readonly class SalesComparison
         return $change === null
             ? "aucune vente sur {$this->reference}"
             : "{$change} sur {$this->reference}";
+    }
+
+    /**
+     * Évolution par rapport à la référence, en pourcentage entier arrondi, ou null quand la référence
+     * n'a pas de vente.
+     */
+    private function percent(): ?int
+    {
+        return $this->previous === null
+            ? null
+            : (int) round(($this->amount - $this->previous) / $this->previous * 100);
     }
 }

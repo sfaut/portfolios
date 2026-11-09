@@ -49,8 +49,8 @@ class PortfolioController extends Controller
      *
      * La période se choisit entre le premier et le dernier mois où le portfolio a des opérations ; une
      * période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur, comme il convient
-     * à un filtre. Par défaut, elle va de janvier au mois de la dernière opération, dans l'année de
-     * celle-ci (sans remonter avant la première opération).
+     * à un filtre. Par défaut, elle va de M − 13 à M, M étant le mois en cours, ou celui de la dernière
+     * opération s'il est antérieur (sans remonter avant la première opération).
      *
      * @param  Request  $request  Requête, avec la période éventuelle.
      * @param  Portfolio  $portfolio  Portfolio affiché.
@@ -60,7 +60,7 @@ class PortfolioController extends Controller
         $today = CarbonImmutable::today();
         $months = $portfolio->operationMonths();
         $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
-        $period = $this->dashboardPeriod($request->query('period'), $months, $restriction);
+        $period = $this->dashboardPeriod($request->query('period'), $months, $restriction, $today);
         $figures = new SalesFigures($portfolio, $today);
         $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today);
 
@@ -77,7 +77,6 @@ class PortfolioController extends Controller
             'period' => $period,
             'dashboard' => $dashboard,
             'comparison' => $dashboard?->comparison(),
-            'cumulative' => $dashboard?->cumulative(),
             'months' => $dashboard?->monthly() ?? [],
             'axes' => $dashboard?->byAnalyticAxis() ?? [],
         ]);
@@ -161,14 +160,16 @@ class PortfolioController extends Controller
 
     /**
      * Période du tableau de bord : celle reçue si ses deux bornes sont choisissables (remises dans
-     * l'ordre), sinon la période par défaut ; null quand le portfolio n'a aucune opération.
+     * l'ordre), sinon la période par défaut, de M − 13 à M (voir dashboard()) ; null quand le portfolio
+     * n'a aucune opération.
      *
      * @param  mixed  $value  Valeur reçue du paramètre period, de n'importe quel type.
      * @param  list<string>  $months  Mois où le portfolio a des opérations, du plus récent au plus ancien.
      * @param  MonthRestriction  $restriction  Mois choisissables.
+     * @param  CarbonImmutable  $today  Date du jour, dont le mois sert de M.
      * @return array{start: string, end: string}|null
      */
-    private function dashboardPeriod(mixed $value, array $months, MonthRestriction $restriction): ?array
+    private function dashboardPeriod(mixed $value, array $months, MonthRestriction $restriction, CarbonImmutable $today): ?array
     {
         if ($months === []) {
             return null;
@@ -178,9 +179,10 @@ class PortfolioController extends Controller
             return ['start' => min($value['start'], $value['end']), 'end' => max($value['start'], $value['end'])];
         }
 
-        $last = $months[0];
+        $end = min($today->format('Y-m'), $months[0]);
+        $start = CarbonImmutable::createFromFormat('!Y-m', $end)->subMonthsNoOverflow(13)->format('Y-m');
 
-        return ['start' => max(substr($last, 0, 4).'-01', end($months)), 'end' => $last];
+        return ['start' => max($start, end($months)), 'end' => $end];
     }
 
     public function edit(Portfolio $portfolio)

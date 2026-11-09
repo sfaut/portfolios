@@ -61,7 +61,9 @@ test('the sales of the current month run to date, compared with the same days a 
     expect($current_month->label)->toBe('ventes de novembre')
         ->and($current_month->amount)->toBe(100.0)
         ->and($current_month->previous)->toBe(80.0)
-        ->and($current_month->sentence())->toBe("+25\u{202F}% sur novembre 2025 à date");
+        ->and($current_month->sentence())->toBe("+25\u{202F}% sur novembre 2025 à date")
+        ->and($current_month->trend())->toBe('up')
+        ->and($current_month->spokenChange())->toBe("en hausse de 25\u{202F}%");
 });
 
 test('the sales of the previous month in January are those of December', function () {
@@ -76,7 +78,9 @@ test('the sales of the previous month in January are those of December', functio
 
     expect($previous_month->label)->toBe('ventes de décembre')
         ->and($previous_month->amount)->toBe(40.0)
-        ->and($previous_month->sentence())->toBe("\u{2212}20\u{202F}% sur décembre 2025");
+        ->and($previous_month->sentence())->toBe("\u{2212}20\u{202F}% sur décembre 2025")
+        ->and($previous_month->trend())->toBe('down')
+        ->and($previous_month->spokenChange())->toBe("en baisse de 20\u{202F}%");
 });
 
 test('the sales of the last twelve months are those of the complete months before the current one', function () {
@@ -92,7 +96,9 @@ test('the sales of the last twelve months are those of the complete months befor
 
     expect($last_twelve_months->amount)->toBe(30.0)
         ->and($last_twelve_months->previous)->toBe(30.0)
-        ->and($last_twelve_months->sentence())->toBe("0\u{202F}% sur les 12 mois précédents");
+        ->and($last_twelve_months->sentence())->toBe("0\u{202F}% sur les 12 mois précédents")
+        ->and($last_twelve_months->trend())->toBe('flat')
+        ->and($last_twelve_months->spokenChange())->toBe('stable');
 });
 
 test('a figure without sales a year earlier says so', function () {
@@ -102,7 +108,9 @@ test('a figure without sales a year earlier says so', function () {
 
     expect($previous_month->label)->toBe("ventes d'octobre")
         ->and($previous_month->previous)->toBeNull()
-        ->and($previous_month->sentence())->toBe('aucune vente sur octobre 2025');
+        ->and($previous_month->sentence())->toBe('aucune vente sur octobre 2025')
+        ->and($previous_month->trend())->toBeNull()
+        ->and($previous_month->spokenChange())->toBe('');
 });
 
 test('the outstanding amount adds up the negative balances, archived accounts included', function () {
@@ -153,12 +161,15 @@ test('a period running past today stops at today, and so does its comparison', f
         ->and($comparison->reference)->toBe('la même période un an plus tôt, à date');
 });
 
-test('the monthly sales list every month of the period with its sales, count, payments and running total', function () {
+test('the monthly sales list every month of the period with its sales, count, payments, running total and sales a year earlier', function () {
     operations($this->account, [
         ['2026-03-05', '-10.00'],
         ['2026-03-20', '-30.00'],
         ['2026-03-25', '15.00'],
         ['2026-05-02', '-20.00'],
+        ['2025-03-31', '-7.00'],
+        ['2025-05-01', '-3.00'],
+        ['2025-06-01', '-99.00'],
     ]);
 
     $months = (new SalesDashboard($this->portfolio, '2026-03', '2026-05', CarbonImmutable::today()))->monthly();
@@ -168,7 +179,15 @@ test('the monthly sales list every month of the period with its sales, count, pa
         ->and(array_column($months, 'count'))->toBe([2, 0, 1])
         ->and(array_column($months, 'payments'))->toBe([15.0, 0.0, 0.0])
         ->and(array_column($months, 'cumulative'))->toBe([40.0, 40.0, 60.0])
-        ->and(array_column($months, 'ratio'))->toBe([1.0, 0.0, 0.5]);
+        ->and(array_column($months, 'previous'))->toBe([7.0, 0.0, 3.0]);
+});
+
+test('the sales a year earlier of the current month stop on the same day', function () {
+    operations($this->account, [['2025-11-09', '-4.00'], ['2025-11-10', '-50.00']]);
+
+    $months = (new SalesDashboard($this->portfolio, '2026-11', '2026-11', CarbonImmutable::today()))->monthly();
+
+    expect(array_column($months, 'previous'))->toBe([4.0]);
 });
 
 test('the cumulative sales step up on each day of sale', function () {
@@ -212,15 +231,16 @@ test('the analytic split shares the sales by axis, archived axes included, the u
         ->and(array_column($axes, 'percent'))->toBe(["50\u{202F}%", "28\u{202F}%", "1\u{202F}%", "21\u{202F}%"]);
 });
 
-test('the dashboard period defaults to January up to the month of the last operation, not before the first one', function (array $operations, array $period) {
+test('the dashboard period defaults to the thirteen months before the current one, up to the last operation, not before the first one', function (array $operations, array $period) {
     operations($this->account, $operations);
 
     $response = $this->get(route('portfolio.dashboard', $this->portfolio));
 
     $response->assertOk()->assertViewHas('period', $period);
 })->with([
-    'whole year' => [[['2025-06-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-01', 'end' => '2026-10']],
-    'first operation in the year' => [[['2026-03-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-03', 'end' => '2026-10']],
+    'up to the current month' => [[['2024-06-01', '-1.00'], ['2026-12-15', '-1.00']], ['start' => '2025-10', 'end' => '2026-11']],
+    'up to the last operation' => [[['2024-06-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2025-09', 'end' => '2026-10']],
+    'from the first operation' => [[['2026-03-01', '-1.00'], ['2026-10-15', '-1.00']], ['start' => '2026-03', 'end' => '2026-10']],
 ]);
 
 test('the dashboard keeps a chosen period, in order, and ignores one outside the operations', function (array $query, array $period) {
@@ -232,9 +252,9 @@ test('the dashboard keeps a chosen period, in order, and ignores one outside the
 })->with([
     'chosen' => [['period' => ['start' => '2025-07', 'end' => '2025-12']], ['start' => '2025-07', 'end' => '2025-12']],
     'reversed' => [['period' => ['start' => '2025-12', 'end' => '2025-07']], ['start' => '2025-07', 'end' => '2025-12']],
-    'before the first operation' => [['period' => ['start' => '2025-05', 'end' => '2025-12']], ['start' => '2026-01', 'end' => '2026-10']],
-    'incomplete' => [['period' => ['start' => '2025-07']], ['start' => '2026-01', 'end' => '2026-10']],
-    'not a range' => [['period' => '2025-07'], ['start' => '2026-01', 'end' => '2026-10']],
+    'before the first operation' => [['period' => ['start' => '2025-05', 'end' => '2025-12']], ['start' => '2025-09', 'end' => '2026-10']],
+    'incomplete' => [['period' => ['start' => '2025-07']], ['start' => '2025-09', 'end' => '2026-10']],
+    'not a range' => [['period' => '2025-07'], ['start' => '2025-09', 'end' => '2026-10']],
 ]);
 
 test('the dashboard shows the figures and the sales of the period', function () {
@@ -243,13 +263,31 @@ test('the dashboard shows the figures and the sales of the period', function () 
     $response = $this->get(route('portfolio.dashboard', [$this->portfolio, 'period' => ['start' => '2026-03', 'end' => '2026-05']]));
 
     $response->assertOk()
-        ->assertSeeText('Chiffres au 9 novembre 2026')
+        ->assertSeeInOrder(['<header', 'Tableau de bord', 'name="period[start]"', '</header>', 'Au 9 novembre 2026'], escape: false)
         ->assertSeeText('reste à encaisser')
         ->assertSeeText(Number::amount(35, currency: 'EUR'))
         ->assertSeeText('de ventes de mars à mai 2026')
-        ->assertSeeText('Aucune vente sur la même période de 2025.')
-        ->assertSeeText('Ventes par mois')
+        ->assertSeeText('Aucune vente sur la même période de 2025')
+        ->assertSeeText('€ par mois')
+        ->assertSeeText('€ cumulés')
+        ->assertSeeText('Ventes 2026')
+        ->assertSeeText('Ventes 2025, même mois')
         ->assertSeeText('Non réparti');
+});
+
+test('the dashboard marks each comparison with its trend, spelled out for screen readers', function () {
+    operations($this->account, [
+        ['2026-10-10', '-30.00'],
+        ['2025-10-10', '-20.00'],
+        ['2026-11-02', '-10.00'],
+        ['2025-11-02', '-20.00'],
+    ]);
+
+    $response = $this->get(route('portfolio.dashboard', $this->portfolio));
+
+    $response->assertOk()
+        ->assertSeeInOrder(['text-rose-700', '<span class="sr-only">en baisse de 50', 'sur novembre 2025 à date'], escape: false)
+        ->assertSeeInOrder(['text-emerald-700', '<span class="sr-only">en hausse de 50', 'sur octobre 2025'], escape: false);
 });
 
 test('the dashboard of a portfolio without operations invites to fill its accounts', function () {
@@ -258,7 +296,7 @@ test('the dashboard of a portfolio without operations invites to fill its accoun
     $response->assertOk()
         ->assertSeeText('Pas encore de vente')
         ->assertSee('href="'.route('portfolio.show', $this->portfolio).'"', escape: false)
-        ->assertDontSeeText('Ventes par mois');
+        ->assertDontSeeText('€ par mois');
 });
 
 test('the dashboard of a period without sales says so', function () {
@@ -268,7 +306,7 @@ test('the dashboard of a period without sales says so', function () {
 
     $response->assertOk()
         ->assertSeeText('Aucune vente en mars 2026.')
-        ->assertDontSeeText('Ventes par mois');
+        ->assertDontSeeText('€ par mois');
 });
 
 test('the portfolio list leads to the dashboard of each portfolio', function () {
