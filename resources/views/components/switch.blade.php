@@ -7,7 +7,7 @@
     un anneau.
 
     @var string $label Nom accessible du groupe.
-    @var string $name Nom des radios, '' hors d'un formulaire.
+    @var string $name Nom des radios, qui les groupe (généré s'il n'est pas donné).
     @var array<string, array{0: string, 1: string|null}> $choices Options : valeur => [libellé, icône].
     @var string $value Valeur cochée au rendu.
     @var bool $labels Si les libellés s'affichent à côté des icônes.
@@ -16,6 +16,7 @@
 --}}
 <fieldset
     aria-label="{{ $label }}"
+    @if ($model !== '') x-data @endif
     {{
         $attributes->class([
             'group/switch', 'relative', 'inline-grid', 'min-w-0', 'grid-flow-col', 'auto-cols-fr',
@@ -53,7 +54,7 @@
             <input
                 type="radio"
                 value="{{ $choice }}"
-                @if ($name !== '') name="{{ $name }}" @endif
+                name="{{ $name }}"
                 @checked($choice === $value)
                 @if ($model !== '') x-model="{{ $model }}" @endif
                 class="sr-only"

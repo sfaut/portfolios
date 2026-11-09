@@ -30,7 +30,10 @@ test('the color scheme variant offers light, system and dark, with icons and spo
         'value="system"', 'checked', '<svg', '<span class="sr-only">Système</span>',
         'value="dark"', '<svg', '<span class="sr-only">Sombre</span>',
     ], escape: false);
-    $view->assertDontSee('name=', escape: false);
+    preg_match_all('/name="(switch-[a-z0-9]{8})"/', (string) $view, $names);
+    expect(array_unique($names[1]))->toHaveCount(1)
+        ->and($names[1])->toHaveCount(3);
+    expect((string) $view)->toMatch('/<fieldset\s+aria-label="Thème"\s+x-data\s/');
 });
 
 test('the labels can show beside the icons', function () {

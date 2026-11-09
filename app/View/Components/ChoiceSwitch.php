@@ -3,6 +3,7 @@
 namespace App\View\Components;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Str;
 use Illuminate\View\Component;
 use InvalidArgumentException;
 
@@ -13,7 +14,9 @@ use InvalidArgumentException;
  * Les options sont des boutons radio natifs, masqués : l'interrupteur s'envoie dans un formulaire par
  * son nom, se parcourt au clavier avec les flèches, et son curseur suit l'option cochée en CSS
  * (`:has()`), sans JavaScript. Avec `model`, les radios se lient à une expression Alpine
- * (`x-model`). La variante `color-scheme` donne les options du thème : clair, système, sombre.
+ * (`x-model`), et le groupe porte sa propre portée Alpine (`x-data`), pour marcher hors de tout
+ * composant (barre du haut). La variante `color-scheme` donne les options du thème : clair, système,
+ * sombre.
  */
 class ChoiceSwitch extends Component
 {
@@ -39,13 +42,11 @@ class ChoiceSwitch extends Component
      * Construit l'interrupteur à partir de ses options, ou de celles de sa variante.
      *
      * @param  string  $label  Nom accessible du groupe (aria-label).
-     * @param  string  $name  Nom des radios, envoyé avec le formulaire ; '' hors d'un formulaire.
-     * @param  array<string, string|array{0: string, 1?: string|null}>  $options
-     *                                                                            Options, valeur => libellé, ou valeur => [libellé, icône Lucide] ; ignorées avec une variante.
+     * @param  string  $name  Nom des radios, qui les groupe et part avec le formulaire ; généré si vide.
+     * @param  array<string, string|array{0: string, 1?: string|null}>  $options  Options, ignorées avec une variante.
      * @param  string  $value  Valeur cochée au rendu ; '' pour aucune.
      * @param  string  $variant  Rendu prédéfini : color-scheme, ou '' pour les options données.
-     * @param  bool  $labels  Si les libellés s'affichent à côté des icônes ; sinon, ils ne sont lus que
-     *                        par les lecteurs d'écran (toujours affichés pour une option sans icône).
+     * @param  bool  $labels  Si les libellés s'affichent à côté des icônes, sinon lus seulement.
      * @param  string  $model  Expression Alpine liée aux radios par x-model, '' sans liaison.
      *
      * @throws InvalidArgumentException Si la variante est inconnue, ou s'il n'y a pas 2 ou 3 options.
@@ -69,6 +70,7 @@ class ChoiceSwitch extends Component
             throw new InvalidArgumentException('Un interrupteur a 2 ou 3 options, '.count($options).' données.');
         }
 
+        $this->name = $name !== '' ? $name : 'switch-'.Str::lower(Str::random(8));
         $this->choices = array_map(
             fn (string|array $option): array => is_string($option) ? [$option, null] : [$option[0], $option[1] ?? null],
             $options,
