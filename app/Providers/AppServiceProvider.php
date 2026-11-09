@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use Closure;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +26,63 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerNumberFormats();
+        $this->registerRateLimiters();
+    }
+
+    /**
+     * Déclare les limites de débit des formulaires d'authentification (middleware `throttle:<nom>`).
+     *
+     * Elles freinent le sondage des adresses et la recherche des mots de passe : `login` par IP, en plus
+     * de la limite par adresse de LoginRequest ; `registration` et `password-reset` (demande du lien et
+     * nouveau mot de passe) par IP ; par utilisateur, les formulaires qui vérifient le mot de passe actuel
+     * (`password-confirmation`, `password-update`, `account-deletion`). Au-delà, le formulaire revient
+     * avec un message sous le champ indiqué, à la place de la page 429.
+     */
+    private function registerRateLimiters(): void
+    {
+        RateLimiter::for('login', fn (Request $request) => Limit::perMinute(20)
+            ->by($request->ip())
+            ->response($this->throttledForm('email')));
+
+        RateLimiter::for('registration', fn (Request $request) => Limit::perHour(5)
+            ->by($request->ip())
+            ->response($this->throttledForm('email')));
+
+        RateLimiter::for('password-reset', fn (Request $request) => Limit::perHour(10)
+            ->by($request->ip())
+            ->response($this->throttledForm('email')));
+
+        RateLimiter::for('password-confirmation', fn (Request $request) => Limit::perMinute(5)
+            ->by((string) $request->user()?->id)
+            ->response($this->throttledForm('password')));
+
+        RateLimiter::for('password-update', fn (Request $request) => Limit::perMinute(5)
+            ->by((string) $request->user()?->id)
+            ->response($this->throttledForm('current_password', bag: 'updatePassword')));
+
+        RateLimiter::for('account-deletion', fn (Request $request) => Limit::perMinute(5)
+            ->by((string) $request->user()?->id)
+            ->response($this->throttledForm('password', bag: 'userDeletion')));
+    }
+
+    /**
+     * Réponse d'un formulaire qui dépasse sa limite de débit : retour au formulaire, saisie gardée hors
+     * mots de passe, avec le délai d'attente sous le champ donné.
+     *
+     * @param  string  $field  Champ qui porte le message.
+     * @param  string  $bag  Sac d'erreurs que lit le formulaire.
+     * @return Closure(Request, array<string, mixed>): RedirectResponse
+     */
+    private function throttledForm(string $field, string $bag = 'default'): Closure
+    {
+        return function (Request $request, array $headers) use ($field, $bag): RedirectResponse {
+            $minutes = max(1, (int) ceil(((int) ($headers['Retry-After'] ?? 60)) / 60));
+
+            return back()
+                ->withInput($request->except(['password', 'password_confirmation', 'current_password']))
+                ->withErrors([$field => trans_choice('auth.throttle_minutes', $minutes, ['minutes' => $minutes])], $bag)
+                ->withHeaders($headers);
+        };
     }
 
     /**

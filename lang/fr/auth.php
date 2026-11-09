@@ -16,4 +16,5 @@ return [
     'failed' => 'Ces identifiants ne correspondent à rien de connu',
     'password' => 'Le mot de passe est incorrect',
     'throttle' => 'Trop de tentatives de connexion échouées, réessayez dans :seconds secondes',
+    'throttle_minutes' => '{1} Trop de tentatives, réessayez dans une minute.|[2,*] Trop de tentatives, réessayez dans :minutes minutes.',
 ];
