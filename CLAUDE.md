@@ -177,7 +177,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`), faute de page
   parent qui l'accueille ; `edit`, `update` et `restore` portent `->withTrashed()`, comme pour les
   comptes. Les pages d'un portfolio (tableau de bord, comptes, axes analytiques) partagent la
-  navigation `<x-portfolio-nav>` de leur en-tête. La page d'accueil après connexion est
+  navigation `<x-portfolio-nav>` de leur en-tête (contrôle segmenté `<x-segmented-nav>`). La page d'accueil après connexion est
   `portfolio.index` : le projet n'a pas la route `dashboard` du code Breeze d'origine.
   La suppression de compte utilisateur (`ProfileController::destroy()`) demande le mot de passe, puis
   supprime l'utilisateur et, par les clefs étrangères en cascade, toutes ses données, archivées
@@ -278,6 +278,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   initiale et calcule le libellé initial ; le parent lie la sélection par `x-model`
   (`x-modelable`). Clavier : flèches entre mois choisissables, Page préc. / suiv. pour l'année,
   Début / Fin, Échap.
+  Toute navigation entre pages sœurs passe par `<x-segmented-nav label="…">` (contrôle segmenté :
+  bande grise, page courante en relief), chaque lien par `<x-segmented-nav.item :href="…" :current="…">`,
+  qui porte `aria-current="page"` sur la page courante ; `<x-portfolio-nav>` en est l'usage pour les
+  pages d'un portfolio.
   Tout bouton à deux états passe par `<x-toggle-button name="…" :pressed="…">` (bouton poussoir) :
   un bouton d'envoi qui porte `aria-pressed` et envoie l'état opposé (`name=1` pour l'enfoncer,
   `name=0` pour le relâcher), dans un formulaire GET, sans JavaScript. Relâché, il a l'allure blanche
