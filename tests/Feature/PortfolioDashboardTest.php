@@ -61,7 +61,9 @@ test('the sales of the current month run to date, compared with the same days a 
     expect($current_month->label)->toBe('ventes de novembre')
         ->and($current_month->amount)->toBe(100.0)
         ->and($current_month->previous)->toBe(80.0)
-        ->and($current_month->sentence())->toBe("+25\u{202F}% sur novembre 2025 à date");
+        ->and($current_month->sentence())->toBe("+25\u{202F}% sur novembre 2025 à date")
+        ->and($current_month->trend())->toBe('up')
+        ->and($current_month->spokenChange())->toBe("en hausse de 25\u{202F}%");
 });
 
 test('the sales of the previous month in January are those of December', function () {
@@ -76,7 +78,9 @@ test('the sales of the previous month in January are those of December', functio
 
     expect($previous_month->label)->toBe('ventes de décembre')
         ->and($previous_month->amount)->toBe(40.0)
-        ->and($previous_month->sentence())->toBe("\u{2212}20\u{202F}% sur décembre 2025");
+        ->and($previous_month->sentence())->toBe("\u{2212}20\u{202F}% sur décembre 2025")
+        ->and($previous_month->trend())->toBe('down')
+        ->and($previous_month->spokenChange())->toBe("en baisse de 20\u{202F}%");
 });
 
 test('the sales of the last twelve months are those of the complete months before the current one', function () {
@@ -92,7 +96,9 @@ test('the sales of the last twelve months are those of the complete months befor
 
     expect($last_twelve_months->amount)->toBe(30.0)
         ->and($last_twelve_months->previous)->toBe(30.0)
-        ->and($last_twelve_months->sentence())->toBe("0\u{202F}% sur les 12 mois précédents");
+        ->and($last_twelve_months->sentence())->toBe("0\u{202F}% sur les 12 mois précédents")
+        ->and($last_twelve_months->trend())->toBe('flat')
+        ->and($last_twelve_months->spokenChange())->toBe('stable');
 });
 
 test('a figure without sales a year earlier says so', function () {
@@ -102,7 +108,9 @@ test('a figure without sales a year earlier says so', function () {
 
     expect($previous_month->label)->toBe("ventes d'octobre")
         ->and($previous_month->previous)->toBeNull()
-        ->and($previous_month->sentence())->toBe('aucune vente sur octobre 2025');
+        ->and($previous_month->sentence())->toBe('aucune vente sur octobre 2025')
+        ->and($previous_month->trend())->toBeNull()
+        ->and($previous_month->spokenChange())->toBe('');
 });
 
 test('the outstanding amount adds up the negative balances, archived accounts included', function () {
@@ -247,9 +255,24 @@ test('the dashboard shows the figures and the sales of the period', function () 
         ->assertSeeText('reste à encaisser')
         ->assertSeeText(Number::amount(35, currency: 'EUR'))
         ->assertSeeText('de ventes de mars à mai 2026')
-        ->assertSeeText('Aucune vente sur la même période de 2025.')
+        ->assertSeeText('Aucune vente sur la même période de 2025')
         ->assertSeeText('Ventes par mois')
         ->assertSeeText('Non réparti');
+});
+
+test('the dashboard marks each comparison with its trend, spelled out for screen readers', function () {
+    operations($this->account, [
+        ['2026-10-10', '-30.00'],
+        ['2025-10-10', '-20.00'],
+        ['2026-11-02', '-10.00'],
+        ['2025-11-02', '-20.00'],
+    ]);
+
+    $response = $this->get(route('portfolio.dashboard', $this->portfolio));
+
+    $response->assertOk()
+        ->assertSeeInOrder(['text-rose-700', '<span class="sr-only">en baisse de 50', 'sur novembre 2025 à date'], escape: false)
+        ->assertSeeInOrder(['text-emerald-700', '<span class="sr-only">en hausse de 50', 'sur octobre 2025'], escape: false);
 });
 
 test('the dashboard of a portfolio without operations invites to fill its accounts', function () {

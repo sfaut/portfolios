@@ -41,7 +41,7 @@
                 <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5">
                     <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ $figure->label }}</dt>
                     <dd class="order-1 text-2xl font-semibold tabular-nums whitespace-nowrap">{{ Number::amount($figure->amount, currency: 'EUR') }}</dd>
-                    <dd class="order-3 text-xs text-gray-500 dark:text-gray-400">{{ $figure->sentence() }}</dd>
+                    <dd class="order-3 text-xs text-gray-500 dark:text-gray-400"><x-trend :comparison="$figure"/></dd>
                 </div>
             @endforeach
 
@@ -73,7 +73,7 @@
                             <span class="tabular-nums whitespace-nowrap">{{ Number::amount($comparison->amount, currency: 'EUR') }}</span>
                             de ventes {{ $comparison->label }}
                         </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ Str::ucfirst($comparison->sentence()) }}.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400"><x-trend :comparison="$comparison" capitalize/></p>
                     </div>
 
                     <form

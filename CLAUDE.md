@@ -211,7 +211,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   un montant positif un paiement, et un compte soldé à zéro a ses ventes payées. Les ventes se lisent
   par `App\Support\PortfolioSales` (comptes archivés compris, par `delivery_at`). En tête, les chiffres
   clefs à la date du jour (`SalesFigures`) : comptes actifs, ventes du mois en cours (à date), du mois
-  précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`),
+  précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`, tendance en icône et en couleur par
+  `<x-trend>`),
   et reste à encaisser (soldes négatifs). Puis les ventes de la période (`SalesDashboard`, paramètre
   `period`, `<x-month-picker mode="range">` borné aux mois d'opérations, une période refusée ignorée,
   par défaut janvier → mois de la dernière opération) : total, courbe des ventes cumulées comparée à
