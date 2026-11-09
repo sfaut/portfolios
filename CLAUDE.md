@@ -156,14 +156,20 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 
 ### HTTP et vues
 
+- Authentification (Breeze, `routes/auth.php`) : aucune réponse ne dit si une adresse a un compte.
+  L'inscription répond toujours par la page de connexion et le même message, sans connecter : à une
+  adresse nouvelle, elle crée l'utilisateur, qui reçoit le lien de vérification et se connectera en le
+  suivant (la connexion rouvre la page demandée) ; à une adresse déjà inscrite, elle ne change rien et
+  prévient son titulaire (`RegistrationAttempted`). « Mot de passe oublié » répond de même dans tous les
+  cas (`lang/fr/passwords.php`). `User` implémente `MustVerifyEmail`, et une adresse non vérifiée mène
+  à la page `verification.notice`. Le profil reste hors de `verified`, pour corriger une adresse mal
+  saisie ; une nouvelle adresse y perd sa vérification et reçoit un lien. Il passe en revanche par
+  `password.confirm` : le mot de passe est redemandé au-delà de trois heures (`auth.password_timeout`),
+  et un test du profil pose `auth.password_confirmed_at` dans la session. Les mails d'auth partent
+  pendant la requête : `MAIL_FROM_ADDRESS` doit être renseignée, sans quoi l'inscription répond 500
+  (`phpunit.xml` en fixe une pour les tests).
 - Toutes les routes métier sont dans `routes/web.php`, sous les middlewares `auth` et `verified` ;
-  `routes/auth.php` (Breeze) y est inclus. `User` implémente `MustVerifyEmail` : l'inscription envoie un
-  lien de vérification, et une adresse non vérifiée mène à la page `verification.notice`. Le profil
-  reste hors de `verified`, pour corriger une adresse mal saisie ; une nouvelle adresse y perd sa
-  vérification et reçoit un lien. Il passe en revanche par `password.confirm` : le mot de passe est
-  redemandé au-delà de trois heures (`auth.password_timeout`), et un test du profil pose
-  `auth.password_confirmed_at` dans la session. L'envoi des mails d'auth est synchrone : `MAIL_FROM_ADDRESS` doit
-  être renseignée, sans quoi l'inscription répond 500 (`phpunit.xml` en fixe une pour les tests). Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
+  `routes/auth.php` y est inclus. Seule la création est imbriquée (`/portfolio/{portfolio}/account/create`,
   `/account/{account}/operation/create`) ; les autres actions sont à plat (`/account/{account}/edit`…).
   Noms de route : `portfolio.*`, `account.*`, `operation.*`, `analytic-axis.*`, `profile.*`. Les axes
   analytiques ont aussi leur liste imbriquée (`/portfolio/{portfolio}/analytic-axes`, liée depuis
