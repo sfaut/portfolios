@@ -16,9 +16,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Photo de profil de l'utilisateur connecté : affichage, envoi et retrait.
  *
- * La photo, normalisée par App\Support\AvatarImage, est rangée sur le disque privé `local`, sous
- * `avatars/{id}/{40 caractères aléatoires}.webp`. Elle ne se sert que par `show`, qui ne prend aucun
- * identifiant : chacun n'atteint que la sienne.
+ * La photo, normalisée par App\Support\AvatarImage, est rangée à plat sur le disque privé `local`,
+ * sous `avatars/{id}-{40 caractères aléatoires}.webp`. Elle ne se sert que par `show`, qui ne prend
+ * aucun identifiant : chacun n'atteint que la sienne. Remplacement et retrait suppriment aussi les
+ * orphelins de l'utilisateur (User::deleteAvatarFiles()).
  */
 class ProfileAvatarController extends Controller
 {
@@ -42,7 +43,7 @@ class ProfileAvatarController extends Controller
     }
 
     /**
-     * Enregistre une nouvelle photo, normalisée, et supprime l'ancienne.
+     * Enregistre une nouvelle photo, normalisée, et supprime l'ancienne avec tout orphelin.
      *
      * @throws ValidationException
      */
@@ -55,15 +56,11 @@ class ProfileAvatarController extends Controller
         }
 
         $user = $request->user();
-        $previous_path = $user->avatar_path;
-        $path = "avatars/{$user->id}/".Str::random(40).'.webp';
+        $path = "avatars/{$user->id}-".Str::random(40).'.webp';
 
         Storage::disk('local')->put($path, $webp);
         $user->forceFill(['avatar_path' => $path])->save();
-
-        if ($previous_path !== '') {
-            Storage::disk('local')->delete($previous_path);
-        }
+        $user->deleteAvatarFiles(except: $path);
 
         return Redirect::route('profile.edit')->with('status', 'avatar-updated');
     }
@@ -75,8 +72,9 @@ class ProfileAvatarController extends Controller
     {
         $user = $request->user();
 
+        $user->deleteAvatarFiles();
+
         if ($user->avatar_path !== '') {
-            Storage::disk('local')->delete($user->avatar_path);
             $user->forceFill(['avatar_path' => ''])->save();
         }
 

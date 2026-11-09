@@ -90,7 +90,7 @@ test('a photo becomes a 512 pixel square in WebP, cropped at the centre', functi
         ->assertSessionHas('status', 'avatar-updated');
 
     $path = $this->user->refresh()->avatar_path;
-    expect($path)->toMatch('#^avatars/'.$this->user->id.'/[A-Za-z0-9]{40}\.webp$#');
+    expect($path)->toMatch('#^avatars/'.$this->user->id.'-[A-Za-z0-9]{40}\.webp$#');
 
     $webp = Storage::disk('local')->get($path);
     expect(array_slice(getimagesizefromstring($webp), 0, 3))->toBe([512, 512, IMAGETYPE_WEBP])
@@ -175,12 +175,31 @@ test('removing the photo deletes its file and brings back the initials', functio
         ->and(Storage::disk('local')->allFiles())->toBeEmpty();
 });
 
-test('deleting the account deletes the photo', function () {
+test('deleting the account deletes the photo and its orphans, and keeps the files of another user', function () {
     $this->put(route('profile.avatar.update'), ['avatar' => avatarFile(halvesImage('png'), 'a.png')]);
+    Storage::disk('local')->put("avatars/{$this->user->id}-orphelin.webp", 'x');
+    Storage::disk('local')->put("avatars/{$this->user->id}1-autre.webp", 'x');
 
     $this->delete(route('profile.destroy'), ['password' => 'password'])->assertRedirect('/');
 
-    expect(Storage::disk('local')->allFiles())->toBeEmpty();
+    expect(Storage::disk('local')->allFiles())->toBe(["avatars/{$this->user->id}1-autre.webp"]);
+});
+
+test('replacing or removing the photo deletes the orphans of the user only', function () {
+    $disk = Storage::disk('local');
+    $orphan = "avatars/{$this->user->id}-orphelin.webp";
+    $other = "avatars/{$this->user->id}1-autre.webp";
+    $disk->put($orphan, 'x');
+    $disk->put($other, 'x');
+
+    $this->put(route('profile.avatar.update'), ['avatar' => avatarFile(halvesImage('png'), 'a.png')]);
+
+    expect($disk->allFiles())->toEqualCanonicalizing([$this->user->refresh()->avatar_path, $other]);
+
+    $disk->put($orphan, 'x');
+    $this->delete(route('profile.avatar.destroy'));
+
+    expect($disk->allFiles())->toBe([$other]);
 });
 
 test('the photo is served to its owner only, private and cached for a year', function () {
