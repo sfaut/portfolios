@@ -4,7 +4,7 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { cameraError, centerSquare, clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "../../resources/js/avatar-crop-rules.js";
+import { cameraError, cameraSupport, centerSquare, clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "../../resources/js/avatar-crop-rules.js";
 
 test("the minimal scale fits the short side of the image in the circle", () => {
     assert.equal(minScale(1200, 800, 200), 0.25);
@@ -50,4 +50,11 @@ test("a camera that does not open says why, and offers to import an image", () =
     assert.equal(cameraError("OverconstrainedError"), cameraError("NotFoundError"));
     assert.match(cameraError("NotReadableError"), /importez une image\.$/);
     assert.equal(cameraError(undefined), cameraError("NotReadableError"));
+});
+
+test("la caméra est proposée en contexte sécurisé, désactivée sans HTTPS, cachée sans getUserMedia", () => {
+    assert.equal(cameraSupport(true, true), "available");
+    assert.equal(cameraSupport(false, true), "insecure");
+    assert.equal(cameraSupport(false, false), "insecure");
+    assert.equal(cameraSupport(true, false), "unsupported");
 });

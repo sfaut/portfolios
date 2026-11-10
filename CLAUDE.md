@@ -236,8 +236,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (`resources/js/avatar-editor.js`, calculs purs dans `avatar-crop-rules.js`, testés par Node).
   Sa scène carrée garde son cercle : vidéo de la caméra en miroir, déclenchée aussitôt ou après un
   retardateur de 3 s, puis image à recadrer ; la photo prise est en vue réelle, sans miroir. La
-  caméra (`getUserMedia`) demande un contexte sécurisé (HTTPS ou `*.localhost`), sans quoi le bouton
-  ne paraît pas, et s'éteint dès la prise de vue ou la fermeture. La boîte met à la place du fichier
+  caméra (`getUserMedia`) demande un contexte sécurisé (HTTPS ou `*.localhost`) : ailleurs (adresse IP
+  en HTTP…), le bouton reste visible, désactivé, avec la raison écrite dessous ; un navigateur sans
+  caméra le cache (`cameraSupport()`). Elle s'éteint dès la prise de vue ou la fermeture. La boîte met à la place du fichier
   un carré de 512 pixels ; sans JavaScript, un champ du `<noscript>` envoie la photo telle quelle.
   `App\Support\AvatarImage` décode toute photo reçue par GD, applique l'orientation EXIF, recadre
   au centre et réencode en WebP sans perte de 512 × 512 (le navigateur envoie un PNG) : aucune

@@ -2,8 +2,9 @@
     Photo de profil : l'avatar en grand, deux entrées vers la même boîte (profile.partials.avatar-dialog,
     composant Alpine avatarEditor), « Importer une photo » et « Prendre une photo », puis le retrait.
 
-    Les boutons qui demandent JavaScript portent hidden, qu'Alpine retire ; « Prendre une photo » ne
-    paraît que si le navigateur ouvre une caméra. Sans JavaScript, le <noscript> donne un champ de
+    Les boutons qui demandent JavaScript portent hidden, qu'Alpine retire. « Prendre une photo » paraît
+    si le navigateur ouvre une caméra ; sur une page sans HTTPS (adresse IP en HTTP…), où le navigateur
+    retire la caméra, il reste visible, désactivé, et une ligne en donne la raison. Sans JavaScript, le <noscript> donne un champ de
     fichier et « Envoyer la photo », et le serveur recadre la photo au centre. Une adresse non vérifiée
     n'envoie pas de photo.
 
@@ -47,7 +48,14 @@
                             Importer une photo
                         </x-secondary-button>
 
-                        <x-secondary-button hidden x-bind:hidden="!cameraAvailable" x-on:click="openCamera()" class="gap-2">
+                        <x-secondary-button
+                            hidden
+                            x-bind:hidden="camera === 'unsupported'"
+                            x-bind:disabled="camera !== 'available'"
+                            x-bind:aria-describedby="camera === 'insecure' ? 'avatar-camera-https' : null"
+                            x-on:click="openCamera()"
+                            class="gap-2"
+                        >
                             <x-lucide-camera class="size-4" aria-hidden="true"/>
                             Prendre une photo
                         </x-secondary-button>
@@ -60,6 +68,10 @@
                             <x-primary-button>Envoyer la photo</x-primary-button>
                         </div>
                     </noscript>
+
+                    <p id="avatar-camera-https" hidden x-bind:hidden="camera !== 'insecure'" class="text-sm text-gray-600 dark:text-gray-400">
+                        La caméra demande une connexion sécurisée (HTTPS) : ouvrez l'application par une adresse en https://.
+                    </p>
 
                     <p id="avatar-formats" class="text-sm text-gray-600 dark:text-gray-400">{{ $avatar_formats }}</p>
 

@@ -87,6 +87,25 @@ export function centerSquare(width, height) {
 }
 
 /**
+ * Disponibilité de la caméra dans la page :
+ * - `available` : le navigateur peut l'ouvrir ;
+ * - `insecure` : la page n'est pas un contexte sécurisé (HTTP sur une adresse autre que localhost),
+ *   où le navigateur retire l'accès à la caméra ; le bouton reste visible, désactivé, avec la raison ;
+ * - `unsupported` : le navigateur n'offre pas la caméra, et le bouton reste caché.
+ *
+ * @param {boolean} secureContext window.isSecureContext.
+ * @param {boolean} hasGetUserMedia Si navigator.mediaDevices.getUserMedia existe.
+ * @returns {"available"|"insecure"|"unsupported"}
+ */
+export function cameraSupport(secureContext, hasGetUserMedia) {
+    if (!secureContext) {
+        return "insecure";
+    }
+
+    return hasGetUserMedia ? "available" : "unsupported";
+}
+
+/**
  * Message à afficher quand la caméra ne s'ouvre pas, selon le nom de l'erreur de getUserMedia.
  *
  * @param {string|undefined} name Nom de l'erreur (DOMException.name).
