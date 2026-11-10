@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Scopes\AuthUserScope;
 use App\Observers\PortfolioObserver;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -56,6 +58,23 @@ class Portfolio extends Model
     public function analyticAxes(): HasMany
     {
         return $this->hasMany(AnalyticAxis::class)->orderBy('name');
+    }
+
+    /**
+     * Axes analytiques qu'un compte du portfolio peut recevoir, par nom : les axes non archivés, plus
+     * les axes archivés déjà affectés au compte, qui restent cochés tant qu'on ne les retire pas.
+     *
+     * @param  Account|null  $account  Compte modifié, null en création.
+     * @return Collection<int, AnalyticAxis>
+     */
+    public function assignableAnalyticAxes(?Account $account = null): Collection
+    {
+        $assigned_axis_ids = $account?->analyticAxes()->pluck('analytic_axes.id')->all() ?? [];
+
+        return $this->analyticAxes()
+            ->withTrashed()
+            ->where(fn (Builder $query) => $query->whereNull('deleted_at')->orWhereIn('id', $assigned_axis_ids))
+            ->get();
     }
 
     public function operations(): HasManyThrough

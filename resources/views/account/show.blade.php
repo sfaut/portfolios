@@ -12,7 +12,10 @@
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-4">
             <div class="flex flex-col gap-1">
-                <h2 class="text-xl font-semibold">Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></h2>
+                <h2 class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xl font-semibold">
+                    <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
+                    <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
+                </h2>
                 <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes']"/>
             </div>
             <x-link.secondary :target="route('account.edit', $account)">Modifier le compte</x-link.secondary>

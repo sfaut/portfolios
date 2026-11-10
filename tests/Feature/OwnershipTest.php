@@ -6,6 +6,7 @@ use App\Models\AnalyticLine;
 use App\Models\Operation;
 use App\Models\Portfolio;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 beforeEach(function () {
@@ -211,6 +212,24 @@ test('an account cannot be put in the portfolio of another user', function (stri
 
     expect($this->portfolio->accounts()->where('name', 'Compte saisi')->exists())->toBeTrue()
         ->and(Account::withoutGlobalScopes()->where('portfolio_id', $stranger_portfolio->id)->exists())->toBeFalse();
+})->with([
+    'creation' => ['post', 'account.store', 'portfolio'],
+    'update' => ['put', 'account.update', 'account'],
+]);
+
+test('an account cannot receive the analytic axis of another user', function (string $method, string $route, string $model) {
+    $stranger_axis = $this->stranger->portfolios()->create(['name' => 'Portfolio du voisin'])
+        ->analyticAxes()->create(['name' => 'Axe du voisin']);
+
+    $response = $this->actingAs($this->owner)->{$method}(route($route, $this->{$model}), [
+        'name' => 'Compte saisi',
+        'description' => '',
+        'analytic_axes' => [$stranger_axis->id],
+    ]);
+
+    $response->assertSessionHasErrors('analytic_axes.0');
+
+    expect(DB::table('account_analytic_axis')->where('analytic_axis_id', $stranger_axis->id)->exists())->toBeFalse();
 })->with([
     'creation' => ['post', 'account.store', 'portfolio'],
     'update' => ['put', 'account.update', 'account'],

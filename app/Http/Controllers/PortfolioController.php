@@ -121,8 +121,8 @@ class PortfolioController extends Controller
                 ->where('delivery_at', '>=', "{$month}-01")
                 ->where('delivery_at', '<', Carbon::createFromFormat('!Y-m', $month)->addMonth()->toDateString())));
 
-        $accounts = $portfolio->accountsReport()->when($filtered, $filter)->get();
-        $archived_accounts = $portfolio->accountsReport()->onlyTrashed()->when($filtered, $filter)->get();
+        $accounts = $portfolio->accountsReport()->with('analyticAxes')->when($filtered, $filter)->get();
+        $archived_accounts = $portfolio->accountsReport()->onlyTrashed()->with('analyticAxes')->when($filtered, $filter)->get();
 
         $summary = '';
         $empty_message = '';

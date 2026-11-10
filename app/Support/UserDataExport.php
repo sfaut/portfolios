@@ -40,6 +40,7 @@ class UserDataExport
         - operations.csv : les opérations de ces comptes ; « pointée » vaut 1 pour une opération pointée, 0 sinon.
         - axes-analytiques.csv : les axes analytiques de vos portfolios, archivés compris.
         - repartitions-analytiques.csv : la part (en pourcentage) de chaque opération attribuée à un axe.
+        - axes-comptes.csv : les axes analytiques affectés à chaque compte.
         - photo.webp : votre photo de profil, si vous en avez une.
 
         Les colonnes « id », « portfolio_id », « compte_id », « operation_id » et « axe_id » relient les
@@ -194,6 +195,23 @@ class UserDataExport
                         $line->analytic_axis_id,
                         Csv::text($line->axis_name),
                         Csv::decimal($line->percentage),
+                    ]),
+            ),
+            'axes-comptes.csv' => Csv::content(
+                ['compte_id', 'compte', 'axe_id', 'axe'],
+                DB::table('account_analytic_axis')
+                    ->join('accounts', 'accounts.id', '=', 'account_analytic_axis.account_id')
+                    ->join('analytic_axes', 'analytic_axes.id', '=', 'account_analytic_axis.analytic_axis_id')
+                    ->whereIn('accounts.portfolio_id', $portfolio_ids)
+                    ->orderBy('account_analytic_axis.account_id')
+                    ->orderBy('account_analytic_axis.analytic_axis_id')
+                    ->select('account_analytic_axis.*', 'accounts.name as account_name', 'analytic_axes.name as axis_name')
+                    ->lazy()
+                    ->map(fn (object $link): array => [
+                        $link->account_id,
+                        Csv::text($link->account_name),
+                        $link->analytic_axis_id,
+                        Csv::text($link->axis_name),
                     ]),
             ),
         ];
