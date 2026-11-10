@@ -21,4 +21,14 @@
         <x-textarea id="description" name="description" class="w-full" maxlength="1000">{{ old('description', $analytic_axis->description ?? '') }}</x-textarea>
         <x-input-error :messages="$errors->get('description')"/>
     </div>
+
+    <div class="flex flex-col gap-1">
+        <x-axis-appearance
+            name-field="name"
+            :name="old('name', $analytic_axis->name ?? '')"
+            :icon="old('icon', $analytic_axis->icon ?? \App\Support\AxisIcons::DEFAULT)"
+            :color="old('color', $analytic_axis?->color->value ?? '')"
+        />
+        <x-input-error :messages="[...$errors->get('icon'), ...$errors->get('color')]"/>
+    </div>
 </form>

@@ -85,3 +85,16 @@ test('the multiple selection escapes the labels of its options', function () {
         ->assertDontSee('<b>x</b>', escape: false)
         ->assertSee('&lt;script&gt;alert(', escape: false);
 });
+
+test('an option of the multiple selection can show a colored icon before its label', function () {
+    $view = $this->blade('<x-multi-select name="axes" label="Axes" :options="$options"/>', [
+        'options' => [
+            ['value' => 1, 'label' => 'Piano', 'icon' => 'piano', 'iconClass' => 'text-amber-600'],
+            ['value' => 2, 'label' => 'Échecs'],
+        ],
+    ]);
+
+    $view->assertSeeInOrder(['value="1"', 'text-amber-600', 'Piano', 'value="2"', 'Échecs'], escape: false);
+
+    expect(substr_count((string) $view, 'text-amber-600'))->toBe(1);
+});

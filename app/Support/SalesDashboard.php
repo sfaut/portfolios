@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\AxisColor;
 use App\Models\Portfolio;
 use App\View\Components\MonthPicker;
 use Carbon\CarbonImmutable;
@@ -189,9 +190,10 @@ final readonly class SalesDashboard
      * La part d'une vente revenant à un axe s'arrondit au centime, la moitié s'éloignant de zéro, comme
      * AnalyticLine::amountShare(), en centimes et centièmes de pourcentage entiers. Un axe archivé
      * garde ses ventes, marqué comme tel. La part de chaque ligne est rapportée au total des ventes
-     * (0 à 1), et donnée en pourcentage entier (« 58 % »).
+     * (0 à 1), et donnée en pourcentage entier (« 58 % »). Chaque axe porte son icône et sa couleur,
+     * « Non réparti » un cercle pointillé gris.
      *
-     * @return list<array{name: string, archived: bool, unallocated: bool, amount: float, share: float, percent: string}>
+     * @return list<array{name: string, icon: string, color: string, archived: bool, unallocated: bool, amount: float, share: float, percent: string}>
      */
     public function byAnalyticAxis(): array
     {
@@ -200,15 +202,17 @@ final readonly class SalesDashboard
             ->join('analytic_lines', 'analytic_lines.operation_id', '=', 'operations.id')
             ->join('analytic_axes', 'analytic_axes.id', '=', 'analytic_lines.analytic_axis_id')
             ->toBase()
-            ->select('analytic_axes.name')
+            ->select('analytic_axes.name', 'analytic_axes.icon', 'analytic_axes.color')
             ->selectRaw('analytic_axes.deleted_at IS NOT NULL AS archived')
             ->selectRaw('SUM((ABS(operations.amount) * 100 * analytic_lines.percentage * 100 + 5000) DIV 10000) AS cents')
-            ->groupBy('analytic_axes.id', 'analytic_axes.name', 'analytic_axes.deleted_at')
+            ->groupBy('analytic_axes.id', 'analytic_axes.name', 'analytic_axes.icon', 'analytic_axes.color', 'analytic_axes.deleted_at')
             ->orderByDesc('cents')
             ->orderBy('analytic_axes.name')
             ->get()
             ->map(fn (object $axis): array => [
                 'name' => $axis->name,
+                'icon' => $axis->icon,
+                'color' => $axis->color,
                 'archived' => (bool) $axis->archived,
                 'unallocated' => false,
                 'amount' => round(((int) $axis->cents) / 100, 2),
@@ -222,7 +226,7 @@ final readonly class SalesDashboard
             ->value('sales');
 
         if ($unallocated > 0) {
-            $axes->push(['name' => 'Non réparti', 'archived' => false, 'unallocated' => true, 'amount' => $unallocated]);
+            $axes->push(['name' => 'Non réparti', 'icon' => 'circle-dashed', 'color' => AxisColor::Gray->value, 'archived' => false, 'unallocated' => true, 'amount' => $unallocated]);
         }
 
         $total = $this->comparison()->amount;
