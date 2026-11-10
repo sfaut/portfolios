@@ -248,7 +248,8 @@ test('the profile opens the photo dialog by importing a photo or by taking one w
     $response->assertSeeInOrder([
         'x-data="avatarEditor"',
         'x-bind:hidden="false"', 'Importer une photo',
-        'x-bind:hidden="!cameraAvailable"', 'Prendre une photo',
+        "x-bind:hidden=\"camera === 'unsupported'\"", "x-bind:disabled=\"camera !== 'available'\"", 'Prendre une photo',
+        'id="avatar-camera-https" hidden', 'connexion sécurisée (HTTPS)',
         'id="avatar-dialog"', 'Déclencher', '<span class="sr-only">Dans</span> 3 s', 'Enregistrer la photo',
     ], escape: false);
 

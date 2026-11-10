@@ -1,4 +1,4 @@
-import { cameraError, centerSquare, clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "./avatar-crop-rules";
+import { cameraError, cameraSupport, centerSquare, clampOffset, clampZoom, MAX_ZOOM, minScale, sourceRect } from "./avatar-crop-rules";
 
 /**
  * Côté de l'image envoyée, en pixels : celui de la photo normalisée par le serveur.
@@ -43,7 +43,7 @@ export default () => {
     return {
         mode: "crop",
         origin: "file",
-        cameraAvailable: false,
+        camera: "unsupported",
         live: false,
         devices: [],
         deviceId: "",
@@ -68,7 +68,7 @@ export default () => {
         },
 
         init() {
-            this.cameraAvailable = window.isSecureContext && typeof navigator.mediaDevices?.getUserMedia === "function";
+            this.camera = cameraSupport(window.isSecureContext, typeof navigator.mediaDevices?.getUserMedia === "function");
         },
 
         destroy() {
