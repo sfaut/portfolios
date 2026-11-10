@@ -2,6 +2,77 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.6.0 (2026-11-10)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.6.0, qui ouvre le Grand livre de chaque portfolio et
+personnalise le profil :
+
+- le Grand livre, avec toutes les opérations d'un portfolio, filtrées, triées et exportées ;
+- le pointage des opérations, enregistré d'un clic ;
+- une icône et une couleur pour chaque axe analytique ;
+- une photo de profil, importée ou prise avec la caméra ;
+- un profil en quatre pages, et le thème choisi depuis la barre du haut ;
+- une page d'état du serveur pour l'administrateur.
+
+### ✨ Nouvelles fonctionnalités
+
+- Grand livre : une nouvelle section de chaque portfolio liste toutes ses opérations, comptes
+  archivés compris, avec identifiant, compte, horodatage d'écriture, date effective, libellé,
+  montant, axes et pointage. Filtres sur les comptes, les dates d'écriture et effective, le libellé,
+  les axes analytiques, le sens (ventes / paiements), le montant et le pointage ; tri sur chaque
+  colonne ; totaux de la sélection ; pagination par 50, ou tout à la fois. La sélection, triée,
+  s'exporte en CSV.
+- Pointage : chaque opération se pointe d'un clic sur sa cellule, dans la liste d'un compte comme dans
+  le Grand livre. Un message confirme l'enregistrement et propose de l'annuler. Le formulaire
+  d'opération a aussi sa case « Pointée », et les exports leur colonne `pointée`. Le sens du pointage
+  est laissé à chacun.
+- Axes analytiques : chacun reçoit une icône, choisie parmi plus de 250 et cherchée en français, et
+  l'une des 18 couleurs proposées. Le formulaire de l'axe en montre l'aperçu. Les axes apparaissent
+  ainsi dans le Grand livre, ses filtres, les infobulles de répartition, le formulaire d'opération et
+  le tableau de bord. Les axes existants prennent l'icône d'étiquette et la couleur indigo.
+- Messages passagers : les confirmations s'affichent dans un coin de l'écran, s'empilent, se ferment
+  seules et s'arrêtent au survol.
+- Photo de profil : importée ou prise avec la caméra, avec retardateur de 3 secondes, puis recadrée
+  dans un cercle. Le serveur la réencode en WebP de 512 pixels, sans métadonnées. La barre du haut
+  montre la photo, ou à défaut les initiales.
+- Le profil tient en quatre pages, avec une navigation latérale : profil, préférences, mot de passe,
+  données et compte.
+- Le thème (clair, système, sombre) se choisit par un interrupteur dans la barre du haut, et
+  s'enregistre sur le profil.
+- Les entrées du menu de l'utilisateur portent une icône.
+- Administration : la page « État du serveur », réservée à l'administrateur, relève l'état de
+  l'application, de PHP, du système, de la base, de la file et des mails, et le volume des données,
+  les alertes en tête.
+
+### 💥 Changements majeurs
+
+- Les extensions PHP `gd` et `exif` sont requises, pour les photos de profil. Sur le serveur :
+  `php8.5-gd`, avec WebP, et AVIF pour accepter ce format ; `exif` est compris dans `php8.5-common`.
+- Envoi des photos (voir le `README.md`) : `client_max_body_size 9m` dans Nginx, et
+  `upload_max_filesize = 8M` et `post_max_size = 9M` dans PHP-FPM.
+- Colonnes de l'export des données renommées d'après leur événement : « horodatage création »,
+  « archivage », « inscription », « vérification e-mail » et « écriture ». Les opérations y ont
+  « date effective » et « horodatage écriture », au lieu de « date » et « créée le ». Le libellé
+  « Horodatage écriture » vaut partout pour la date d'écriture d'une opération.
+
+### 🐞 Corrections
+
+- Les dates des utilisateurs s'enregistraient à la seconde : elles sont désormais à la microseconde,
+  comme celles des autres données.
+- Un bouton principal désactivé est grisé, comme le bouton secondaire.
+
+### ⚙️ Améliorations internes
+
+- Ajout des dépendances de plateforme `ext-gd` (`*`) et `ext-exif` (`*`), pour les photos de profil.
+- `vite` passe de 8.3.6 à 8.3.7. Les autres dépendances directes, Composer et npm, n'ont pas changé
+  de version depuis v1.5.1.
+- Les dates d'écriture et effective des opérations sont indexées, pour les filtres et les tris du
+  Grand livre.
+- Nouveaux composants d'interface : sélecteur de date (jour, jours, plage), sélection multiple,
+  en-tête de colonne triable, interrupteur, message passager et pastille d'axe.
+
 ## v1.5.1 (2026-11-09)
 
 ### 🚀 Lancement
