@@ -486,7 +486,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   en page invité : elles suivent donc le thème choisi. Si leur rendu échoue (manifeste Vite absent…),
   Laravel répond hors débogage par sa page brute de secours. Toute vue nouvelle ou modifiée porte ses
   variantes `dark:`, sur la palette en place : fond de page `gray-900`, surfaces `gray-800`, en-têtes
-  de tableau `gray-700`, texte `gray-300`, accents `indigo-400`.
+  de tableau `gray-700`, texte `gray-300`, accents `indigo-400`. En sombre, aucun bouton n'est clair :
+  le principal (`x-primary-button`, `x-link.primary`) passe en indigo plein (`indigo-500`, plus clair
+  au survol), le secondaire en surface grise surélevée (`gray-700`, bordure `gray-600`), le danger
+  reste rouge.
 
 ### Mails
 
