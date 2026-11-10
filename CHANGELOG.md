@@ -2,6 +2,27 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.7.0 (2026-11-10)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.7.0, qui étend les axes analytiques aux comptes : chaque
+compte peut en recevoir, et leurs icônes le signalent d'un coup d'œil.
+
+### ✨ Nouvelles fonctionnalités
+
+- Axes des comptes : un compte reçoit aucun, un ou plusieurs axes analytiques de son portfolio,
+  cochés en pastilles colorées dans son formulaire. Une aide, sur l'icône (?) du groupe, en rappelle
+  l'usage. Un axe archivé ne se propose plus, mais reste sur les comptes qui l'ont.
+- Leurs icônes suivent le nom du compte, dans la liste des comptes du portfolio et en titre de la
+  page du compte ; une infobulle donne le nom de chaque axe au survol.
+- Export des données : le fichier `axes-comptes.csv` liste les axes de chaque compte.
+
+### ⚙️ Améliorations internes
+
+- Nouvelle table `account_analytic_axis`, créée par migration au déploiement.
+- Dépendances directes, Composer et npm, à jour : aucune version n'a changé depuis v1.6.1.
+
 ## v1.6.1 (2026-11-10)
 
 ### 🚀 Lancement
