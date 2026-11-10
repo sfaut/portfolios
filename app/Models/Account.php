@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\AuthUserParentScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -49,5 +50,17 @@ class Account extends Model
     public function operationsReport(): HasMany
     {
         return $this->hasMany(OperationReport::class);
+    }
+
+    /**
+     * Axes analytiques affectés au compte, pour le repérer, par nom ; un axe archivé reste affiché.
+     *
+     * @return BelongsToMany<AnalyticAxis, $this>
+     */
+    public function analyticAxes(): BelongsToMany
+    {
+        return $this->belongsToMany(AnalyticAxis::class, 'account_analytic_axis', 'account_id')
+            ->withTrashed()
+            ->orderBy('analytic_axes.name');
     }
 }

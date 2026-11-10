@@ -40,6 +40,7 @@ beforeEach(function () {
         'analytic_axis_id' => $this->analytic_axis->id,
         'percentage' => '100.00',
     ]);
+    $this->account->analyticAxes()->attach($this->analytic_axis);
 });
 
 test('pages escape the names and descriptions typed by the user', function (string $route, string $model, array $query) {
@@ -54,6 +55,7 @@ test('pages escape the names and descriptions typed by the user', function (stri
     ['portfolio.show', 'portfolio', []],
     ['portfolio.edit', 'portfolio', []],
     ['account.show', 'account', ['page' => 1]],
+    ['account.create', 'portfolio', []],
     ['account.edit', 'account', []],
     ['operation.create', 'account', []],
     ['operation.edit', 'operation', []],

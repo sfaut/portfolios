@@ -1,6 +1,7 @@
 {{--
     Carte d'un compte dans la liste du portfolio, estompée s'il est archivé. Le solde porte son signe et
     sa couleur, comme le solde cumulé de la liste des opérations : rouge négatif, vert nul, bleu positif.
+    Les icônes de ses axes analytiques suivent son nom, en blanc au survol de la carte.
 
     @var \App\Models\AccountReport $account Compte, avec son solde et ses première et dernière dates d'opération.
 --}}
@@ -19,7 +20,10 @@
     ])
 >
     <div class="truncate">
-        <div class="font-semibold truncate">{{ $account->name }}</div>
+        <div class="flex min-w-0 items-center gap-2">
+            <span class="font-semibold truncate">{{ $account->name }}</span>
+            <x-axis-icons :axes="$account->analyticAxes" icon-class="group-hover:text-white!" class="shrink-0"/>
+        </div>
         <div class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-200">
             @if ($account->operation_last_at !== null)
                 {{ optional($account->operation_first_at)->format('d/m/Y') }}

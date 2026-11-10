@@ -8,6 +8,7 @@ use App\Models\Portfolio;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
@@ -20,15 +21,28 @@ class AccountController extends Controller
     {
         return view('account.create', [
             'portfolio' => $portfolio,
+            'analytic_axes' => $portfolio->assignableAnalyticAxes(),
+            'axes_index_url' => route('analytic-axis.index', $portfolio),
+            'checked_axis_ids' => $this->checkedAxisIds(),
         ]);
     }
 
+    /**
+     * Crée le compte dans le portfolio, avec ses axes analytiques.
+     *
+     * @param  AccountRequest  $request  Données validées du compte.
+     * @param  Portfolio  $portfolio  Portfolio du compte.
+     */
     public function store(AccountRequest $request, Portfolio $portfolio): RedirectResponse
     {
-        $new_account = $request->validated();
-        $new_account['portfolio_id'] = $portfolio->id;
+        DB::transaction(function () use ($request, $portfolio): void {
+            $account = Account::create([
+                ...$request->safe()->except('analytic_axes'),
+                'portfolio_id' => $portfolio->id,
+            ]);
 
-        Account::create($new_account);
+            $account->analyticAxes()->sync($request->validated('analytic_axes', []));
+        });
 
         return to_route('portfolio.show', $portfolio)
             ->with(['message' => 'Le compte a bien été ajouté au portfolio.']);
@@ -92,13 +106,42 @@ class AccountController extends Controller
     {
         return view('account.edit', [
             'account' => $account,
+            'analytic_axes' => $account->portfolio->assignableAnalyticAxes($account),
+            'axes_index_url' => route('analytic-axis.index', $account->portfolio),
+            'checked_axis_ids' => $this->checkedAxisIds($account),
         ]);
     }
 
+    /**
+     * Axes cochés dans le formulaire : après une validation refusée, ceux envoyés, même aucun ;
+     * sinon, ceux du compte modifié, aucun en création.
+     *
+     * @param  Account|null  $account  Compte modifié, null en création.
+     * @return list<int>
+     */
+    private function checkedAxisIds(?Account $account = null): array
+    {
+        if (session()->hasOldInput()) {
+            $old = old('analytic_axes', []);
+
+            return array_values(array_map(intval(...), array_filter(is_array($old) ? $old : [], is_numeric(...))));
+        }
+
+        return $account?->analyticAxes()->pluck('analytic_axes.id')->all() ?? [];
+    }
+
+    /**
+     * Modifie le compte et remplace ses axes analytiques par ceux cochés, aucun s'il n'y en a pas.
+     *
+     * @param  AccountRequest  $request  Données validées du compte.
+     * @param  Account  $account  Compte modifié, archivé ou non.
+     */
     public function update(AccountRequest $request, Account $account): RedirectResponse
     {
-        $data = $request->validated();
-        $account->update($data);
+        DB::transaction(function () use ($request, $account): void {
+            $account->update($request->safe()->except('analytic_axes'));
+            $account->analyticAxes()->sync($request->validated('analytic_axes', []));
+        });
 
         return to_route('account.show', ['account' => $account])
             ->with('alert', 'Les modifications sur le compte ont été enregistrées.');

@@ -164,6 +164,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   par Node) : aperçu de la pastille qui suit le nom saisi, couleurs en pastilles rondes, puis grille
   d'icônes teintée de la couleur choisie, avec recherche et onglets de thème ; ce sont des radios
   natifs, envoyés sans JavaScript. « Non réparti » se montre en gris avec `circle-dashed`.
+  Un compte a aussi de 0 à n axes, pour le repérer seulement (aucun effet sur les opérations ni les
+  calculs) : table pivot `account_analytic_axis`, relation `analyticAxes()` sur `Account` et sur
+  `AccountReport` (archivés inclus, par nom, chargée d'un coup par la liste du portfolio). Le
+  formulaire du compte les coche en pastilles (`analytic_axes[]`, aucune cochée les retire toutes),
+  parmi `Portfolio::assignableAnalyticAxes()` : les axes non archivés, plus les archivés déjà
+  affectés au compte, seule liste blanche de `AccountRequest`. `<x-axis-icons :axes>` les montre
+  après le nom du compte (carte de la liste, titre de la page du compte), chaque icône dans un
+  `<x-tooltip>` qui donne son nom ; `focusable` hors d'un lien. L'export les écrit dans
+  `axes-comptes.csv`.
 - `bootstrap/app.php` redéfinit la pile de middlewares globaux sans `ConvertEmptyStringsToNull` : un champ
   vide arrive en `''`, en accord avec les colonnes `description` à valeur par défaut `''`.
 - La session est sérialisée en JSON (`config/session.php`) et le cache ne désérialise aucune classe PHP
