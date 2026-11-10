@@ -68,6 +68,7 @@
                     <template x-for="(line, index) in lines" x-bind:key="line.key">
                         <div class="flex flex-col gap-1">
                             <div class="flex items-center gap-2">
+                                <span class="flex size-5 shrink-0 items-center justify-center" x-html="iconOf(line.analytic_axis_id)" aria-hidden="true"></span>
                                 <select
                                     x-model="line.analytic_axis_id"
                                     x-bind:name="`analytic_lines[${index}][analytic_axis_id]`"

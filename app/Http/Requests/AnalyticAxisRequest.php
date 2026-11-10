@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AxisColor;
 use App\Models\AnalyticAxis;
 use App\Models\Portfolio;
+use App\Support\AxisIcons;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -22,7 +24,8 @@ class AnalyticAxisRequest extends FormRequest
     }
 
     /**
-     * Règles de validation : nom unique dans le portfolio, axes archivés compris.
+     * Règles de validation : nom unique dans le portfolio, axes archivés compris, icône de la
+     * sélection (AxisIcons) et couleur de AxisColor.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -44,6 +47,8 @@ class AnalyticAxisRequest extends FormRequest
                     ->ignore($analytic_axis),
             ],
             'description' => ['string', 'max:1000'],
+            'icon' => ['sometimes', 'required', 'string', Rule::in(AxisIcons::names())],
+            'color' => ['sometimes', 'required', 'string', Rule::enum(AxisColor::class)],
         ];
     }
 
@@ -57,6 +62,8 @@ class AnalyticAxisRequest extends FormRequest
         return [
             'name' => 'Nom',
             'description' => 'Description',
+            'icon' => 'Icône',
+            'color' => 'Couleur',
         ];
     }
 

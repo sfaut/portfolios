@@ -103,7 +103,7 @@
                                         <x-slot:content>
                                             <span class="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1">
                                                 @foreach ($operation->analyticLines as $line)
-                                                    <span>{{ $line->analyticAxis->name }}</span>
+                                                    <span class="inline-flex items-center gap-1.5"><x-axis-badge :axis="$line->analyticAxis" icon-only on-dark class="size-3.5"/>{{ $line->analyticAxis->name }}</span>
                                                     <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
                                                     <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
                                                 @endforeach

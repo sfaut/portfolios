@@ -107,6 +107,9 @@
                             @checked(in_array($choice['value'], $selection, strict: true))
                             class="rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-indigo-600 focus:ring-0 focus:ring-offset-0"
                         >
+                        @if ($choice['icon'] !== '')
+                            <x-dynamic-component :component="'lucide-'.$choice['icon']" :class="Arr::toCssClasses(['size-4', 'shrink-0', $choice['iconClass']])" aria-hidden="true"/>
+                        @endif
                         <span class="min-w-0 grow truncate">{{ $choice['label'] }}</span>
                         @if ($choice['hint'] !== '')
                             <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ $choice['hint'] }}</span>

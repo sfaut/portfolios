@@ -2,6 +2,7 @@
 
 namespace App\Support\Ledger;
 
+use App\Enums\AxisColor;
 use App\Models\Operation;
 use App\Models\Portfolio;
 use App\Support\DateRestriction;
@@ -80,21 +81,24 @@ class Ledger
 
     /**
      * Axes analytiques proposés au filtre : « Non réparti », puis les axes du portfolio par nom, un
-     * axe archivé n'étant proposé que si une opération l'utilise.
+     * axe archivé n'étant proposé que si une opération l'utilise. Chacun porte son icône et sa
+     * couleur.
      *
-     * @return list<array{value: string, label: string, hint?: string}>
+     * @return list<array{value: string, label: string, hint?: string, icon: string, iconClass: string}>
      */
     public function axisOptions(): array
     {
         return $this->axisOptions ??= [
-            ['value' => LedgerFilters::NO_AXIS, 'label' => 'Non réparti'],
+            ['value' => LedgerFilters::NO_AXIS, 'label' => 'Non réparti', 'icon' => 'circle-dashed', 'iconClass' => AxisColor::Gray->textClasses()],
             ...$this->portfolio->analyticAxes()->withTrashed()
                 ->where(fn (Builder $query) => $query->whereNull('deleted_at')->orWhereHas('analyticLines'))
                 ->toBase()
-                ->get(['analytic_axes.id', 'analytic_axes.name', 'analytic_axes.deleted_at'])
+                ->get(['analytic_axes.id', 'analytic_axes.name', 'analytic_axes.icon', 'analytic_axes.color', 'analytic_axes.deleted_at'])
                 ->map(fn (object $axis): array => [
                     'value' => (string) $axis->id,
                     'label' => $axis->name,
+                    'icon' => $axis->icon,
+                    'iconClass' => (AxisColor::tryFrom($axis->color) ?? AxisColor::DEFAULT)->textClasses(),
                     ...($axis->deleted_at === null ? [] : ['hint' => 'archivé']),
                 ])
                 ->all(),

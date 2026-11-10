@@ -32,7 +32,7 @@ class MultiSelect extends Component
     /**
      * Options proposées, valeurs en chaînes.
      *
-     * @var list<array{value: string, label: string, hint: string}>
+     * @var list<array{value: string, label: string, hint: string, icon: string, iconClass: string}>
      */
     public array $choices;
 
@@ -71,7 +71,9 @@ class MultiSelect extends Component
      *
      * @param  string  $name  Nom du champ : chaque option cochée est envoyée dans name[].
      * @param  string  $label  Libellé accessible du sélecteur, que suit la sélection (« Comptes : 3 comptes »).
-     * @param  list<array{value: int|string, label: string, hint?: string}>  $options  Options proposées ; hint précise une option (« archivé »).
+     * @param  list<array{value: int|string, label: string, hint?: string, icon?: string, iconClass?: string}>  $options
+     *                                                                                                                    Options proposées ; hint précise une option (« archivé »), icon (nom Lucide) et iconClass
+     *                                                                                                                    (classes de couleur) placent une icône devant son libellé.
      * @param  list<int|string>|mixed  $value  Valeurs cochées au départ.
      * @param  string  $placeholder  Texte du déclencheur sans option cochée.
      * @param  string  $noun  Nom au pluriel qui suit le nombre d'options cochées (« comptes »).
@@ -88,6 +90,8 @@ class MultiSelect extends Component
             'value' => (string) $option['value'],
             'label' => $option['label'],
             'hint' => $option['hint'] ?? '',
+            'icon' => $option['icon'] ?? '',
+            'iconClass' => $option['iconClass'] ?? '',
         ], array_values($options));
 
         $checked = array_map(strval(...), array_filter(is_array($value) ? $value : [], fn (mixed $item): bool => is_int($item) || is_string($item)));

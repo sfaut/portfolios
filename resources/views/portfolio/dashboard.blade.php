@@ -152,8 +152,9 @@
                     <ul class="flex flex-col gap-3">
                         @foreach ($axes as $axis)
                             <li class="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_auto] items-center gap-3 text-sm">
-                                <span @class(['truncate', 'text-gray-500 dark:text-gray-400' => $axis['unallocated']])>
-                                    {{ $axis['name'] }}
+                                <span @class(['flex', 'min-w-0', 'items-center', 'gap-1.5', 'text-gray-500 dark:text-gray-400' => $axis['unallocated']])>
+                                    <x-axis-badge :axis="$axis" icon-only/>
+                                    <span class="truncate">{{ $axis['name'] }}</span>
                                     @if ($axis['archived'])
                                         <span class="text-xs text-gray-500 dark:text-gray-400">(archivé)</span>
                                     @endif
@@ -162,8 +163,7 @@
                                     <span
                                         @class([
                                             'block', 'h-full', 'rounded-full',
-                                            'bg-indigo-600 dark:bg-indigo-400' => ! $axis['unallocated'],
-                                            'bg-gray-400 dark:bg-gray-500' => $axis['unallocated'],
+                                            (\App\Enums\AxisColor::tryFrom($axis['color']) ?? \App\Enums\AxisColor::DEFAULT)->barClasses(),
                                         ])
                                         style="width: {{ round($axis['share'] * 100, 2) }}%"
                                     ></span>

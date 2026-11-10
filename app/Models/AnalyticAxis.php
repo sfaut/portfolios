@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\AxisColor;
 use App\Models\Scopes\AuthUserParentScope;
+use App\Support\AxisIcons;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,6 +36,8 @@ class AnalyticAxis extends Model
     protected $fillable = [
         'name',
         'description',
+        'icon',
+        'color',
         'portfolio_id',
     ];
 
@@ -42,7 +46,21 @@ class AnalyticAxis extends Model
      */
     protected $attributes = [
         'description' => '',
+        'icon' => AxisIcons::DEFAULT,
+        'color' => 'indigo',
     ];
+
+    /**
+     * Conversions des attributs : la couleur en AxisColor.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'color' => AxisColor::class,
+        ];
+    }
 
     /**
      * Restreint les axes à ceux des portfolios de l'utilisateur connecté.

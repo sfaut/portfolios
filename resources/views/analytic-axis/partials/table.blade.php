@@ -16,7 +16,7 @@
         <tbody class="bg-white dark:bg-gray-800 text-sm">
             @foreach ($analytic_axes as $analytic_axis)
                 <tr class="hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
-                    <td class="border px-3 py-2 font-semibold">{{ $analytic_axis->name }}</td>
+                    <td class="border px-3 py-2"><x-axis-badge :axis="$analytic_axis"/></td>
                     <td class="border px-3 py-2 text-gray-500 dark:text-gray-400">{{ filled($analytic_axis->description) ? $analytic_axis->description : '--' }}</td>
                     <td class="border px-3 py-2 text-right">{{ $analytic_axis->analytic_lines_count }}</td>
                     <td class="border px-3 py-2 text-center">

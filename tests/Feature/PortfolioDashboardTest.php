@@ -205,7 +205,7 @@ test('the cumulative sales step up on each day of sale', function () {
 });
 
 test('the analytic split shares the sales by axis, archived axes included, the unallocated sales last', function () {
-    $piano = $this->portfolio->analyticAxes()->create(['name' => 'Piano']);
+    $piano = $this->portfolio->analyticAxes()->create(['name' => 'Piano', 'icon' => 'piano', 'color' => 'amber']);
     $chess = $this->portfolio->analyticAxes()->create(['name' => 'Échecs']);
     $former = $this->portfolio->analyticAxes()->create(['name' => 'Ancien']);
     $split = function (string $amount, array $lines): void {
@@ -227,6 +227,8 @@ test('the analytic split shares the sales by axis, archived axes included, the u
     expect(array_column($axes, 'name'))->toBe(['Piano', 'Échecs', 'Ancien', 'Non réparti'])
         ->and(array_column($axes, 'amount'))->toBe([70.03, 40.03, 1.0, 30.0])
         ->and(array_column($axes, 'archived'))->toBe([false, false, true, false])
+        ->and(array_column($axes, 'icon'))->toBe(['piano', 'tag', 'tag', 'circle-dashed'])
+        ->and(array_column($axes, 'color'))->toBe(['amber', 'indigo', 'indigo', 'gray'])
         ->and(array_column($axes, 'unallocated'))->toBe([false, false, false, true])
         ->and(array_column($axes, 'percent'))->toBe(["50\u{202F}%", "28\u{202F}%", "1\u{202F}%", "21\u{202F}%"]);
 });

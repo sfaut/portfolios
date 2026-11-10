@@ -8,7 +8,8 @@
  * The total is computed in whole hundredths, as OperationRequest does, which has the last word.
  *
  * @param {object} form Data prepared by OperationController::analyticForm().
- * @param {{id: number, name: string, archived: boolean}[]} form.axes Selectable axes.
+ * @param {{id: number, name: string, archived: boolean, icon: string}[]} form.axes Selectable axes,
+ *     each with its colored icon, an SVG rendered by the server and shown before the select.
  * @param {{analytic_axis_id: string, percentage: string}[]} form.lines Initial lines.
  * @param {Object<string, string[]>} errors Server errors of the form, those of the lines keyed
  *     "analytic_lines.<i>.<field>".
@@ -81,6 +82,16 @@ export default function analyticLines({ axes, lines }, errors) {
          */
         get canAdd() {
             return this.lines.length < this.axes.length;
+        },
+
+        /**
+         * Colored icon of the axis of a line, empty without axis chosen.
+         *
+         * @param {string} axis_id
+         * @returns {string} SVG rendered by the server.
+         */
+        iconOf(axis_id) {
+            return this.axes.find((axis) => String(axis.id) === axis_id)?.icon ?? "";
         },
 
         /**

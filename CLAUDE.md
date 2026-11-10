@@ -149,6 +149,21 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   entiers par `OperationRequest::after()`. Une modification d'opération remplace ses lignes. Un axe
   archivé ne se choisit plus, sauf sur une opération qui l'utilise déjà, et reste affiché sur ses
   lignes (`AnalyticLine::analyticAxis()` inclut les archivés).
+  Un axe a une icône et une couleur (colonnes `icon` et `color`, défauts `tag` et `indigo`).
+  L'icône vient d'une sélection de Lucide, `App\Support\AxisIcons` : thèmes, nom français et
+  mots-clefs de recherche de chaque icône, liste blanche de la validation. Une icône s'y ajoute sous
+  son nom Lucide ; `tests/Unit/AxisIconsTest.php` vérifie qu'elle existe, et que les familles musique
+  et jeux (dont les six `chess-*`) restent complètes. La couleur est `App\Enums\AxisColor`, les 17
+  familles vives de Tailwind et gray, ses classes écrites en entier dans des `match` pour que
+  Tailwind les trouve (`badgeClasses()`, `textClasses()`, `onDarkClasses()`, `barClasses()`).
+  `<x-axis-badge :axis>` (`App\View\Components\AxisBadge`) affiche l'axe partout : pastille colorée,
+  icône devant le nom, « (archivé) » ; `icon-only` ne garde que l'icône colorée, `on-dark` sur le
+  fond sombre d'une infobulle. Il accepte un modèle ou une ligne de requête `toBase()` (name, icon,
+  color, archived). Le formulaire de l'axe choisit les deux par `<x-axis-appearance>` (composant
+  Alpine `axisAppearance`, recherche sans casse ni accents dans `axis-appearance-rules.js`, testée
+  par Node) : aperçu de la pastille qui suit le nom saisi, couleurs en pastilles rondes, puis grille
+  d'icônes teintée de la couleur choisie, avec recherche et onglets de thème ; ce sont des radios
+  natifs, envoyés sans JavaScript. « Non réparti » se montre en gris avec `circle-dashed`.
 - `bootstrap/app.php` redéfinit la pile de middlewares globaux sans `ConvertEmptyStringsToNull` : un champ
   vide arrive en `''`, en accord avec les colonnes `description` à valeur par défaut `''`.
 - La session est sérialisée en JSON (`config/session.php`) et le cache ne désérialise aucune classe PHP
@@ -404,8 +419,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Toute sélection de plusieurs options passe par `<x-multi-select name="…" label="…" :options="…">`
   (`App\View\Components\MultiSelect`, composant Alpine `multiSelect`) : un déclencheur qui résume la
   sélection (« 3 comptes », par `noun`) et un popover de cases à cocher natives, envoyées dans
-  `name[]` sans JavaScript, avec un champ de recherche au-delà de 8 options. Son identifiant vient de
-  `name` : un nom par page.
+  `name[]` sans JavaScript, avec un champ de recherche au-delà de 8 options. Une option peut porter
+  une icône (`icon`, nom Lucide) et sa couleur (`iconClass`), affichées devant son libellé. Son
+  identifiant vient de `name` : un nom par page.
   Toute colonne triable d'un tableau passe par `<x-sortable-heading column="…" :sort :direction>`
   (`App\View\Components\SortableHeading`) : un `<th>` à `aria-sort` dont le lien pose `sort` et `dir`
   dans l'adresse courante, en gardant ses autres paramètres ; le contrôleur valide les deux valeurs.

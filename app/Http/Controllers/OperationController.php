@@ -144,13 +144,13 @@ class OperationController extends Controller
 
     /**
      * Données de la répartition analytique du formulaire (resources/js/analytic-lines.js) : axes
-     * proposés et lignes initiales. Après une validation échouée, les lignes envoyées reviennent,
+     * proposés, avec leur icône colorée rendue en SVG, et lignes initiales. Après une validation échouée, les lignes envoyées reviennent,
      * même aucune ; sinon, celles de l'opération.
      *
      * @param  Account  $account  Compte de l'opération.
      * @param  Operation|null  $operation  Opération modifiée, null en création.
      * @return array{
-     *     axes: list<array{id: int, name: string, archived: bool}>,
+     *     axes: list<array{id: int, name: string, archived: bool, icon: string}>,
      *     lines: list<array{analytic_axis_id: string, percentage: string}>,
      * }
      */
@@ -171,6 +171,7 @@ class OperationController extends Controller
                     'id' => $axis->id,
                     'name' => $axis->name,
                     'archived' => $axis->trashed(),
+                    'icon' => svg("lucide-{$axis->icon}", "size-4 {$axis->color->textClasses()}", ['aria-hidden' => 'true'])->toHtml(),
                 ])
                 ->values()
                 ->all(),
