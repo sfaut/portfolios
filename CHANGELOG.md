@@ -2,6 +2,29 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.6.1 (2026-11-10)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.6.1, qui harmonise les boutons en mode sombre et explique
+pourquoi la caméra n'est pas proposée sur une adresse sans HTTPS.
+
+### ✨ Nouvelles fonctionnalités
+
+- Photo de profil : sur une page sans HTTPS (une adresse IP en HTTP, par exemple), où le navigateur
+  retire l'accès à la caméra, « Prendre une photo » reste visible, désactivé, avec la raison écrite
+  dessous. Le bouton n'est plus caché sans explication.
+
+### 🐞 Corrections
+
+- En mode sombre, le bouton principal était presque blanc, seule surface claire de la page : il prend
+  désormais l'indigo de l'application. Le bouton secondaire passe en surface grise légèrement
+  surélevée.
+
+### ⚙️ Améliorations internes
+
+- Dépendances directes, Composer et npm, à jour : aucune version n'a changé depuis v1.6.0.
+
 ## v1.6.0 (2026-11-10)
 
 ### 🚀 Lancement
