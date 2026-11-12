@@ -28,7 +28,7 @@ chaque création ou archivage d'un portfolio.
 
 Pile : PHP 8.5, Laravel 13, Blade, Alpine.js, Tailwind CSS 4, MySQL.
 
-## Déploiement
+## Déploiement sur un serveur
 
 Cette section propose une méthode de déploiement, parmi d'autres possibles : chemins, comptes, versions
 et outils s'adaptent au serveur.
@@ -408,6 +408,116 @@ qui modifie le script le signale dans son changelog : il se réinstalle alors de
 la déployer. Le script est dans le dépôt à partir de la version qui suit v1.7.0 : celui d'une version
 plus récente déploie aussi les précédentes. Il ne vient jamais de l'archive de la release, dont les fichiers appartiennent au serveur
 web une fois installés (section « Propriétaires et droits »).
+
+## Déploiement sur Laravel Cloud
+
+Laravel Cloud construit l'application depuis le dépôt et la sert sur son infrastructure : ni serveur
+ni `deploy.sh` à entretenir. Un environnement suit la branche `master`. Il ne déploie qu'à la demande,
+une version publiée, par [`bin/deploy-laravel-cloud.sh`](bin/deploy-laravel-cloud.sh), lancé depuis
+un clone du dépôt.
+
+### Configuration de l'environnement
+
+Dans Laravel Cloud, une application liée au dépôt GitHub, et un environnement sur `master` :
+
+- Runtime : PHP 8.5. Les extensions de l'application (`intl`, `zip`, `gd`, `exif`…) font partie de
+  l'image.
+- Deployments :
+  - « Push to deploy » désactivé : un push sur `master` ne déploie rien ;
+  - deploy hook activé, son adresse copiée dans le `.env` du clone (`LARAVEL_CLOUD_DEPLOY_HOOK`) ;
+  - build commands :
+
+    ```sh
+    composer install --no-dev --optimize-autoloader --no-interaction
+    npm ci --audit false
+    npm run build
+    php artisan optimize
+    ```
+
+  - deploy command : `php artisan migrate --force`.
+- Base de données : un cluster Laravel MySQL (8.4), attaché à l'environnement, qui en reçoit les accès
+  (`DB_*`). Les migrations y créent les vues (`account_reports`, `operation_reports`).
+- Stockage : un bucket **privé**, attaché sous le nom de disque `avatars`, sans en faire le disque par
+  défaut. Il reçoit les photos de profil (`AVATAR_DISK=avatars`) : le système de fichiers de
+  l'environnement est effacé à chaque déploiement.
+- Worker de file : un processus `queue:work` (« Background processes »), sur la connexion `database`.
+  Les mails à l'administrateur partent par la file : l'environnement ne doit pas se mettre en veille
+  (hibernation désactivée), sans quoi les tâches attendent son réveil.
+- Variables d'environnement : celles de `shared/.env` du serveur, en reprenant sa clef `APP_KEY`
+  (sessions et liens envoyés restent valables), avec `AVATAR_DISK=avatars`. Ne pas reprendre :
+  - `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` : Laravel Cloud les fournit, et
+    une variable saisie l'emporte sur la sienne ;
+  - `LOG_CHANNEL` et `LOG_STACK` : les journaux iraient dans un fichier effacé au déploiement, au lieu
+    de l'onglet des journaux de Laravel Cloud.
+- Domaine : ajouté dans les réglages réseau, avec les enregistrements DNS demandés (vérification,
+  certificat, puis origine) ; `APP_URL` le reprend.
+
+### Déploiement d'une version
+
+1. Publier la release sur GitHub, et attendre que la CI y ajoute l'archive : c'est la preuve que ses
+   vérifications sont passées.
+2. Dans Laravel Cloud, lancer une sauvegarde manuelle de la base si la version a des migrations.
+3. Depuis le clone :
+
+   ```sh
+   bin/deploy-laravel-cloud.sh vX.Y.Z
+   ```
+
+   Le script vérifie que le commit du tag est sur `origin/master` et que la release a son archive,
+   demande confirmation, puis appelle le deploy hook avec ce commit. Le déploiement se suit dans
+   Laravel Cloud.
+
+Retour arrière : relancer le script avec une version précédente. Les migrations restent en place, comme
+sur un serveur. Une sauvegarde de la base se restaure dans un nouveau cluster, à rattacher ensuite à
+l'environnement.
+
+### Bascule depuis un serveur
+
+La bascule reprend les données du serveur : la base et les photos de profil. Les deux côtés tournent
+sur la même version, qui doit gérer `AVATAR_DISK` (celle qui suit v1.7.0 ou une plus récente).
+
+1. Configurer l'environnement (ci-dessus), puis déployer la version : les migrations créent un schéma
+   vide.
+2. Sur le serveur, passer le site en maintenance :
+
+   ```sh
+   runuser --user www-data -- php /var/www/portfolios/current/artisan down
+   ```
+
+3. Copier les données seules, sans la table des migrations ni les vues, que les migrations ont déjà
+   créées :
+
+   ```sh
+   mysqldump --no-create-info --skip-triggers --complete-insert --single-transaction \
+       --set-gtid-purged=OFF \
+       --ignore-table=portfolios.migrations \
+       --ignore-table=portfolios.account_reports \
+       --ignore-table=portfolios.operation_reports \
+       portfolios > /root/portfolios-data.sql
+   ```
+
+4. Activer l'accès public de la base dans Laravel Cloud, puis importer la copie avec les accès qu'il
+   donne, et désactiver l'accès public :
+
+   ```sh
+   mysql --host=<hôte> --user=<utilisateur> --password --ssl-mode=REQUIRED <base> < /root/portfolios-data.sql
+   ```
+
+5. Copier les photos dans le bucket, avec une clef d'accès en lecture et écriture créée dans Laravel
+   Cloud (section « Access keys » du bucket), par exemple avec [rclone](https://rclone.org) :
+
+   ```sh
+   RCLONE_CONFIG_R2_TYPE=s3 RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
+   RCLONE_CONFIG_R2_ACCESS_KEY_ID=<clef> RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=<secret> \
+   RCLONE_CONFIG_R2_ENDPOINT=<endpoint> \
+       rclone copy /var/www/portfolios/shared/storage/app/private/avatars r2:<bucket>/avatars
+   ```
+
+   Supprimer ensuite cette clef.
+6. Faire pointer le domaine vers Laravel Cloud, puis vérifier le site : connexion, photo de profil,
+   envoi d'un mail (création d'un portfolio).
+7. Arrêter le site du serveur, qui reste en maintenance, et son worker
+   (`systemctl disable --now portfolios-queue`).
 
 ## Développement
 
