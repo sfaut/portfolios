@@ -40,13 +40,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`,
   `date-picker-rules.js`…). Les cas que PHP
   et JavaScript doivent appliquer à l'identique sont dans `tests/fixtures/*.json`, lus par les deux.
-- GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, build du front, tests JavaScript,
-  tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
+- GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, ShellCheck sur `bin/*.sh`,
+  build du front, tests JavaScript, tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
   publication d'une release, il
   construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
   ajoute à la release avec son empreinte SHA-256 (`portfolios-vX.Y.Z.tar.gz`, `.sha256`).
-- Production : le déploiement est décrit dans `README.md`, seule source du script `deploy.sh` dans le
-  dépôt (section « Script de déploiement »). Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
+- Production (serveur perso) : le déploiement est décrit dans `README.md`, et le script est
+  `bin/deploy.sh`, installé sur le serveur depuis le tag d'une version (section « Script de
+  déploiement »), jamais depuis l'archive. Une version qui le modifie le signale dans son changelog,
+  pour qu'il soit réinstallé. Lancé à la main sur le serveur (`deploy.sh vX.Y.Z`), il installe
   l'archive de la release dans `/var/www/portfolios/releases/vX.Y.Z`, la relie à `shared/.env` et
   `shared/storage`, lance `optimize`, sauvegarde la base (`php artisan db:dump`, compressée dans `backups/`), lance
   `migrate --force`, bascule le lien `current`, puis redémarre le worker de file, dont il crée le
