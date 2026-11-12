@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -15,8 +16,8 @@ use Illuminate\Support\Facades\Storage;
  * Utilisateur de l'application, propriétaire de ses portfolios.
  *
  * Son adresse doit être vérifiée pour accéder aux pages métier (middleware `verified`). Sa photo de
- * profil, facultative, est rangée à plat sur le disque privé `local`, sous `avatars/{id}-{aléatoire}.webp`
- * (`avatar_path`, '' sans photo), et supprimée avec lui.
+ * profil, facultative, est rangée à plat sur le disque privé des photos (avatarDisk()), sous
+ * `avatars/{id}-{aléatoire}.webp` (`avatar_path`, '' sans photo), et supprimée avec lui.
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -64,6 +65,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Disque privé des photos de profil, nommé par `filesystems.avatar_disk` (variable `AVATAR_DISK`) :
+     * `local` sur un serveur, le disque d'un bucket privé sur Laravel Cloud.
+     */
+    public static function avatarDisk(): FilesystemAdapter
+    {
+        return Storage::disk(config('filesystems.avatar_disk'));
+    }
+
+    /**
      * Supprime les fichiers de photo de l'utilisateur, retrouvés par leur préfixe `avatars/{id}-` : sa
      * photo, et tout orphelin d'un envoi interrompu entre l'écriture du fichier et son enregistrement
      * en base. Le tiret du préfixe distingue l'utilisateur 1 de l'utilisateur 12.
@@ -74,7 +84,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function deleteAvatarFiles(string $except = ''): void
     {
-        $disk = Storage::disk('local');
+        $disk = self::avatarDisk();
         $prefix = "avatars/{$this->id}-";
 
         $disk->delete(array_values(array_filter(
