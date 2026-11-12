@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Support\AvatarImage;
 use App\Support\UserDataExport;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -299,4 +300,30 @@ test('the data export holds the photo', function () {
     expect($zip->getFromName('photo.webp'))->toBe(Storage::disk('local')->get($this->user->avatar_path));
     $zip->close();
     unlink($path);
+});
+
+test('the photos go to the disk named by AVATAR_DISK, a bucket on Laravel Cloud', function () {
+    config(['filesystems.avatar_disk' => 'bucket']);
+    $bucket = Storage::fake('bucket');
+
+    $this->put(route('profile.avatar.update'), ['avatar' => avatarFile(halvesImage('png'), 'a.png')])->assertSessionHasNoErrors();
+    $path = $this->user->refresh()->avatar_path;
+
+    expect($bucket->allFiles())->toBe([$path])
+        ->and(Storage::disk('local')->allFiles())->toBeEmpty()
+        ->and($this->get($this->user->avatarUrl())->streamedContent())->toBe($bucket->get($path));
+
+    $this->delete(route('profile.avatar.destroy'));
+
+    expect($bucket->allFiles())->toBeEmpty();
+});
+
+test('a photo the disk fails to write is refused, and not recorded', function () {
+    config(['filesystems.avatar_disk' => 'broken']);
+    Storage::set('broken', Mockery::mock(FilesystemAdapter::class, ['put' => false]));
+
+    $this->put(route('profile.avatar.update'), ['avatar' => avatarFile(halvesImage('png'), 'a.png')])
+        ->assertSessionHasErrors(['avatar' => "La photo n'a pas pu être enregistrée. Réessayez plus tard."]);
+
+    expect($this->user->refresh()->avatar_path)->toBe('');
 });

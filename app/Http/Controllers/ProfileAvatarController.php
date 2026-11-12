@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileAvatarRequest;
+use App\Models\User;
 use App\Support\AvatarImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -16,8 +16,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Photo de profil de l'utilisateur connecté : affichage, envoi et retrait.
  *
- * La photo, normalisée par App\Support\AvatarImage, est rangée à plat sur le disque privé `local`,
- * sous `avatars/{id}-{40 caractères aléatoires}.webp`. Elle ne se sert que par `show`, qui ne prend
+ * La photo, normalisée par App\Support\AvatarImage, est rangée à plat sur le disque privé des photos
+ * (User::avatarDisk()), sous `avatars/{id}-{40 caractères aléatoires}.webp`. Elle ne se sert que par `show`, qui ne prend
  * aucun identifiant : chacun n'atteint que la sienne. Remplacement et retrait suppriment aussi les
  * orphelins de l'utilisateur (User::deleteAvatarFiles()).
  */
@@ -33,9 +33,11 @@ class ProfileAvatarController extends Controller
     {
         $path = $request->user()->avatar_path;
 
-        abort_if($path === '' || ! Storage::disk('local')->exists($path), 404);
+        $disk = User::avatarDisk();
 
-        return Storage::disk('local')->response($path, 'photo.webp', [
+        abort_if($path === '' || ! $disk->exists($path), 404);
+
+        return $disk->response($path, 'photo.webp', [
             'Content-Type' => 'image/webp',
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, max-age=31536000, immutable',
@@ -58,7 +60,11 @@ class ProfileAvatarController extends Controller
         $user = $request->user();
         $path = "avatars/{$user->id}-".Str::random(40).'.webp';
 
-        Storage::disk('local')->put($path, $webp);
+        // Un disque à `throw` faux, comme celui d'un bucket Laravel Cloud, signale l'échec par false.
+        if (! User::avatarDisk()->put($path, $webp)) {
+            throw ValidationException::withMessages(['avatar' => "La photo n'a pas pu être enregistrée. Réessayez plus tard."]);
+        }
+
         $user->forceFill(['avatar_path' => $path])->save();
         $user->deleteAvatarFiles(except: $path);
 

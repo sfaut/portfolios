@@ -17,6 +17,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Avatar Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disque privé des photos de profil, lu par User::avatarDisk() : `local`
+    | sur un serveur, le disque d'un bucket privé sur Laravel Cloud, sous le
+    | nom donné à sa création. Aucune photo n'y est publique : elles ne se
+    | servent que par la route `profile.avatar`.
+    |
+    */
+
+    'avatar_disk' => env('AVATAR_DISK', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

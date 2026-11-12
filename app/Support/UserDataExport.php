@@ -4,7 +4,6 @@ namespace App\Support;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use ZipArchive;
 
@@ -86,7 +85,7 @@ class UserDataExport
             $zip->addFromString($name, $content);
         }
 
-        $avatar = $this->user->avatar_path === '' ? null : Storage::disk('local')->get($this->user->avatar_path);
+        $avatar = $this->user->avatar_path === '' ? null : User::avatarDisk()->get($this->user->avatar_path);
 
         if ($avatar !== null) {
             $zip->addFromString('photo.webp', $avatar);

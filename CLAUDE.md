@@ -252,8 +252,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `App\Support\AvatarImage` décode toute photo reçue par GD, applique l'orientation EXIF, recadre
   au centre et réencode en WebP sans perte de 512 × 512 (le navigateur envoie un PNG) : aucune
   métadonnée ni contenu glissé ne passe. Le fichier
-  va sur le disque privé `local` (`avatars/{id}-{aléatoire}.webp`, à plat, colonne `users.avatar_path`, ''
-  sans photo) ; l'ancien est supprimé au remplacement, au retrait et avec l'utilisateur
+  va sur le disque privé des photos, `User::avatarDisk()` (`avatars/{id}-{aléatoire}.webp`, à plat,
+  colonne `users.avatar_path`, '' sans photo), nommé par `AVATAR_DISK` (`filesystems.avatar_disk`) :
+  `local` sur un serveur, celui d'un bucket privé sur Laravel Cloud, configuré par Cloud
+  (`LARAVEL_CLOUD_DISK_CONFIG`, avec `throw` faux : un envoi vérifie le retour de `put()`). L'ancien est supprimé au remplacement, au retrait et avec l'utilisateur
   (`User::booted()`). `profile.avatar` le sert au seul utilisateur connecté, sans identifiant dans
   l'adresse, versionné par `?v=` et gardé un an dans le cache privé du navigateur. L'envoi demande
   une adresse vérifiée ; il est limité par `throttle:avatar`.
