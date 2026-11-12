@@ -58,6 +58,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   met en cache la configuration, les routes, les vues et, par blade-icons, les icônes (`icons:cache`,
   sans quoi chaque rendu relit les SVG sur le disque). Une migration doit rester compatible avec la
   version précédente, qui peut revenir par `deploy.sh` sur le schéma migré.
+- Production (Laravel Cloud) : README, section « Déploiement sur Laravel Cloud ». L'environnement suit
+  `master`, sans push to deploy ; `bin/deploy-laravel-cloud.sh vX.Y.Z`, lancé depuis un clone, vérifie
+  le tag (commit sur `origin/master`, release avec son archive), puis appelle le deploy hook avec le
+  commit du tag (`commit_hash`). L'adresse du hook est lue dans le `.env` du clone
+  (`LARAVEL_CLOUD_DEPLOY_HOOK`, vide dans `.env.model-dev`), jamais par l'application. Les photos y
+  vont dans un bucket privé (`AVATAR_DISK`).
 - Sauvegarde : `php artisan db:dump` (`App\Console\Commands\DumpDatabase`) écrit sur la sortie standard
   une copie complète de la base MySQL par `mysqldump` (routines, déclencheurs, événements, `DROP` puis
   `CREATE DATABASE`). Les accès lui passent par un fichier d'options temporaire, jamais par la ligne de
