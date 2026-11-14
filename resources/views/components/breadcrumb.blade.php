@@ -5,7 +5,9 @@
 {{--
     Fil d'Ariane d'une page, au-dessus de son titre (<x-page-header>, qui le compose) : les pages
     qui mènent à elle depuis la liste des portfolios (« Portfolios › Famille › Comptes »), la page
-    elle-même exclue, puisque le titre la nomme. Les liens sont séparés par un chevron, masqué aux
+    elle-même exclue, puisque le titre la nomme. Sur la liste des portfolios, racine du fil, le seul
+    lien est la page elle-même : un lien vers l'adresse courante porte aria-current="page" et
+    s'écrit comme un texte, sans soulignement. Les liens sont séparés par un chevron, masqué aux
     lecteurs d'écran, qui annoncent une liste.
 
     <x-breadcrumb :links="[route('portfolio.show', $portfolio) => 'Comptes', route('account.show', $account) => $account->name]"/>
@@ -20,7 +22,11 @@
                 @unless ($loop->first)
                     <x-lucide-chevron-right class="size-3.5 shrink-0" aria-hidden="true"/>
                 @endunless
-                <a href="{{ $url }}" class="truncate text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $text }}</a>
+                @if ($url === url()->current())
+                    <a href="{{ $url }}" aria-current="page" class="truncate text-gray-700 dark:text-gray-300">{{ $text }}</a>
+                @else
+                    <a href="{{ $url }}" class="truncate text-indigo-700 dark:text-indigo-400 underline hover:no-underline">{{ $text }}</a>
+                @endif
             </li>
         @endforeach
     </ol>

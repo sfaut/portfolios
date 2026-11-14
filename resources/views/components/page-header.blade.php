@@ -16,7 +16,7 @@
         <x-slot:actions>…</x-slot:actions>
     </x-page-header>
 
-    @var array<string, string> $trail Fil d'Ariane complet (<x-breadcrumb>), vide sur la liste des portfolios.
+    @var array<string, string> $trail Fil d'Ariane complet (<x-breadcrumb>), jamais vide.
     @var \Illuminate\View\ComponentSlot $slot Titre de la page, dans le <h2>.
     @var \Illuminate\View\ComponentSlot|null $description Description de la page, sous le titre.
     @var \Illuminate\View\ComponentSlot|null $actions Actions de la page, à droite.

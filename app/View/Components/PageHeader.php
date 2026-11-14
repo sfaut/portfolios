@@ -11,8 +11,9 @@ use Illuminate\View\Component;
  *
  * Le fil part toujours de la liste des portfolios, puis passe par le portfolio de la page, qui mène
  * à son tableau de bord, avant les liens que la page donne elle-même, de sa section à sa page
- * parente. La page n'y figure jamais : la liste des portfolios n'a donc pas de fil, et le tableau de
- * bord n'a que la liste des portfolios.
+ * parente. La page n'y figure pas, puisque son titre la nomme : le tableau de bord n'a que la liste
+ * des portfolios. Seule la liste des portfolios, racine du fil, s'y trouve, en page courante, pour
+ * que toute page ait son fil.
  */
 class PageHeader extends Component
 {
@@ -32,18 +33,11 @@ class PageHeader extends Component
     public function __construct(array $breadcrumb = [])
     {
         $route = request()->route();
-
-        if ($route?->named('portfolio.index')) {
-            $this->trail = [];
-
-            return;
-        }
-
         $portfolio = PortfolioContext::fromRoute($route)->portfolio;
 
         $this->trail = [
             route('portfolio.index') => 'Portfolios',
-            ...($portfolio === null || $route->named('portfolio.dashboard')
+            ...($portfolio === null || $route?->named('portfolio.dashboard')
                 ? []
                 : [route('portfolio.dashboard', $portfolio) => $portfolio->name]),
             ...$breadcrumb,
