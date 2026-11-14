@@ -20,7 +20,7 @@
     <x-slot name="header">
         <x-page-header>
             Comptes
-            <x-slot:status>{{ trans_choice('{0,1} :count compte enregistré|[2,*] :count comptes enregistrés', count($portfolio->accounts), ['count' => Number::format(count($portfolio->accounts), locale: 'fr')]) }}</x-slot:status>
+            <x-slot:description>{{ trans_choice("{0} Le portfolio n'a pas encore de compte actif.|{1} Le seul compte actif du portfolio, avec son solde et la période de ses opérations.|[2,*] Les :count comptes actifs du portfolio, avec leur solde et la période de leurs opérations.", count($portfolio->accounts), ['count' => Number::format(count($portfolio->accounts), locale: 'fr')]) }}</x-slot:description>
             <x-slot:actions>
                 <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
             </x-slot:actions>

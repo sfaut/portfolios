@@ -261,13 +261,13 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
   Sections : tableau de bord ; comptes (liste, compte, opération) ; grand livre ; axes analytiques ; aucune sur la
   modification du portfolio. Hors d'un portfolio (liste, création, profil), la barre n'a que le logo
-  et le menu. Tout bandeau passe par `<x-page-header :breadcrumb>` (slots `status` et `actions`),
+  et le menu. Tout bandeau passe par `<x-page-header :breadcrumb>` (slots `description` et `actions`),
   en trois rangs qui gardent chacun leur rôle, un rang vide étant omis. Au-dessus du titre, le fil
   d'Ariane (`<x-breadcrumb :links="[url => texte]">`) mène de la section à la page parente
   (« Comptes › Compte courant »), absent sur les pages de premier niveau. Le titre nomme la page,
-  jamais le portfolio, que montre la barre. Sous le titre, le statut dit en une ligne grise l'état
-  des données affichées (« 7 comptes enregistrés », « Au 14 novembre 2026 »), par `trans_choice`
-  pour les nombres ; les formulaires et le profil n'en ont pas. À droite viennent les actions qui
+  jamais le portfolio, que montre la barre. Sous le titre, la description dit en une phrase grise ce que
+  montre la page (« Les 7 comptes actifs du portfolio, avec leur solde et la période de leurs
+  opérations. »), par `trans_choice` pour les nombres ; les formulaires et le profil n'en ont pas. À droite viennent les actions qui
   portent sur toute la page (créer, modifier, actualiser), le secondaire avant le principal, qui
   finit au bord droit ; une action qui sert un jeu de données (export, « Tout », pagination) reste
   à côté de lui, dans le corps. Une nouvelle page d'un portfolio entre dans `PortfolioContext`
@@ -332,7 +332,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   tous, identifiant étranger au portfolio ignoré), qui valent pour toute la page, chiffres clefs
   compris, et la période. Le composant Alpine `dashboardFilters` recharge la page dès que la période
   change, et quand la sélection des comptes a changé à la fermeture de son popover. Puis les chiffres
-  clefs à la date du jour (`SalesFigures`), date que donne le statut du bandeau : comptes actifs, ventes du mois en cours (à date), du mois
+  clefs à la date du jour (`SalesFigures`), date que donne la description du bandeau : comptes actifs, ventes du mois en cours (à date), du mois
   précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`,
   tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
   ventes de la période (`SalesDashboard`), choisie par `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
@@ -410,7 +410,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `page` est absent, en refaisant le flash de session (`reflash()`) pour garder le message. Le bouton
   poussoir « Tout », à côté de la pagination, envoie `all=1` ou `all=0` (formulaire GET) : la
   préférence est gardée en session (`AccountController::SHOW_ALL_OPERATIONS`, pour tous les comptes),
-  puis la page se recharge sans le paramètre. Le statut du bandeau donne le nombre d'opérations du
+  puis la page se recharge sans le paramètre. La description du bandeau donne le nombre d'opérations du
   compte, et « Écrire une opération » y suit « Modifier le compte ». Toutes à la fois, les
   opérations s'affichent sans pagination, et la page s'ouvre sur l'opération modifiée, centrée, ou à défaut au
   bas du tableau.

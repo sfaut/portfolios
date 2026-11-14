@@ -1,15 +1,15 @@
 <?php
 
-test('a page header puts the breadcrumb above the title, the status below it and the actions after', function () {
+test('a page header puts the breadcrumb above the title, the description below it and the actions after', function () {
     $this->blade(
         '<x-page-header :breadcrumb="[\'/comptes\' => \'Comptes\']">Compte courant'
-        .'<x-slot:status>24 opérations enregistrées</x-slot:status>'
+        .'<x-slot:description>Les 24 opérations du compte.</x-slot:description>'
         .'<x-slot:actions><a href="/modifier">Modifier le compte</a></x-slot:actions>'
         .'</x-page-header>'
     )->assertSeeInOrder([
         "aria-label=\"Fil d'Ariane\"", 'href="/comptes"', 'Comptes',
         '<h2', 'Compte courant', '</h2>',
-        '<p', '24 opérations enregistrées', '</p>',
+        '<p', 'Les 24 opérations du compte.', '</p>',
         'href="/modifier"',
     ], escape: false);
 });

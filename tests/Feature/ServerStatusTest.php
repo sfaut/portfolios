@@ -97,7 +97,7 @@ test('the administrator sees the six sections of the status', function () {
 
     $response
         ->assertOk()
-        ->assertSeeInOrder(['État du serveur', 'Relevé du'])
+        ->assertSeeInOrder(['État du serveur', 'relevé le'])
         ->assertSeeInOrder(['Application', 'PHP', 'Système', 'Base de données', 'File et mails', 'Données'])
         ->assertSee(PHP_VERSION)
         ->assertSee('id="alerts"', escape: false)

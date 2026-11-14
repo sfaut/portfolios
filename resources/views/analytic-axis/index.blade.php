@@ -10,7 +10,7 @@
     <x-slot name="header">
         <x-page-header>
             Axes analytiques
-            <x-slot:status>{{ trans_choice('{0,1} :count axe enregistré|[2,*] :count axes enregistrés', $analytic_axes->count(), ['count' => Number::format($analytic_axes->count(), locale: 'fr')]) }}</x-slot:status>
+            <x-slot:description>Les axes répartissent le montant d'une opération, en pourcentages, depuis son formulaire.</x-slot:description>
             <x-slot:actions>
                 <x-button variant="primary" :href="route('analytic-axis.create', $portfolio)" icon="plus">Créer un axe</x-button>
             </x-slot:actions>
@@ -24,10 +24,6 @@
                 {{ session('message') }}
             </x-alert>
         @endif
-
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-            Les axes répartissent le montant d'une opération, en pourcentages, depuis son formulaire.
-        </p>
 
         @if ($analytic_axes->isEmpty())
             <p class="text-sm">Pas encore d'axe analytique dans ce portfolio.</p>
