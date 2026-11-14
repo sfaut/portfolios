@@ -104,3 +104,16 @@ test('password can be reset with valid token', function () {
         return true;
     });
 });
+
+test('the reset link request names its field in French', function () {
+    $this->post('/forgot-password', ['email' => ''])
+        ->assertSessionHasErrors(['email' => 'Le champ « E-mail » est obligatoire']);
+});
+
+test('the password reset names its fields in French', function () {
+    $this->post('/reset-password', ['token' => 'token', 'email' => '', 'password' => ''])
+        ->assertSessionHasErrors([
+            'email' => 'Le champ « E-mail » est obligatoire',
+            'password' => 'Le champ « Mot de passe » est obligatoire',
+        ]);
+});

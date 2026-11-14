@@ -38,3 +38,13 @@ test('correct password must be provided to update password', function () {
         ->assertSessionHasErrorsIn('updatePassword', 'current_password')
         ->assertRedirect('/profile');
 });
+
+test('the password update names its fields in French', function () {
+    $this->actingAs(User::factory()->create())
+        ->from('/profile')
+        ->put('/password', ['current_password' => '', 'password' => ''])
+        ->assertSessionHasErrorsIn('updatePassword', [
+            'current_password' => 'Le champ « Mot de passe actuel » est obligatoire',
+            'password' => 'Le champ « Nouveau mot de passe » est obligatoire',
+        ]);
+});

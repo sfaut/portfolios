@@ -182,3 +182,10 @@ test('the correct password must be provided to delete the account', function () 
 
     $this->assertModelExists($user);
 });
+
+test('the account deletion names its field in French', function () {
+    $this->actingAs(User::factory()->create())
+        ->from('/profile')
+        ->delete('/profile', ['password' => ''])
+        ->assertSessionHasErrorsIn('userDeletion', ['password' => 'Le champ « Mot de passe » est obligatoire']);
+});
