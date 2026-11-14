@@ -2,7 +2,8 @@
     Barre de navigation : le logo, qui mène à la liste des portfolios, puis, dans un portfolio, le
     sélecteur de portfolio et la navigation entre ses sections (<x-portfolio-nav>), toujours à la même
     place, et le menu de l'utilisateur (profil, thème, déconnexion). Sur un écran étroit, sélecteur et
-    navigation passent sur une seconde ligne, en pleine largeur. La barre a la même largeur sur toutes
+    navigation passent sur une seconde ligne, en pleine largeur, tant que la barre ne tient pas sur une
+    seule (sous xl), l'un sous l'autre sur un téléphone, côte à côte au-delà de md. La barre a la même largeur sur toutes
     les pages, celle de la plus large (AppLayout::WIDE_CONTAINER, le Grand livre).
 
     Variables passées par le composeur de AppServiceProvider (App\Support\PortfolioContext) :
@@ -14,14 +15,14 @@
 <nav aria-label="Navigation principale" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
 
     <div class="{{ \App\View\Components\AppLayout::WIDE_CONTAINER }}">
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 py-2 sm:h-14 sm:py-0">
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 py-2 xl:h-14 xl:py-0">
             <a href="{{ route('portfolio.index') }}" class="order-1 shrink-0 rounded-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500">
                 <x-application-logo class="block h-8 w-auto text-indigo-800 dark:text-gray-200"/>
             </a>
 
             @if ($current_portfolio !== null)
-                <div class="order-3 sm:order-2 flex w-full sm:w-auto flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                    <div class="w-full sm:w-52">
+                <div class="order-3 xl:order-2 flex w-full xl:w-auto flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                    <div class="w-full md:w-52 md:shrink-0">
                         <x-dropdown align="left" width="w-64">
                             <x-slot name="trigger">
                                 <button
@@ -64,7 +65,7 @@
                 </div>
             @endif
 
-            <div class="order-2 sm:order-3 ml-auto flex items-center gap-3">
+            <div class="order-2 xl:order-3 ml-auto flex items-center gap-3">
                 {{-- Thème, enregistré sur le profil par le store theme (resources/js/theme.js). --}}
                 <x-switch
                     label="Thème"
