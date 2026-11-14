@@ -117,7 +117,7 @@ test('the ledger is a wide page, its bar and its header at the width of its cont
     $html = (string) ledger()->assertOk()->getContent();
 
     expect(substr_count($html, AppLayout::WIDE_CONTAINER))->toBe(3)
-        ->and(substr_count((string) $this->get(route('portfolio.dashboard', $this->portfolio))->getContent(), AppLayout::WIDE_CONTAINER))->toBe(0);
+        ->and(substr_count((string) $this->get(route('portfolio.dashboard', $this->portfolio))->getContent(), AppLayout::WIDE_CONTAINER))->toBe(1);
 });
 
 test('the ledger shows the identifier of each operation', function () {

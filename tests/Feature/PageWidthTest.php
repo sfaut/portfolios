@@ -14,11 +14,14 @@ beforeEach(function () {
     $this->actingAs($this->user)->withSession(['auth.password_confirmed_at' => time()]);
 });
 
-test('every page shares the width and the margins of the bar and the header', function (Closure $url) {
+test('every page shares the width of the header, under a bar as wide as the ledger', function (Closure $url) {
     $html = (string) $this->get($url->call($this))->assertOk()->getContent();
 
-    expect(substr_count($html, AppLayout::CONTAINER))->toBe(3)
-        ->and($html)->not->toContain(AppLayout::WIDE_CONTAINER);
+    preg_match('/<nav aria-label="Navigation principale".*?<\/nav>/s', $html, $bar);
+
+    expect(substr_count($html, AppLayout::CONTAINER))->toBe(2)
+        ->and(substr_count($html, AppLayout::WIDE_CONTAINER))->toBe(1)
+        ->and($bar[0])->toContain(AppLayout::WIDE_CONTAINER);
 })->with([
     'portfolios' => [fn () => route('portfolio.index')],
     'dashboard' => [fn () => route('portfolio.dashboard', $this->portfolio)],

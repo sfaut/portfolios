@@ -2,9 +2,8 @@
     Barre de navigation : le logo, qui mène à la liste des portfolios, puis, dans un portfolio, le
     sélecteur de portfolio et la navigation entre ses sections (<x-portfolio-nav>), toujours à la même
     place, et le menu de l'utilisateur (profil, thème, déconnexion). Sur un écran étroit, sélecteur et
-    navigation passent sur une seconde ligne, en pleine largeur.
-
-    @var string $container Classes du conteneur de la page (AppLayout::container()), partagé avec le bandeau et le contenu.
+    navigation passent sur une seconde ligne, en pleine largeur. La barre a la même largeur sur toutes
+    les pages, celle de la plus large (AppLayout::WIDE_CONTAINER, le Grand livre).
 
     Variables passées par le composeur de AppServiceProvider (App\Support\PortfolioContext) :
 
@@ -14,7 +13,7 @@
 --}}
 <nav aria-label="Navigation principale" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
 
-    <div class="{{ $container }}">
+    <div class="{{ \App\View\Components\AppLayout::WIDE_CONTAINER }}">
         <div class="flex flex-wrap items-center gap-x-6 gap-y-2 py-2 sm:h-14 sm:py-0">
             <a href="{{ route('portfolio.index') }}" class="order-1 shrink-0 rounded-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500">
                 <x-application-logo class="block h-8 w-auto text-indigo-800 dark:text-gray-200"/>
