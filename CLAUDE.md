@@ -345,7 +345,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   JavaScript, le formulaire recharge la page filtrée.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
-  effective, libellé, montant, axes et pointage. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  effective, libellé, montant, axes et pointage. La page occupe toute la largeur de l'écran (la barre
+  et le bandeau restent à `max-w-7xl`), et la colonne des axes écrit chaque ligne analytique, sans
+  infobulle : pastille, part et montant (`AnalyticLine::amountShare()`), en colonnes de largeur fixe
+  alignées d'une opération à l'autre. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
   des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
