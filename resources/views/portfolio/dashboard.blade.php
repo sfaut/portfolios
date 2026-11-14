@@ -1,7 +1,7 @@
 {{--
-    Tableau de bord d'un portfolio, sa page d'accueil : chiffres clefs à la date du jour, puis ventes de
-    la période choisie dans le bandeau (ventes par mois comparées à un an plus tôt et leur cumul,
-    répartition analytique).
+    Tableau de bord d'un portfolio, sa page d'accueil : la barre de filtres (période), les chiffres
+    clefs à la date du jour, puis les ventes de la période (ventes par mois comparées à un an plus tôt
+    et leur cumul, répartition analytique). La page se recharge à chaque changement de période.
 
     Une vente est une opération de montant négatif, affichée en valeur positive (App\Support\PortfolioSales).
 
@@ -22,17 +22,20 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <h2 class="text-xl font-semibold">Tableau de bord</h2>
+        <h2 class="text-xl font-semibold">Tableau de bord</h2>
+    </x-slot>
 
-            @if ($period !== null)
-                <form
-                    method="get"
-                    action="{{ route('portfolio.dashboard', $portfolio) }}"
-                    x-data="{ period: @js($period) }"
-                    x-init="$watch('period', () => $nextTick(() => $el.requestSubmit()))"
-                    class="flex items-center gap-2"
-                >
+    <div class="flex flex-col gap-6">
+
+        @if ($period !== null)
+            <x-filter-bar
+                method="get"
+                action="{{ route('portfolio.dashboard', $portfolio) }}"
+                aria-label="Filtres du tableau de bord"
+                x-data="{ period: {{ \Illuminate\Support\Js::from($period) }} }"
+                x-init="$watch('period', () => $nextTick(() => $el.requestSubmit()))"
+            >
+                <x-filter-field label="Période">
                     <x-month-picker
                         name="period"
                         label="Période"
@@ -42,15 +45,15 @@
                         placeholder="Période par défaut"
                         x-model="period"
                     />
-                    <noscript>
-                        <button type="submit" class="text-sm text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Afficher</button>
-                    </noscript>
-                </form>
-            @endif
-        </div>
-    </x-slot>
+                </x-filter-field>
 
-    <div class="flex flex-col gap-6">
+                <x-slot:status>
+                    <noscript>
+                        <x-button variant="primary" type="submit">Afficher</x-button>
+                    </noscript>
+                </x-slot:status>
+            </x-filter-bar>
+        @endif
 
         <section aria-labelledby="figures-date" class="flex flex-col gap-2">
             <h3 id="figures-date" class="text-sm text-gray-500 dark:text-gray-400">Au {{ $today->translatedFormat('j F Y') }}</h3>
