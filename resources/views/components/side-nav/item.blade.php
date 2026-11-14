@@ -28,9 +28,9 @@
                 '-mb-px', 'border-b-2', 'lg:mb-0', 'lg:-ml-px', 'lg:border-b-0', 'lg:border-l-2', 'border-transparent',
                 'text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white',
                 'hover:border-gray-300', 'dark:hover:border-gray-500',
-                '[&[aria-current]]:border-indigo-500', 'dark:[&[aria-current]]:border-indigo-400',
-                '[&[aria-current]]:font-semibold',
-                '[&[aria-current]]:text-gray-900', 'dark:[&[aria-current]]:text-white',
+                'aria-[current]:border-indigo-500', 'dark:aria-[current]:border-indigo-400',
+                'aria-[current]:font-semibold',
+                'aria-[current]:text-gray-900', 'dark:aria-[current]:text-white',
                 'focus:outline-hidden', 'focus-visible:ring-2', 'focus-visible:ring-indigo-500',
             ])
         }}

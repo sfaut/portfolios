@@ -96,7 +96,7 @@
             '[position-area:bottom_span-right]', '[position-try-fallbacks:flip-block,flip-inline,flip-block_flip-inline]',
             'inset-auto', 'm-0', 'my-1',
             'w-72' => $mode !== 'range',
-            'w-[calc(100vw-2rem)] sm:w-[34rem]' => $mode === 'range',
+            'w-[calc(100vw-2rem)] sm:w-136' => $mode === 'range',
             'open:flex', 'flex-col', 'gap-3',
             'rounded-md', 'border-0', 'bg-white', 'dark:bg-gray-800', 'p-3', 'shadow-lg',
             'ring-1', 'ring-gray-200', 'dark:ring-gray-700',

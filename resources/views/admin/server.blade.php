@@ -72,7 +72,7 @@
                                 <dd class="flex min-w-0 flex-col gap-1.5 text-sm tabular-nums">
                                     <span
                                         @class([
-                                            'flex', 'items-start', 'gap-1.5', 'break-words',
+                                            'flex', 'items-start', 'gap-1.5', 'wrap-break-word',
                                             'text-gray-900 dark:text-gray-100' => $item->level === 'ok',
                                             'font-medium text-amber-700 dark:text-amber-400' => $item->level === 'warning',
                                             'font-medium text-red-700 dark:text-red-400' => $item->level === 'danger',

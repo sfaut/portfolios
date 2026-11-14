@@ -52,7 +52,7 @@
                             </span>
                         @endforeach
 
-                        <p class="min-w-0 flex-1 leading-5 break-words" x-text="toast.message"></p>
+                        <p class="min-w-0 flex-1 leading-5 wrap-break-word" x-text="toast.message"></p>
 
                         <template x-if="toast.action">
                             <button
@@ -95,7 +95,7 @@
             class="fixed right-4 bottom-4 left-4 z-50 flex items-start gap-3 rounded-md bg-gray-950 px-4 py-3 text-sm text-gray-100 shadow-lg sm:left-auto sm:w-96 dark:ring-1 dark:ring-gray-700"
         >
             <x-dynamic-component :component="$types[$flash['type']]['icon']" @class(['size-5', 'shrink-0', $types[$flash['type']]['color']]) aria-hidden="true"/>
-            <p class="min-w-0 flex-1 leading-5 break-words">{{ $flash['message'] }}</p>
+            <p class="min-w-0 flex-1 leading-5 wrap-break-word">{{ $flash['message'] }}</p>
         </div>
     </noscript>
 @endif
