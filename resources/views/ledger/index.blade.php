@@ -23,7 +23,7 @@
     <x-slot name="header">
         <x-page-header>
             Grand livre
-            <x-slot:description>{{ trans_choice("{0} Le grand livre réunit les opérations de tous les comptes du portfolio, archivés compris.|{1} La seule opération du portfolio, tous comptes confondus, archivés compris.|[2,*] Les :count opérations du portfolio, tous comptes confondus, archivés compris.", $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Toutes les opérations du portfolio, tous comptes confondus, à filtrer, trier et exporter.</x-slot:description>
         </x-page-header>
     </x-slot>
 
@@ -184,37 +184,17 @@
                     <input type="hidden" form="ledger-filters" name="dir" value="{{ $filters->direction }}">
                 @endunless
 
-                <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-                    <dl role="status" class="flex flex-wrap gap-x-10 gap-y-2">
-                        <div class="flex flex-col">
-                            <dt class="text-xs text-gray-500 dark:text-gray-400">Opérations</dt>
-                            <dd class="text-lg font-semibold tabular-nums">
-                                {{ Number::format($totals['count'], locale: 'fr') }}
-                                @if ($filters->isFiltered())
-                                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400">sur {{ Number::format($operation_count, locale: 'fr') }}</span>
-                                @endif
-                            </dd>
-                        </div>
-                        <div class="flex flex-col">
-                            <dt class="text-xs text-gray-500 dark:text-gray-400">Ventes</dt>
-                            <dd class="text-lg font-semibold tabular-nums">{{ Number::amount($totals['sales'], currency: 'EUR') }}</dd>
-                        </div>
-                        <div class="flex flex-col">
-                            <dt class="text-xs text-gray-500 dark:text-gray-400">Paiements</dt>
-                            <dd class="text-lg font-semibold tabular-nums">{{ Number::amount($totals['payments'], currency: 'EUR') }}</dd>
-                        </div>
-                        <div class="flex flex-col">
-                            <dt class="text-xs text-gray-500 dark:text-gray-400">Solde</dt>
-                            <dd @class([
-                                'text-lg font-semibold tabular-nums',
-                                'text-red-700 dark:text-red-400' => $totals['balance'] < 0,
-                                'text-emerald-700 dark:text-emerald-400' => $totals['balance'] == 0,
-                                'text-blue-700 dark:text-blue-400' => $totals['balance'] > 0,
-                            ])>{{ Number::amount($totals['balance'], signed: true, currency: 'EUR') }}</dd>
-                        </div>
-                    </dl>
+                <x-summary>
+                    <x-summary.item label="Opérations" :of="$filters->isFiltered() ? $operation_count : null">{{ Number::format($totals['count'], locale: 'fr') }}</x-summary.item>
+                    <x-summary.item label="Ventes">{{ Number::amount($totals['sales'], currency: 'EUR') }}</x-summary.item>
+                    <x-summary.item label="Paiements">{{ Number::amount($totals['payments'], currency: 'EUR') }}</x-summary.item>
+                    <x-summary.item label="Solde" :class="\Illuminate\Support\Arr::toCssClasses([
+                        'text-red-700 dark:text-red-400' => $totals['balance'] < 0,
+                        'text-emerald-700 dark:text-emerald-400' => $totals['balance'] == 0,
+                        'text-blue-700 dark:text-blue-400' => $totals['balance'] > 0,
+                    ])">{{ Number::amount($totals['balance'], signed: true, currency: 'EUR') }}</x-summary.item>
 
-                    <div class="flex items-center gap-3">
+                    <x-slot:tools>
                         @if ($totals['count'] > 0)
                             <x-button :href="route('ledger.export', ['portfolio' => $portfolio, ...$filters->query()])" icon="download">
                                 Exporter en CSV
@@ -224,8 +204,8 @@
                         @unless ($show_all)
                             {{ $operations->links('pagination.narrow') }}
                         @endunless
-                    </div>
-                </div>
+                    </x-slot:tools>
+                </x-summary>
 
                 <div class="overflow-x-auto rounded-md shadow-sm">
                     <table class="w-full **:border-gray-200 dark:**:border-gray-700">

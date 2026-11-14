@@ -5,7 +5,7 @@
     @var string $avatar_accept Types MIME acceptés pour la photo.
     @var string $avatar_formats Formats et poids acceptés pour la photo.
 --}}
-<x-profile-layout title="Profil" current="profile.edit">
+<x-profile-layout title="Profil" description="Votre photo, votre nom et votre adresse électronique." current="profile.edit">
     @include('profile.partials.update-avatar-form')
 
     @include('profile.partials.update-profile-information-form')

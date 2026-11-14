@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header :breadcrumb="[route('portfolio.show', $portfolio) => 'Comptes']">Création de compte</x-page-header>
+        <x-page-header :breadcrumb="[route('portfolio.show', $portfolio) => 'Comptes']">
+            Création de compte
+            <x-slot:description>Un compte regroupe des opérations datées, et peut proposer une répartition analytique par défaut.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

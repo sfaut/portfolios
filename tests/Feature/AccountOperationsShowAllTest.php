@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Number;
 
 beforeEach(function () {
     Mail::fake();
@@ -24,13 +25,16 @@ test('the operations of an account are paginated by default, from the last page'
     $this->actingAs($this->user)->get(route('account.show', $this->account))
         ->assertRedirect(route('account.show', [$this->account, 'page' => 2]));
 
-    $this->actingAs($this->user)->get(route('account.show', [$this->account, 'page' => 2]))
-        ->assertOk()
+    $response = $this->actingAs($this->user)->get(route('account.show', [$this->account, 'page' => 2]));
+
+    $response->assertOk()
         ->assertSee('Page 2')
-        ->assertSeeInOrder(['<header', 'Les 25 opérations du compte, avec leur solde cumulé.', '</header>'], escape: false)
         ->assertSee('Operation 25')
         ->assertDontSee('Operation 05')
         ->assertSeeInOrder(['name="all"', 'value="1"', 'aria-pressed="false"', '>Tout</button>'], escape: false);
+
+    expect(summaryFigures($response->getContent()))
+        ->toBe(['Opérations' => '25', 'Solde' => Number::amount(-250, signed: true, currency: 'EUR')]);
 });
 
 test('the all button keeps the preference in session and reloads the page without it', function (string $all, bool $show_all) {
@@ -52,7 +56,7 @@ test('all the operations are shown at once while the all button is pressed', fun
 
     $response->assertOk()
         ->assertSeeInOrder(['Operation 01', 'Operation 25'])
-        ->assertSeeInOrder(['<header', 'Les 25 opérations du compte, avec leur solde cumulé.', '</header>'], escape: false)
+        ->assertSeeInOrder(['Opérations</dt>', '25', '</dd>'], escape: false)
         ->assertDontSee('Page 1')
         ->assertSeeInOrder(['name="all"', 'value="0"', 'aria-pressed="true"', '>Tout</button>'], escape: false)
         ->assertSee('scrollIntoView', escape: false);

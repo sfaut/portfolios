@@ -75,19 +75,19 @@ class AccountController extends Controller
         }
 
         $show_all = $request->session()->get(self::SHOW_ALL_OPERATIONS, false) === true;
+        $report = $account->portfolio->accountsReport()->withTrashed()->whereKey($account->id)->sole();
         $query = $account->operationsReport()->with([
             'analyticLines' => fn (HasMany $lines) => $lines->inDisplayOrder(),
             'analyticLines.analyticAxis',
         ]);
 
         if ($show_all) {
-            $operations = $query->get();
-
             return view('account.show', [
                 'account' => $account,
-                'operations' => $operations,
+                'operations' => $query->get(),
                 'show_all' => true,
-                'operation_count' => $operations->count(),
+                'operation_count' => $report->operation_count,
+                'balance' => $report->operation_balance,
             ]);
         }
 
@@ -106,7 +106,8 @@ class AccountController extends Controller
             'account' => $account,
             'operations' => $operations,
             'show_all' => false,
-            'operation_count' => $operations->total(),
+            'operation_count' => $report->operation_count,
+            'balance' => $report->operation_balance,
         ]);
     }
 

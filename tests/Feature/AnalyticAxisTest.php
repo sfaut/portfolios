@@ -22,6 +22,8 @@ test('the analytic axes of a portfolio are listed, archived ones in their own se
     $response->assertOk()
         ->assertSeeInOrder(['<header', "Les axes répartissent le montant d'une opération", 'href="'.route('analytic-axis.create', $this->portfolio).'"', '</header>'], escape: false)
         ->assertSeeInOrder(['Cours piano', 'Axes archivés', '>1</span>', 'Cours échecs'], escape: false);
+
+    expect(summaryFigures($response->getContent()))->toBe(['Axes' => '1', 'Axes archivés' => '1']);
 });
 
 test('the portfolio page links to its analytic axes', function () {

@@ -20,18 +20,21 @@ test('the search filters active and archived accounts by name, regardless of cas
 
     $response->assertOk()
         ->assertSeeInOrder(['Livret Épargne', 'Comptes archivés', 'Épargne logement'])
-        ->assertSee('2 comptes sur 4')
         ->assertDontSee('Compte courant')
         ->assertDontSee('Remise 100%');
+
+    expect(summaryFigures($response->getContent()))->toBe(['Comptes' => '1 sur 3', 'Comptes archivés' => '1 sur 1']);
 });
 
-test('the search takes the like wildcards literally', function (string $search, string $summary) {
+test('the search takes the like wildcards literally', function (string $search, string $found) {
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', [$this->portfolio, 'search' => $search]));
 
-    $response->assertOk()->assertSee($summary);
+    $response->assertOk();
+
+    expect(summaryFigures($response->getContent()))->toBe(['Comptes' => $found, 'Comptes archivés' => '0 sur 1']);
 })->with([
-    'percent' => ['%', '1 compte sur 4'],
-    'underscore' => ['_', 'Aucun compte sur 4'],
+    'percent' => ['%', '1 sur 3'],
+    'underscore' => ['_', '0 sur 3'],
 ]);
 
 test('a search sent as a list is ignored', function () {
@@ -39,8 +42,9 @@ test('a search sent as a list is ignored', function () {
 
     $response->assertOk()
         ->assertSee('Compte courant')
-        ->assertSee('Livret Épargne')
-        ->assertDontSee('sur 4');
+        ->assertSee('Livret Épargne');
+
+    expect(summaryFigures($response->getContent()))->toBe(['Comptes' => '3', 'Comptes archivés' => '1']);
 });
 
 test('the search opens the archived accounts section when it finds archived accounts', function () {
@@ -58,7 +62,7 @@ test('a search without result says so and hides the account creation card', func
         ->assertSee('Aucun compte ne correspond à « &lt;b&gt;Assurance&lt;/b&gt; ».', escape: false)
         ->assertDontSee('<b>Assurance</b>', escape: false)
         ->assertDontSee('<span>Créer un compte</span>', escape: false)
-        ->assertDontSee('Comptes archivés');
+        ->assertDontSee('aria-controls="archived-accounts"', escape: false);
 });
 
 test('an ajax request receives the accounts fragment alone', function () {
@@ -70,9 +74,10 @@ test('an ajax request receives the accounts fragment alone', function () {
     $response->assertOk()
         ->assertHeader('Vary', 'X-Requested-With')
         ->assertSee('Livret Épargne')
-        ->assertSee('data-summary', escape: false)
         ->assertDontSee('<html', escape: false)
         ->assertDontSee('Rechercher un compte');
+
+    expect(summaryFigures($response->getContent()))->toBe(['Comptes' => '1 sur 3', 'Comptes archivés' => '0 sur 1']);
 });
 
 /**
@@ -97,9 +102,10 @@ test('the month filter keeps the accounts with an operation in the month, archiv
 
     $response->assertOk()
         ->assertSeeInOrder(['Compte courant', 'Comptes archivés', 'Épargne logement'])
-        ->assertSee('2 comptes sur 4')
         ->assertDontSee('Livret Épargne')
         ->assertDontSee('Remise 100%');
+
+    expect(summaryFigures($response->getContent()))->toBe(['Comptes' => '1 sur 3', 'Comptes archivés' => '1 sur 1']);
 });
 
 test('the month filter offers the months of the operations', function () {
@@ -123,7 +129,7 @@ test('a month refused by the month restriction is ignored', function (mixed $mon
     $response->assertOk()
         ->assertSee('Livret Épargne')
         ->assertSee('<span>Créer un compte</span>', escape: false)
-        ->assertDontSee('sur 4');
+        ->assertDontSee('sur 3');
 })->with([
     'without operation' => ['2026-09'],
     'malformed' => ['2026-10-01'],

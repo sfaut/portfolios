@@ -135,13 +135,13 @@ class PortfolioController extends Controller
         $accounts = $portfolio->accountsReport()->with('analyticAxes')->when($filtered, $filter)->get();
         $archived_accounts = $portfolio->accountsReport()->onlyTrashed()->with('analyticAxes')->when($filtered, $filter)->get();
 
-        $summary = '';
+        $account_total = null;
+        $archived_account_total = null;
         $empty_message = '';
 
         if ($filtered) {
-            $summary = trans_choice('portfolio.search.summary', $accounts->count() + $archived_accounts->count(), [
-                'total' => $portfolio->accountsReport()->withTrashed()->count(),
-            ]);
+            $account_total = $portfolio->accountsReport()->count();
+            $archived_account_total = $portfolio->accountsReport()->onlyTrashed()->count();
 
             $empty_message = trans(match (true) {
                 $month === '' => 'portfolio.search.empty.name',
@@ -159,7 +159,8 @@ class PortfolioController extends Controller
             'month' => $month,
             'month_restriction' => $month_restriction,
             'filtered' => $filtered,
-            'summary' => $summary,
+            'account_total' => $account_total,
+            'archived_account_total' => $archived_account_total,
             'empty_message' => $empty_message,
             'accounts' => $accounts,
             'archived_accounts' => $archived_accounts,

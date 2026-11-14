@@ -32,7 +32,7 @@ test('the archived accounts section is hidden without archived account', functio
 
     $response = $this->actingAs($this->owner)->get(route('portfolio.show', $this->portfolio));
 
-    $response->assertOk()->assertDontSee('Comptes archivés');
+    $response->assertOk()->assertDontSee('aria-controls="archived-accounts"', escape: false);
 });
 
 test('the operations of an archived account can be read but not written', function () {

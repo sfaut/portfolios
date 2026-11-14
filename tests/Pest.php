@@ -64,3 +64,24 @@ function editorLines(string $html): array
 
     return json_decode(json_decode("\"{$matches[1]}\""), associative: true)['lines'];
 }
+
+/**
+ * Chiffres d'une page (<x-summary>), par libellé, chaque valeur ramenée à un texte sur une ligne
+ * (« 2 sur 4 »). Seuls les blancs ASCII du gabarit sont réduits : les espaces insécables d'un
+ * montant restent.
+ *
+ * @param  string  $html  Page ou fragment qui contient les chiffres.
+ * @return array<string, string>
+ */
+function summaryFigures(string $html): array
+{
+    preg_match_all('/<dt class="text-xs[^"]*">([^<]*)<\/dt>\s*<dd[^>]*>(.*?)<\/dd>/s', $html, $matches, PREG_SET_ORDER);
+
+    $figures = [];
+
+    foreach ($matches as [, $label, $value]) {
+        $figures[html_entity_decode($label)] = preg_replace('/[ \t\r\n]+/', ' ', trim(html_entity_decode(strip_tags($value))));
+    }
+
+    return $figures;
+}

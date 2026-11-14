@@ -261,19 +261,25 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
   Sections : tableau de bord ; comptes (liste, compte, opération) ; grand livre ; axes analytiques ; aucune sur la
   modification du portfolio. Hors d'un portfolio (liste, création, profil), la barre n'a que le logo
-  et le menu. Tout bandeau passe par `<x-page-header :breadcrumb>` (slots `description` et `actions`),
-  en trois rangs qui gardent chacun leur rôle, un rang vide étant omis. Au-dessus du titre, le fil
-  d'Ariane (`<x-breadcrumb :links="[url => texte]">`) mène de la section à la page parente
-  (« Comptes › Compte courant »), absent sur les pages de premier niveau. Le titre nomme la page,
-  jamais le portfolio, que montre la barre. Sous le titre, la description dit en une phrase grise ce que
-  montre la page (« Les 7 comptes actifs du portfolio, avec leur solde et la période de leurs
-  opérations. »), par `trans_choice` pour les nombres ; les formulaires et le profil n'en ont pas. À droite viennent les actions qui
-  portent sur toute la page (créer, modifier, actualiser), le secondaire avant le principal, qui
-  finit au bord droit ; une action qui sert un jeu de données (export, « Tout », pagination) reste
-  à côté de lui, dans le corps. Une nouvelle page d'un portfolio entre dans `PortfolioContext`
-  (section) et dans `tests/Feature/NavigationTest.php`.
+  et le menu. Tout bandeau passe par `<x-page-header :breadcrumb>` (`App\View\Components\PageHeader`,
+  slots `description` et `actions`), en trois rangs qui gardent chacun leur rôle. Au-dessus du
+  titre, le fil d'Ariane (`<x-breadcrumb>`) part toujours de la liste des portfolios, passe par le
+  portfolio de la page (`PortfolioContext`), qui mène à son tableau de bord, puis suit les liens
+  que la page donne par `:breadcrumb`, de sa section à sa page parente : « Portfolios › Famille ›
+  Comptes » sur un compte. La page elle-même n'y est jamais : la liste des portfolios n'a pas de
+  fil, le tableau de bord n'a que « Portfolios ». Le titre nomme la page, jamais le portfolio, que
+  montre la barre. Sous le titre, toute page a sa description : une phrase grise, écrite en dur,
+  qui dit le rôle de la page en termes généraux, sans chiffre ni date (« Les comptes du portfolio,
+  avec leur solde et la période de leurs opérations. ») ; `NavigationTest` le vérifie. Les chiffres
+  d'une page vont dans le corps, par `<x-summary>`, où ils suivent les filtres. À droite viennent
+  les actions qui portent sur toute la page (créer, modifier, actualiser), le secondaire avant le
+  principal, qui finit au bord droit ; une action qui sert un jeu de données (export, « Tout »,
+  pagination) reste à côté de lui, dans le slot `tools` de `<x-summary>`. Une nouvelle page d'un
+  portfolio entre dans `PortfolioContext` (section) et dans `tests/Feature/NavigationTest.php`.
+  Une page qui passe pour la première fois par un composant de classe demande `php artisan
+  view:clear` en développement : ses vues compilées gardent sinon l'ancien composant.
   Le profil tient en quatre pages, toutes derrière `password.confirm`, dans `<x-profile-layout>` (titre
-  de la page, navigation latérale `<x-side-nav>` dont la page courante porte `aria-current="page"`) :
+  et description de la page, navigation latérale `<x-side-nav>` dont la page courante porte `aria-current="page"`) :
   `profile.edit` (photo, informations), `profile.preferences` (thème), `profile.password`,
   `profile.account` (export des données, puis suppression du compte).
   Photo de profil (`ProfileAvatarController`, `ProfileAvatarRequest`) : JPEG, PNG, GIF, WebP, et AVIF
@@ -335,7 +341,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   filtres » apparaît dès que des comptes sont choisis ou que la période n'est pas celle par défaut
   (`filtered`). Des comptes choisis sans opération gardent la barre, sans la période, et la page
   propose d'effacer les filtres. Puis les chiffres
-  clefs à la date du jour (`SalesFigures`), date que donne la description du bandeau : comptes actifs, ventes du mois en cours (à date), du mois
+  clefs à la date du jour (`SalesFigures`), date que donne leur titre (« Chiffres clefs au 14 novembre 2026 ») : comptes actifs, ventes du mois en cours (à date), du mois
   précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`,
   tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
   ventes de la période (`SalesDashboard`), choisie par `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations des comptes
@@ -367,8 +373,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   passée au composant, et ignore un mois qu'elle refuse (filtre en GET, sans erreur).
   Le composant Alpine `accountSearch` (`resources/js/account-search.js`) interroge la même route après
   300 ms de pause (aussitôt pour le mois), avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
-  fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
-  (« 2 comptes sur 14 ») se place à droite de la barre de filtres ; sans JavaScript, le formulaire
+  fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats et leurs
+  chiffres (`<x-summary>` : comptes et comptes archivés, « sur N » sous un filtre) ; sans JavaScript, le formulaire
   recharge la page filtrée. « Créer un compte » est à droite du bandeau.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
@@ -414,8 +420,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `page` est absent, en refaisant le flash de session (`reflash()`) pour garder le message. Le bouton
   poussoir « Tout », à côté de la pagination, envoie `all=1` ou `all=0` (formulaire GET) : la
   préférence est gardée en session (`AccountController::SHOW_ALL_OPERATIONS`, pour tous les comptes),
-  puis la page se recharge sans le paramètre. La description du bandeau donne le nombre d'opérations du
-  compte, et « Écrire une opération » y suit « Modifier le compte ». Toutes à la fois, les
+  puis la page se recharge sans le paramètre. Les chiffres du compte (opérations, solde, lus sur
+  `AccountReport`) précèdent le tableau, avec « Tout » et la pagination à droite ; « Écrire une
+  opération » suit « Modifier le compte » dans le bandeau. Toutes à la fois, les
   opérations s'affichent sans pagination, et la page s'ouvre sur l'opération modifiée, centrée, ou à défaut au
   bas du tableau.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
@@ -528,7 +535,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `<x-filter-field label="…">` : un petit libellé gris au-dessus du contrôle, `<label for>` avec `for`,
   masqué aux lecteurs d'écran sans (le contrôle porte son nom). La barre est en `text-sm`, que ses
   contrôles héritent, sans prop de taille. Son slot `status`, à droite, reçoit l'état : chargement,
-  erreur, résumé, « Effacer les filtres », bouton d'envoi du `<noscript>`.
+  erreur, « Effacer les filtres », bouton d'envoi du `<noscript>`.
+  Tous les chiffres d'une page passent par `<x-summary>`, en tête de ses données : des
+  `<x-summary.item label="…" :of="…">` (petit libellé gris, valeur en gras, « sur N » quand un
+  filtre réduit la liste, attributs sur la valeur, la couleur d'un solde par exemple), et à droite
+  le slot `tools`. Grand livre, comptes, compte, axes, portfolios et serveur l'utilisent ; le helper
+  de test `summaryFigures()` (`tests/Pest.php`) les lit par libellé.
   Toute colonne triable d'un tableau passe par `<x-sortable-heading column="…" :sort :direction>`
   (`App\View\Components\SortableHeading`) : un `<th>` à `aria-sort` dont le lien pose `sort` et `dir`
   dans l'adresse courante, en gardant ses autres paramètres ; le contrôleur valide les deux valeurs.

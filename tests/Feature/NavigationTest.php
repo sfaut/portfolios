@@ -24,13 +24,24 @@ function currentSection(string $html): ?string
         : null;
 }
 
+/**
+ * Description du bandeau de la page (<x-page-header>), ou null s'il n'y en a pas.
+ */
+function headerDescription(string $html): ?string
+{
+    return preg_match('/<header.*?<h2.*?<\/h2>\s*<p[^>]*>(.*?)<\/p>.*?<\/header>/s', $html, $matches) === 1
+        ? trim(html_entity_decode($matches[1]))
+        : null;
+}
+
 test('every page of a portfolio shows its navigation with the current section', function (string $route, string $model, array $query, ?string $section) {
     $response = $this->get(route($route, [$this->{$model}, ...$query]));
 
     $response->assertOk()
         ->assertSee('aria-label="Pages du portfolio"', escape: false)
         ->assertSee('<span class="sr-only">Portfolio : </span>Famille', escape: false);
-    expect(currentSection($response->getContent()))->toBe($section);
+    expect(currentSection($response->getContent()))->toBe($section)
+        ->and(headerDescription($response->getContent()))->not->toBeNull()->not->toMatch('/\d/');
 })->with([
     ['portfolio.dashboard', 'portfolio', [], 'Tableau de bord'],
     ['portfolio.show', 'portfolio', [], 'Comptes'],
@@ -60,6 +71,7 @@ test('the pages outside a portfolio have no portfolio navigation', function (str
     $response->assertOk()
         ->assertDontSee('aria-label="Pages du portfolio"', escape: false)
         ->assertDontSee('Portfolio : ');
+    expect(headerDescription($response->getContent()))->not->toBeNull()->not->toMatch('/\d/');
 })->with(['portfolio.index', 'portfolio.create', 'profile.edit', 'profile.preferences', 'profile.password', 'profile.account']);
 
 test('the portfolio selector lists the portfolios of the user only, with the actions on portfolios', function () {
@@ -73,11 +85,15 @@ test('the portfolio selector lists the portfolios of the user only, with the act
         ->assertDontSee('Portfolio du voisin');
 });
 
-test('the breadcrumb leads from the section to the parent page', function () {
+test('the breadcrumb leads from the portfolio list, through the portfolio and its section, to the parent page', function () {
     $response = $this->get(route('operation.edit', $this->operation));
 
     $response->assertSeeInOrder([
         '<nav aria-label="Fil d&#039;Ariane"',
+        'href="'.route('portfolio.index').'"',
+        'Portfolios',
+        'href="'.route('portfolio.dashboard', $this->portfolio).'"',
+        'Famille',
         'href="'.route('portfolio.show', $this->portfolio).'"',
         'Comptes',
         'href="'.route('account.show', $this->account).'"',

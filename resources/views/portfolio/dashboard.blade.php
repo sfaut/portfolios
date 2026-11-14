@@ -8,7 +8,7 @@
     Une vente est une opération de montant négatif, affichée en valeur positive (App\Support\PortfolioSales).
 
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
-    @var \Carbon\CarbonImmutable $today Date du tableau de bord, dans la description du bandeau.
+    @var \Carbon\CarbonImmutable $today Date des chiffres clefs.
     @var bool $has_operations Si le portfolio a au moins une opération, sur l'un de ses comptes.
     @var bool $filtered Si des comptes sont choisis ou si la période n'est pas celle par défaut.
     @var int $active_accounts Nombre de comptes actifs.
@@ -30,7 +30,7 @@
     <x-slot name="header">
         <x-page-header>
             Tableau de bord
-            <x-slot:description>Les ventes du portfolio, arrêtées au {{ $today->translatedFormat('j F Y') }}.</x-slot:description>
+            <x-slot:description>Le suivi des ventes du portfolio : chiffres clefs du jour, puis ventes de la période choisie.</x-slot:description>
         </x-page-header>
     </x-slot>
 
@@ -81,8 +81,8 @@
             </x-filter-bar>
         @endif
 
-        <section aria-labelledby="key-figures">
-            <h3 id="key-figures" class="sr-only">Chiffres clefs</h3>
+        <section aria-labelledby="key-figures" class="flex flex-col gap-2">
+            <h3 id="key-figures" class="text-xs text-gray-500 dark:text-gray-400">Chiffres clefs au {{ $today->translatedFormat('j F Y') }}</h3>
             <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-md bg-gray-200 dark:bg-gray-700 shadow-sm">
                 <div class="flex flex-col gap-1 bg-white dark:bg-gray-800 p-5">
                     <dt class="order-2 text-sm text-gray-600 dark:text-gray-300">{{ trans_choice('{0,1} compte actif|[2,*] comptes actifs', $active_accounts) }}</dt>

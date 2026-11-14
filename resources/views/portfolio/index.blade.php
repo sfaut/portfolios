@@ -9,7 +9,7 @@
     <x-slot name="header">
         <x-page-header>
             Portfolios
-            <x-slot:description>{{ trans_choice("{0} Un portfolio regroupe des comptes et leurs opérations.|{1} Votre portfolio regroupe ses comptes et leurs opérations.|[2,*] Vos :count portfolios regroupent chacun des comptes et leurs opérations.", count($portfolios), ['count' => Number::format(count($portfolios), locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Choisissez un portfolio pour suivre ses comptes et ses ventes.</x-slot:description>
         </x-page-header>
     </x-slot>
 
@@ -20,6 +20,10 @@
                 {{ session('message') }}
             </x-alert>
         @endif
+
+        <x-summary>
+            <x-summary.item label="Portfolios">{{ Number::format(count($portfolios), locale: 'fr') }}</x-summary.item>
+        </x-summary>
 
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($portfolios as $portfolio)

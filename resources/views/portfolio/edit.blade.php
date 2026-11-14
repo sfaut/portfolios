@@ -1,7 +1,10 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <x-page-header>Modification du portfolio</x-page-header>
+        <x-page-header>
+            Modification du portfolio
+            <x-slot:description>Le nom et la description du portfolio, puis son archivage.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

@@ -4,9 +4,8 @@
  *
  * Typing shows the spinner at once and, after a short pause, fetches the page with the filters
  * from the server; choosing a month (x-month-picker, bound to "month") fetches it at once. The server answers ajax requests with
- * the "accounts" fragment alone. The fragment replaces the results ($refs.results), and its summary ([data-summary]) goes to the status next
- * to the filters ($refs.summary). The filters are kept in the URL, so that a reload shows them
- * again.
+ * the "accounts" fragment alone, which replaces the results ($refs.results), their figures
+ * (<x-summary>) included. The filters are kept in the URL, so that a reload shows them again.
  *
  * @param {string} search Search given by the server, empty without search.
  * @param {string} month Month given by the server ("2026-11"), empty without month filter.
@@ -65,8 +64,6 @@ export default function accountSearch(search, month) {
                 }
 
                 this.$refs.results.innerHTML = await response.text();
-                this.$refs.summary.textContent =
-                    this.$refs.results.querySelector("[data-summary]")?.textContent ?? "";
                 this.failed = false;
             } catch (error) {
                 if (error.name === "AbortError") {

@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]">Écriture d'une opération</x-page-header>
+        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]">
+            Écriture d'une opération
+            <x-slot:description>Une opération est un montant daté : négatif pour une vente, positif pour un paiement.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

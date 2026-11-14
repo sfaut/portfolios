@@ -8,13 +8,14 @@
         Opérations de la page, ou toutes sans pagination, avec leurs lignes analytiques.
     @var bool $show_all Si toutes les opérations sont affichées, sans pagination.
     @var int $operation_count Nombre d'opérations du compte.
+    @var string $balance Solde du compte, en décimal.
 --}}
 <x-app-layout>
     <x-slot name="header">
         <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes']" class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
             <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
-            <x-slot:description>{{ trans_choice("{0} Le compte n'a pas encore d'opération.|{1} La seule opération du compte, avec son solde.|[2,*] Les :count opérations du compte, avec leur solde cumulé.", $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Les opérations du compte, avec leur solde cumulé, leur répartition analytique et leur pointage.</x-slot:description>
             <x-slot:actions>
                 <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
                 @unless ($account->trashed())
@@ -39,14 +40,23 @@
             </x-alert>
         @endif
 
-        <div class="flex items-center justify-end gap-3">
-            <form method="GET" action="{{ route('account.show', $account) }}">
-                <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
-            </form>
-            @unless ($show_all)
-                {{ $operations->links('pagination.narrow') }}
-            @endunless
-        </div>
+        <x-summary>
+            <x-summary.item label="Opérations">{{ Number::format($operation_count, locale: 'fr') }}</x-summary.item>
+            <x-summary.item label="Solde" :class="\Illuminate\Support\Arr::toCssClasses([
+                'text-red-700 dark:text-red-400' => $balance < 0,
+                'text-emerald-700 dark:text-emerald-400' => $balance == 0,
+                'text-blue-700 dark:text-blue-400' => $balance > 0,
+            ])">{{ Number::amount($balance, signed: true, currency: 'EUR') }}</x-summary.item>
+
+            <x-slot:tools>
+                <form method="GET" action="{{ route('account.show', $account) }}">
+                    <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
+                </form>
+                @unless ($show_all)
+                    {{ $operations->links('pagination.narrow') }}
+                @endunless
+            </x-slot:tools>
+        </x-summary>
 
         <div
             @if ($show_all)

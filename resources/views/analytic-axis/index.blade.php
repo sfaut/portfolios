@@ -25,6 +25,11 @@
             </x-alert>
         @endif
 
+        <x-summary>
+            <x-summary.item label="Axes">{{ Number::format($analytic_axes->count(), locale: 'fr') }}</x-summary.item>
+            <x-summary.item label="Axes archivés">{{ Number::format($archived_analytic_axes->count(), locale: 'fr') }}</x-summary.item>
+        </x-summary>
+
         @if ($analytic_axes->isEmpty())
             <p class="text-sm">Pas encore d'axe analytique dans ce portfolio.</p>
         @endif

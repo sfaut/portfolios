@@ -1,5 +1,6 @@
 @props([
     'title',
+    'description',
     'current',
 ])
 
@@ -8,12 +9,16 @@
     entre les pages du profil et le contenu de la page courante.
 
     @var string $title Titre de la page, dans le bandeau.
+    @var string $description Rôle de la page, sous son titre.
     @var string $current Nom de la route de la page courante (profile.edit, profile.preferences…).
     @var \Illuminate\View\ComponentSlot $slot Contenu de la page : ses cartes.
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header>{{ $title }}</x-page-header>
+        <x-page-header>
+            {{ $title }}
+            <x-slot:description>{{ $description }}</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-5xl mx-auto grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">

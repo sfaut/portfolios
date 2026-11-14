@@ -3,15 +3,16 @@
 
     Deux filtres cumulables réduisent les deux listes (composant Alpine accountSearch) : la recherche
     sur le nom des comptes, et le mois, qui garde les comptes ayant une opération dans ce mois. Le
-    fragment accounts, que le contrôleur renvoie seul aux requêtes ajax, porte les résultats et leur
-    résumé (data-summary), que le composant reporte à droite de la barre de filtres.
+    fragment accounts, que le contrôleur renvoie seul aux requêtes ajax, porte les résultats et leurs
+    chiffres (<x-summary>), « sur N » quand un filtre est actif.
 
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var string $search Recherche sur le nom des comptes, vide sans recherche.
     @var string $month Mois d'opération retenu (« 2026-11 »), vide sans filtre de mois.
     @var \App\Support\MonthRestriction $month_restriction Mois choisissables : ceux où le portfolio a des opérations.
     @var bool $filtered Si un filtre au moins est actif.
-    @var string $summary Nombre de comptes trouvés sur le total du portfolio, vide sans filtre.
+    @var int|null $account_total Nombre de comptes actifs du portfolio, null sans filtre.
+    @var int|null $archived_account_total Nombre de comptes archivés du portfolio, null sans filtre.
     @var string $empty_message Message affiché quand les filtres ne trouvent aucun compte.
     @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $accounts Comptes actifs, filtrés.
     @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountReport> $archived_accounts Comptes archivés, filtrés.
@@ -20,7 +21,7 @@
     <x-slot name="header">
         <x-page-header>
             Comptes
-            <x-slot:description>{{ trans_choice("{0} Le portfolio n'a pas encore de compte actif.|{1} Le seul compte actif du portfolio, avec son solde et la période de ses opérations.|[2,*] Les :count comptes actifs du portfolio, avec leur solde et la période de leurs opérations.", count($portfolio->accounts), ['count' => Number::format(count($portfolio->accounts), locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Les comptes du portfolio, avec leur solde et la période de leurs opérations.</x-slot:description>
             <x-slot:actions>
                 <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
             </x-slot:actions>
@@ -95,12 +96,6 @@
 
             <x-slot:status>
                 <span
-                    x-ref="summary"
-                    x-show="! failed"
-                    role="status"
-                    class="truncate text-gray-500 dark:text-gray-400"
-                >{{ $summary }}</span>
-                <span
                     x-show="failed"
                     style="display: none"
                     role="alert"
@@ -116,7 +111,10 @@
             class="flex flex-col gap-6 transition-opacity duration-150"
         >
             @fragment('accounts')
-                <span data-summary hidden>{{ $summary }}</span>
+                <x-summary>
+                    <x-summary.item label="Comptes" :of="$account_total">{{ Number::format($accounts->count(), locale: 'fr') }}</x-summary.item>
+                    <x-summary.item label="Comptes archivés" :of="$archived_account_total">{{ Number::format($archived_accounts->count(), locale: 'fr') }}</x-summary.item>
+                </x-summary>
 
                 @if ($filtered && $accounts->isEmpty() && $archived_accounts->isEmpty())
                     <div class="flex flex-col items-center gap-4 rounded-md border-2 border-dashed border-gray-300 dark:border-gray-700 p-8 text-center text-gray-500 dark:text-gray-400">
