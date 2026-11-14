@@ -157,6 +157,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   entiers par `OperationRequest::after()`. Une modification d'opération remplace ses lignes. Un axe
   archivé ne se choisit plus, sauf sur une opération qui l'utilise déjà, et reste affiché sur ses
   lignes (`AnalyticLine::analyticAxis()` inclut les archivés).
+  La page des axes (`analytic-axis.index`) les montre en cartes (`analytic-axis/partials/cards`), qui
+  mènent chacune à la modification de l'axe : icône sur une tuile à sa couleur, nom, description,
+  nombre d'opérations réparties et de comptes actifs qui l'ont dans leur répartition par défaut
+  (`AnalyticAxis::accounts()`, sur la table pivot `account_analytic_axis`), puis la carte pointillée
+  de création ; les archivés suivent dans une section repliée.
   Un axe a une icône et une couleur (colonnes `icon` et `color`, défauts `tag` et `indigo`).
   L'icône vient d'une sélection de Lucide, `App\Support\AxisIcons` : thèmes, nom français et
   mots-clefs de recherche de chaque icône, liste blanche de la validation. Une icône s'y ajoute sous
@@ -345,11 +350,14 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   JavaScript, le formulaire recharge la page filtrée.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
-  effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`), et la
-  colonne des axes écrit chaque ligne analytique, sans infobulle, comme l'infobulle de la liste d'un
-  compte : icône colorée et nom, part, montant en gris (`AnalyticLine::amountShare()`), alignés dans
-  la cellule ; un axe seul ne montre que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran étroit, le tableau
-  défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`). Son
+  tableau et celui de la liste d'un compte ont les mêmes colonnes, dans le même ordre : ID, Compte
+  (Grand livre seul), Horodatage écriture, Date effective, Libellé, Montant (€), Axes, Solde (€)
+  (compte seul), Pointée ?, Action. Leur colonne des axes passe par `<x-analytic-breakdown
+  :operation>`, qui écrit chaque ligne analytique, sans infobulle : icône colorée et nom, part,
+  montant en gris (`AnalyticLine::amountShare()`), alignés dans la cellule ; un axe seul ne montre
+  que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran
+  étroit, le tableau défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
   des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
@@ -374,8 +382,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   range sous ce champ, en retrait derrière un filet vertical. Ses données
   (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de
   `OperationController::analyticForm()`, les erreurs de `$errors`, que le composant lit par clef
-  (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
-  opérations réparties, avec le détail par axe dans un `<x-tooltip>` : pourcentage et part du montant
+  (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) écrit le détail par axe
+  comme le Grand livre (`<x-analytic-breakdown>`) : pourcentage et part du montant
   (`AnalyticLine::amountShare()`, même arrondi que le formulaire).
 - `AccountController::show()` pagine les opérations par 20 et redirige vers la dernière page quand
   `page` est absent, en refaisant le flash de session (`reflash()`) pour garder le message. Le bouton
@@ -389,11 +397,19 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`).
-  Barre, bandeau et contenu ont la même largeur, `max-w-7xl` ; une page large (`<x-app-layout wide>`,
-  le Grand livre) les passe ensemble à `AppLayout::WIDE_CONTAINER` (120rem et marges de la barre),
-  que son contenu reprend. Les
+  Barre, bandeau et contenu partagent un même conteneur, donc la même largeur et les mêmes marges :
+  `AppLayout::container()`, soit `AppLayout::CONTAINER` (`max-w-7xl`), soit, pour une page large
+  (`<x-app-layout wide>`, le Grand livre), `AppLayout::WIDE_CONTAINER` (120rem). Le layout le pose
+  lui-même autour du contenu, dans `<main>` : une page ne déclare aucune largeur, sauf une page
+  étroite, centrée dans le conteneur : un formulaire (création, modification) garde une largeur de
+  lecture, `max-w-2xl mx-auto`, et le profil (`x-profile-layout`) `max-w-5xl mx-auto`.
+  `tests/Feature/PageWidthTest.php` le vérifie sur un jeu de pages. Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
-  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). `x-alert type="…"`
+  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). Ces deux liens,
+  `x-primary-button` et `x-secondary-button` prennent une icône Lucide devant leur texte par la prop
+  `icon` : `plus` pour créer (« Créer un compte », bouton d'envoi « Créer »), `pencil` pour ouvrir
+  une modification (« Modifier le compte », et les liens « Modifier » des lignes de tableau, en
+  `size-3.5`), `check` pour l'envoyer (« Modifier », « Enregistrer », « Sauvegarder »). `x-alert type="…"`
   (`info` par défaut, `success`, `warning`, `danger`) tient de sa classe `App\View\Components\Alert` ses
   couleurs, son icône Lucide et son rôle ARIA (`alert` pour `danger`, `status` sinon) ; il garde les
   retours à la ligne du message, sans ses blancs de début et de fin.
@@ -511,8 +527,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
   classe inexistante ni redondante.
 - Espacement : le conteneur porte le `gap`, ses enfants n'ont aucune marge. `<main>` porte le padding
-  de la page (`py-6`) ; chaque page range son contenu dans un conteneur unique
-  (`max-w-* mx-auto flex flex-col gap-6`) ; un champ groupe label, saisie et erreur en
+  de la page (`py-6`) et le conteneur de largeur ; chaque page range son contenu dans un conteneur
+  unique (`flex flex-col gap-6`, `max-w-2xl mx-auto` en plus pour un formulaire) ; un champ groupe label, saisie et erreur en
   `flex flex-col gap-1`. Seuls les décalages de positionnement gardent une marge (panneau absolu de
   `x-dropdown`, centrage `m-auto` de `x-dialog`).
 - Thème clair / sombre / système (`App\Enums\ColorScheme`), choisi par l'interrupteur de la barre du
