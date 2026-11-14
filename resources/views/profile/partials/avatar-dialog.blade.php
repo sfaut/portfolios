@@ -79,8 +79,7 @@
             </div>
 
             <div x-show="mode === 'camera'" class="flex gap-2">
-                <x-primary-button type="button" x-on:click="shoot()" x-bind:disabled="!live" class="grow justify-center gap-2">
-                    <x-lucide-camera class="size-4" aria-hidden="true"/>
+                <x-primary-button type="button" x-on:click="shoot()" x-bind:disabled="!live" icon="camera" class="grow justify-center">
                     Déclencher
                 </x-primary-button>
 

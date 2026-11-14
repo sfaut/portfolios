@@ -50,7 +50,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
         <section aria-labelledby="figures-date" class="flex flex-col gap-2">
             <h3 id="figures-date" class="text-sm text-gray-500 dark:text-gray-400">Au {{ $today->translatedFormat('j F Y') }}</h3>

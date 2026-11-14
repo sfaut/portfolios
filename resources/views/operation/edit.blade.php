@@ -6,7 +6,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-xl mx-auto flex flex-col gap-6">
+    <div class="max-w-2xl mx-auto flex flex-col gap-6">
 
         <x-card>
             <x-slot:title>Informations de l'opération</x-slot:title>
@@ -19,7 +19,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="operation-form">Modifier</x-primary-button>
+                <x-primary-button form="operation-form" icon="check">Modifier</x-primary-button>
             </x-slot:footer>
         </x-card>
 

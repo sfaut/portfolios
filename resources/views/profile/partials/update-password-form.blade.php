@@ -42,6 +42,6 @@
             >Sauvegardé</p>
         @endif
 
-        <x-primary-button form="update-password-form">Sauvegarder</x-primary-button>
+        <x-primary-button form="update-password-form" icon="check">Sauvegarder</x-primary-button>
     </x-slot:footer>
 </x-card>

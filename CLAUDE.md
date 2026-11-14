@@ -132,11 +132,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   supprimée physiquement. Les horodatages sont en précision 6, d'où `$dateFormat = 'Y-m-d H:i:s.u'` sur
   les modèles, `User` compris : sans lui, Laravel écrit les dates à la seconde (`.000000`). Un nouveau
   modèle le reprend et s'ajoute à `tests/Feature/TimestampPrecisionTest.php`.
-- Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (solde, nombre
-  d'opérations, première et dernière date) et `operation_reports` (cumul `amount_running_sum` par compte,
-  ordonné par `delivery_at`, `id`) sont créées dans la migration
+- Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (description,
+  solde, nombre d'opérations, première et dernière date) et `operation_reports` (cumul
+  `amount_running_sum` par compte, ordonné par `delivery_at`, `id`) sont créées dans la migration
   `database/migrations/2024_12_21_222937_create_operation_table.php` (`operation_reports` recréée par
-  `2026_11_10_003926_add_is_ticked_to_operations_table.php`) et lues par les modèles en lecture
+  `2026_11_10_003926_add_is_ticked_to_operations_table.php`, `account_reports` par
+  `2026_11_14_131521_add_description_to_account_reports_view.php`) et lues par les modèles en lecture
   seule `AccountReport` / `OperationReport`. L'affichage les utilise (`Portfolio::accountsReport()`,
   `Account::operationsReport()`) ; les écritures passent par `Account` / `Operation`. Changer les colonnes
   de `accounts` ou `operations` demande de recréer ces vues dans une nouvelle migration.
@@ -157,6 +158,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   entiers par `OperationRequest::after()`. Une modification d'opération remplace ses lignes. Un axe
   archivé ne se choisit plus, sauf sur une opération qui l'utilise déjà, et reste affiché sur ses
   lignes (`AnalyticLine::analyticAxis()` inclut les archivés).
+  La page des axes (`analytic-axis.index`) les montre en cartes (`analytic-axis/partials/cards`), qui
+  mènent chacune à la modification de l'axe : icône sur une tuile à sa couleur, nom, description,
+  nombre d'opérations réparties et de comptes actifs qui l'ont dans leur répartition par défaut
+  (`AnalyticAxis::accounts()`, sur la table pivot `account_analytic_axis`), puis la carte pointillée
+  de création ; les archivés suivent dans une section repliée.
   Un axe a une icône et une couleur (colonnes `icon` et `color`, défauts `tag` et `indigo`).
   L'icône vient d'une sélection de Lucide, `App\Support\AxisIcons` : thèmes, nom français et
   mots-clefs de recherche de chaque icône, liste blanche de la validation. Une icône s'y ajoute sous
@@ -165,8 +171,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   familles vives de Tailwind et gray, ses classes écrites en entier dans des `match` pour que
   Tailwind les trouve (`badgeClasses()`, `textClasses()`, `onDarkClasses()`, `barClasses()`).
   `<x-axis-badge :axis>` (`App\View\Components\AxisBadge`) affiche l'axe partout : pastille colorée,
-  icône devant le nom, « (archivé) » ; `icon-only` ne garde que l'icône colorée, `on-dark` sur le
-  fond sombre d'une infobulle. Il accepte un modèle ou une ligne de requête `toBase()` (name, icon,
+  icône devant le nom, « (archivé) » ; `icon-only` ne garde que l'icône colorée, en `size-4` sauf
+  si la classe passée donne une autre taille, `on-dark` sur le fond sombre d'une infobulle. Il accepte un modèle ou une ligne de requête `toBase()` (name, icon,
   color, archived). Le formulaire de l'axe choisit les deux par `<x-axis-appearance>` (composant
   Alpine `axisAppearance`, recherche sans casse ni accents dans `axis-appearance-rules.js`, testée
   par Node) : aperçu de la pastille qui suit le nom saisi, couleurs en pastilles rondes, puis grille
@@ -241,7 +247,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   ce qu'est la page. La barre porte le logo, qui mène à la liste des portfolios, et le menu de
   l'utilisateur. Dans un portfolio, elle porte aussi le sélecteur de portfolio, de largeur fixe (ses
   portfolios, puis modifier, tous, créer), et `<x-portfolio-nav>`, toujours à la même place : ces deux
-  éléments passent sur une seconde ligne sur un écran étroit, et `scrollbar-gutter: stable` empêche
+  éléments passent sur une seconde ligne tant que la barre ne tient pas sur une seule (sous `xl`),
+  l'un sous l'autre sur un téléphone, côte à côte au-delà de `md`, et `scrollbar-gutter: stable` empêche
   la barre de défilement de les décaler d'une page à l'autre. Le portfolio et la section viennent de
   `App\Support\PortfolioContext`, qui les déduit du modèle lié par la route (portfolio, compte,
   opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
@@ -345,11 +352,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   JavaScript, le formulaire recharge la page filtrée.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
-  effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`), et la
-  colonne des axes écrit chaque ligne analytique, sans infobulle, comme l'infobulle de la liste d'un
-  compte : icône colorée et nom, part, montant en gris (`AnalyticLine::amountShare()`), alignés dans
-  la cellule ; un axe seul ne montre que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran étroit, le tableau
-  défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`). Son
+  tableau et celui de la liste d'un compte ont les mêmes colonnes, dans le même ordre : ID, Compte
+  (Grand livre seul), Horodatage écriture, Date effective, Libellé, Montant (€), Axes, Solde (€)
+  (compte seul), Pointée ?, Action. Leur colonne des axes passe par `<x-analytic-breakdown
+  :operation>`, qui écrit chaque ligne analytique, sans infobulle, un cran sous le texte du tableau
+  (`text-xs`) : icône colorée et nom, part,
+  montant en gris (`AnalyticLine::amountShare()`), alignés dans la cellule ; un axe seul ne montre
+  que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran
+  étroit, le tableau défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
   des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
@@ -363,6 +374,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   pagination rechargent la page. `ledger.export` télécharge la sélection triée en CSV, diffusée au fil
   de la lecture. Un nouveau filtre entre dans `LedgerFilters` (lecture, `filterQuery()`, `state()`),
   `Ledger::filtered()`, le formulaire, `ledger.js` et `tests/Feature/LedgerTest.php`.
+- Le formulaire d'opération suit l'ordre des colonnes de la liste d'un compte : date effective,
+  libellé, montant et sa répartition, pointage.
 - Répartition analytique du formulaire d'opération : `<x-analytic-lines :form>`, éditeur partagé avec
   la répartition par défaut d'un compte (options `name`, `amount`, `sortable`), contrôle du total
   partagé par `App\Http\Requests\Concerns\ValidatesAnalyticBreakdown`. Composant Alpine `analyticLines`
@@ -374,8 +387,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   range sous ce champ, en retrait derrière un filet vertical. Ses données
   (axes proposés, lignes initiales ou renvoyées après une validation échouée) viennent de
   `OperationController::analyticForm()`, les erreurs de `$errors`, que le composant lit par clef
-  (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) marque d'une pastille les
-  opérations réparties, avec le détail par axe dans un `<x-tooltip>` : pourcentage et part du montant
+  (`analytic_lines.<i>.<champ>`). La liste des opérations (`account/show`) écrit le détail par axe
+  comme le Grand livre (`<x-analytic-breakdown>`) : pourcentage et part du montant
   (`AnalyticLine::amountShare()`, même arrondi que le formulaire).
 - `AccountController::show()` pagine les opérations par 20 et redirige vers la dernière page quand
   `page` est absent, en refaisant le flash de session (`reflash()`) pour garder le message. Le bouton
@@ -389,11 +402,20 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`).
-  Barre, bandeau et contenu ont la même largeur, `max-w-7xl` ; une page large (`<x-app-layout wide>`,
-  le Grand livre) les passe ensemble à `AppLayout::WIDE_CONTAINER` (120rem et marges de la barre),
-  que son contenu reprend. Les
+  La barre du haut a la même largeur sur toutes les pages, celle de la plus large
+  (`AppLayout::WIDE_CONTAINER`, 120rem). Bandeau et contenu partagent le conteneur de la page,
+  centré : `AppLayout::container()`, soit `AppLayout::CONTAINER` (`max-w-7xl`), soit, pour une page
+  large (`<x-app-layout wide>`, le Grand livre), `AppLayout::WIDE_CONTAINER`. Le layout le pose
+  lui-même autour du contenu, dans `<main>` : une page ne déclare aucune largeur, sauf une page
+  étroite, centrée dans le conteneur : un formulaire (création, modification) garde une largeur de
+  lecture, `max-w-2xl mx-auto`, et le profil (`x-profile-layout`) `max-w-5xl mx-auto`.
+  `tests/Feature/PageWidthTest.php` le vérifie sur un jeu de pages. Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
-  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). `x-alert type="…"`
+  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). Ces deux liens,
+  `x-primary-button` et `x-secondary-button` prennent une icône Lucide devant leur texte par la prop
+  `icon` : `plus` pour créer (« Créer un compte », bouton d'envoi « Créer »), `pencil` pour ouvrir
+  une modification (« Modifier le compte », et les liens « Modifier » des lignes de tableau, en
+  `size-3.5`), `check` pour l'envoyer (« Modifier », « Enregistrer », « Sauvegarder »). `x-alert type="…"`
   (`info` par défaut, `success`, `warning`, `danger`) tient de sa classe `App\View\Components\Alert` ses
   couleurs, son icône Lucide et son rôle ARIA (`alert` pour `danger`, `status` sinon) ; il garde les
   retours à la ligne du message, sans ses blancs de début et de fin.
@@ -491,6 +513,14 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
   n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau et le titre rouges des
   cartes d'archivage et de suppression. Pagination par la vue `pagination.narrow`.
+  Toute liste en cartes (portfolios, comptes, axes) passe par `<x-link-card :href :archived>` : un
+  lien sur toute la carte, bordure grise qui passe en indigo au survol, contour de focus, estompé
+  s'il est archivé ; ses mesures vont dans le slot `stats`, en bas, chacune par
+  `<x-link-card.stat icon="…">` (icône et court texte en petit gris). La grille est
+  `grid gap-6 sm:grid-cols-2 lg:grid-cols-3`, terminée par `<x-create-card :href>` (carte pointillée
+  « Créer un… »). Carte de portfolio : nom, description, nombre de comptes actifs ; carte de compte
+  (`account/partials/card`) : nom et icônes de ses axes, description, solde coloré à droite, période
+  de ses opérations et leur nombre.
 - Aucun champ ne porte `autofocus` par défaut : il s'ajoute au cas par cas, quand un formulaire le
   demande.
 - Toute confirmation passe par `<x-dialog id="…">`, sans `confirm()` JavaScript : un `<dialog>` natif
@@ -511,8 +541,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   sombre), l'espacement entre éléments voisins passe par `gap` (pas de `space-x` / `space-y`), pas de
   classe inexistante ni redondante.
 - Espacement : le conteneur porte le `gap`, ses enfants n'ont aucune marge. `<main>` porte le padding
-  de la page (`py-6`) ; chaque page range son contenu dans un conteneur unique
-  (`max-w-* mx-auto flex flex-col gap-6`) ; un champ groupe label, saisie et erreur en
+  de la page (`py-6`) et le conteneur de largeur ; chaque page range son contenu dans un conteneur
+  unique (`flex flex-col gap-6`, `max-w-2xl mx-auto` en plus pour un formulaire) ; un champ groupe label, saisie et erreur en
   `flex flex-col gap-1`. Seuls les décalages de positionnement gardent une marge (panneau absolu de
   `x-dropdown`, centrage `m-auto` de `x-dialog`).
 - Thème clair / sombre / système (`App\Enums\ColorScheme`), choisi par l'interrupteur de la barre du

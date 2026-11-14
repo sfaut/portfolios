@@ -200,7 +200,7 @@ test('the operation form gives back the posted analytic lines after a failed val
         );
 });
 
-test('the operations of an account show whether they are split between analytic axes', function () {
+test('the operations of an account write each of their analytic lines in their row, without tooltip', function () {
     $split = $this->account->operations()->create([...lessonOperation([]), 'label' => 'Cours réparti']);
     $split->analyticLines()->createMany([
         ['analytic_axis_id' => $this->piano->id, 'percentage' => '50'],
@@ -211,18 +211,17 @@ test('the operations of an account show whether they are split between analytic 
     $response = $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]));
 
     $response->assertOk()
-        ->assertSee('Analytique')
         ->assertSeeInOrder([
-            'Cours réparti', '2 axes',
-            'role="tooltip"', 'Cours échecs', '50', "15,00\u{a0}€", 'Cours piano', '50', "15,00\u{a0}€",
+            'Cours réparti',
+            'Cours échecs', "50\u{a0}%", "15,00\u{a0}€", 'Cours piano', "50\u{a0}%", "15,00\u{a0}€",
             'Cours non réparti',
         ], escape: false);
 
-    expect(substr_count($response->getContent(), '✓'))->toBe(1)
-        ->and(substr_count($response->getContent(), 'role="tooltip"'))->toBe(1);
+    expect($response->getContent())->not->toContain('role="tooltip"')
+        ->and($response->getContent())->not->toContain('✓');
 });
 
-test('the analytic tooltip rounds the part of the amount half away from zero', function () {
+test('the analytic breakdown of an account rounds the part of the amount half away from zero', function () {
     $operation = $this->account->operations()->create([...lessonOperation([]), 'amount' => '-0.05']);
     $operation->analyticLines()->createMany([
         ['analytic_axis_id' => $this->piano->id, 'percentage' => '50'],

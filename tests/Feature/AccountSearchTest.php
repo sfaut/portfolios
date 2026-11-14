@@ -57,7 +57,7 @@ test('a search without result says so and hides the account creation card', func
     $response->assertOk()
         ->assertSee('Aucun compte ne correspond à « &lt;b&gt;Assurance&lt;/b&gt; ».', escape: false)
         ->assertDontSee('<b>Assurance</b>', escape: false)
-        ->assertDontSee('<h3>Créer un compte</h3>', escape: false)
+        ->assertDontSee('<span>Créer un compte</span>', escape: false)
         ->assertDontSee('Comptes archivés');
 });
 
@@ -122,7 +122,7 @@ test('a month refused by the month restriction is ignored', function (mixed $mon
 
     $response->assertOk()
         ->assertSee('Livret Épargne')
-        ->assertSee('<h3>Créer un compte</h3>', escape: false)
+        ->assertSee('<span>Créer un compte</span>', escape: false)
         ->assertDontSee('sur 4');
 })->with([
     'without operation' => ['2026-09'],

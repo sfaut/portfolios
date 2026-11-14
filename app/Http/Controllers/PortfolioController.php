@@ -21,7 +21,7 @@ class PortfolioController extends Controller
 {
     public function index()
     {
-        $portfolios = auth()->user()->portfolios()->get();
+        $portfolios = auth()->user()->portfolios()->withCount('accounts')->get();
 
         return view('portfolio.index', [
             'portfolios' => $portfolios,

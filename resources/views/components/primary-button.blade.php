@@ -1,3 +1,14 @@
+{{--
+    Bouton principal, d'envoi par défaut.
+
+    @var string|null $icon Nom de l'icône Lucide placée devant le texte (https://lucide.dev/icons), null sans icône.
+    @var \Illuminate\View\ComponentSlot $slot Texte du bouton.
+    @var \Illuminate\View\ComponentAttributeBag $attributes Attributs du bouton.
+--}}
+@props([
+    'icon' => null,
+])
+
 @php
 
 $attributes = $attributes->merge([
@@ -10,9 +21,10 @@ $attributes = $attributes->merge([
         . 'focus:outline-hidden focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-300 '
         . 'focus:ring-offset-2 dark:focus:ring-offset-gray-800 '
         . 'disabled:opacity-25 disabled:pointer-events-none '
-        . 'transition ease-in-out duration-150',
+        . 'transition ease-in-out duration-150'
+        . ($icon !== null ? ' gap-2' : ''),
 ]);
 
 @endphp
 
-<button {{ $attributes }}>{{ $slot }}</button>
+<button {{ $attributes }}>@if ($icon !== null)<x-dynamic-component :component="'lucide-'.$icon" class="size-4 shrink-0" aria-hidden="true"/>@endif{{ $slot }}</button>

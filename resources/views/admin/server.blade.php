@@ -17,14 +17,13 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Relevé du {{ $taken_at }}</p>
             </div>
 
-            <x-link.secondary :target="route('admin.server')" class="flex items-center gap-2">
-                <x-lucide-refresh-cw class="size-4" aria-hidden="true"/>
+            <x-link.secondary :target="route('admin.server')" icon="refresh-cw">
                 Actualiser
             </x-link.secondary>
         </div>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
+    <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
         <x-side-nav
             label="Sections du relevé"
             x-data="sectionSpy"

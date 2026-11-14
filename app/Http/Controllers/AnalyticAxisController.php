@@ -15,7 +15,8 @@ use Illuminate\View\View;
 class AnalyticAxisController extends Controller
 {
     /**
-     * Affiche les axes du portfolio, actifs puis archivés, avec leur nombre de lignes analytiques.
+     * Affiche les axes du portfolio, actifs puis archivés, avec leur nombre de lignes analytiques et
+     * le nombre de comptes actifs qui les ont dans leur répartition par défaut.
      *
      * @param  Portfolio  $portfolio  Portfolio des axes.
      */
@@ -23,8 +24,8 @@ class AnalyticAxisController extends Controller
     {
         return view('analytic-axis.index', [
             'portfolio' => $portfolio,
-            'analytic_axes' => $portfolio->analyticAxes()->withCount('analyticLines')->get(),
-            'archived_analytic_axes' => $portfolio->analyticAxes()->onlyTrashed()->withCount('analyticLines')->get(),
+            'analytic_axes' => $portfolio->analyticAxes()->withCount(['analyticLines', 'accounts'])->get(),
+            'archived_analytic_axes' => $portfolio->analyticAxes()->onlyTrashed()->withCount(['analyticLines', 'accounts'])->get(),
         ]);
     }
 

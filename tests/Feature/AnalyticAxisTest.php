@@ -183,3 +183,26 @@ test('the list of axes shows each axis in its colors', function () {
         ->assertOk()
         ->assertSee(AxisColor::Rose->badgeClasses());
 });
+
+test('each axis card leads to the axis and counts its operations and the accounts that use it by default', function () {
+    $account = $this->portfolio->accounts()->create(['name' => 'Grjebine, Arthur']);
+    $account->analyticAxes()->attach($this->axis, ['percentage' => '100', 'position' => 0]);
+    $archived = $this->portfolio->accounts()->create(['name' => 'Ancien élève']);
+    $archived->analyticAxes()->attach($this->axis, ['percentage' => '100', 'position' => 0]);
+    $archived->delete();
+    foreach (['Cours du 3', 'Cours du 10'] as $label) {
+        $account->operations()->create(['label' => $label, 'amount' => '-30', 'delivery_at' => '2026-11-03'])
+            ->analyticLines()->create(['analytic_axis_id' => $this->axis->id, 'percentage' => '100']);
+    }
+    $singing = $this->portfolio->analyticAxes()->create(['name' => 'Cours chant']);
+
+    $this->actingAs($this->owner)->get(route('analytic-axis.index', $this->portfolio))
+        ->assertOk()
+        ->assertSeeInOrder([
+            'href="'.route('analytic-axis.edit', $singing).'"',
+            'Cours chant', 'Aucune opération répartie',
+            'href="'.route('analytic-axis.edit', $this->axis).'"',
+            'Cours piano', '2 opérations réparties', 'par défaut dans 1 compte',
+            'Créer un axe',
+        ], escape: false);
+});

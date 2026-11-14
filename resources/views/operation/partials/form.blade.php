@@ -1,5 +1,7 @@
 {{--
     Formulaire d'une opération, partagé par create et edit, avec sa répartition analytique facultative.
+    Les champs suivent l'ordre des colonnes de la liste d'un compte : date effective, libellé, montant
+    et sa répartition, pointage.
 
     @var string $action URL d'envoi du formulaire.
     @var string $method Méthode HTTP (post, put).
@@ -19,6 +21,12 @@
     @method($method)
 
     @csrf
+
+    <div class="flex flex-col gap-1">
+        <x-input-label for="delivery_at" value="Date effective"/>
+        <x-text-input type="date" id="delivery_at" name="delivery_at" class="w-full" :value="old('delivery_at', $operation->delivery_at ?? date('Y-m-d'))"/>
+        <x-input-error :messages="$errors->get('delivery_at')"/>
+    </div>
 
     <div class="flex flex-col gap-1">
         <x-input-label for="label" value="Libellé"/>
@@ -64,12 +72,6 @@
 
             <x-input-error :messages="$errors->get('analytic_lines')"/>
         </section>
-    </div>
-
-    <div class="flex flex-col gap-1">
-        <x-input-label for="delivery_at" value="Date effective"/>
-        <x-text-input type="date" id="delivery_at" name="delivery_at" class="w-full" :value="old('delivery_at', $operation->delivery_at ?? date('Y-m-d'))"/>
-        <x-input-error :messages="$errors->get('delivery_at')"/>
     </div>
 
     {{-- Pointage, au sens que l'utilisateur lui donne ; le champ caché envoie 0 quand la case est décochée. --}}
