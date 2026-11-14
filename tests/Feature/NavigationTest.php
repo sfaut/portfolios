@@ -83,6 +83,10 @@ test('the portfolio selector lists the portfolios of the user only, with the act
     $response->assertSeeInOrder(['Association', 'Famille', '(portfolio affiché)', 'Modifier ce portfolio', 'Tous les portfolios', 'Créer un portfolio'])
         ->assertSee('href="'.route('portfolio.edit', $this->portfolio).'"', escape: false)
         ->assertDontSee('Portfolio du voisin');
+
+    foreach (['Association', 'Famille'] as $name) {
+        expect($response->getContent())->toMatch('/<svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg>\s*<span class="min-w-0 flex-1 truncate">'.$name.'<\/span>/su');
+    }
 });
 
 test('the breadcrumb leads from the portfolio list, through the portfolio and its section, to the parent page', function () {
