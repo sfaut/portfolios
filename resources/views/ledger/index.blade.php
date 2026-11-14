@@ -24,7 +24,7 @@
         <h2 class="text-xl font-semibold">Grand livre</h2>
     </x-slot>
 
-    <div x-data="ledger(@js($filters->state()))" @class([\App\View\Components\AppLayout::WIDE_CONTAINER, 'flex flex-col gap-6'])>
+    <div x-data="ledger(@js($filters->state()))" class="flex flex-col gap-6">
 
         <form
             id="ledger-filters"

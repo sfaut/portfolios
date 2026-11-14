@@ -23,7 +23,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
+    <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
         <x-side-nav
             label="Sections du relevé"
             x-data="sectionSpy"

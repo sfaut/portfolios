@@ -1,7 +1,7 @@
 {{--
     Mise en page des pages de l'application (App\View\Components\AppLayout).
 
-    @var bool $wide Si la page est large : la barre et le bandeau prennent sa largeur.
+    @var \Closure(): string $container Classes du conteneur partagé par la barre, le bandeau et le contenu (AppLayout::container()).
     @var \Illuminate\View\ComponentSlot|null $header Bandeau de la page.
     @var \Illuminate\View\ComponentSlot $slot Contenu.
 --}}
@@ -9,21 +9,19 @@
 
     <div class="min-h-screen bg-gray-200 dark:bg-gray-900">
 
-        @include('layouts.navigation', ['wide' => $wide])
+        @include('layouts.navigation', ['container' => $container()])
 
         @isset($header)
             <header class="bg-white dark:bg-gray-800 shadow-sm">
-                <div @class([
-                    'py-4',
-                    'max-w-7xl mx-auto px-6' => ! $wide,
-                    \App\View\Components\AppLayout::WIDE_CONTAINER => $wide,
-                ])>
+                <div @class(['py-4', $container()])>
                     {{ $header }}
                 </div>
             </header>
         @endisset
 
-        <main class="py-6">{{ $slot }}</main>
+        <main class="py-6">
+            <div class="{{ $container() }}">{{ $slot }}</div>
+        </main>
 
     </div>
 

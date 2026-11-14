@@ -26,7 +26,7 @@
         </div>
     </x-slot>
 
-    <div x-data="accountSearch(@js($search), @js($month))" class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div x-data="accountSearch(@js($search), @js($month))" class="flex flex-col gap-6">
 
         @if (session('message'))
             <x-alert type="success">
@@ -127,7 +127,7 @@
                 @endif
 
                 @if (! $filtered || $accounts->isNotEmpty())
-                    <div class="grid gap-6 grid-cols-3">
+                    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
                         @foreach ($accounts as $account)
                             @include('account.partials.card', ['account' => $account])
@@ -169,7 +169,7 @@
                             </button>
                         </h3>
 
-                        <div id="archived-accounts" x-show="open" @style(['display: none' => ! $filtered]) class="grid gap-6 grid-cols-3">
+                        <div id="archived-accounts" x-show="open" @style(['display: none' => ! $filtered]) class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach ($archived_accounts as $account)
                                 @include('account.partials.card', ['account' => $account])
                             @endforeach

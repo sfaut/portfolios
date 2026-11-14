@@ -10,7 +10,7 @@
         <h2 class="text-xl font-semibold">Axes analytiques</h2>
     </x-slot>
 
-    <div class="max-w-4xl mx-auto flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
         @if (session('message'))
             <x-alert type="success">

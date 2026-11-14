@@ -16,7 +16,7 @@
         <h2 class="text-xl font-semibold">{{ $title }}</h2>
     </x-slot>
 
-    <div class="max-w-5xl mx-auto grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
+    <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">
         <x-side-nav label="Pages du profil" class="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 lg:top-6 lg:bg-transparent lg:dark:bg-transparent">
             @foreach ([
                 'profile.edit' => 'Profil',

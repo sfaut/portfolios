@@ -22,7 +22,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
         @if (session()->has('alert'))
             <x-alert type="success">
