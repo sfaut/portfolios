@@ -43,11 +43,11 @@
                     >
 
                     <div class="flex flex-wrap gap-2">
-                        <x-secondary-button hidden x-bind:hidden="false" x-on:click="pickFile()" aria-describedby="avatar-formats" icon="image-up">
+                        <x-button hidden x-bind:hidden="false" x-on:click="pickFile()" aria-describedby="avatar-formats" icon="image-up">
                             Importer une photo
-                        </x-secondary-button>
+                        </x-button>
 
-                        <x-secondary-button
+                        <x-button
                             hidden
                             x-bind:hidden="camera === 'unsupported'"
                             x-bind:disabled="camera !== 'available'"
@@ -56,14 +56,14 @@
                             icon="camera"
                         >
                             Prendre une photo
-                        </x-secondary-button>
+                        </x-button>
                     </div>
 
                     <noscript>
                         <div class="flex flex-col items-start gap-2">
                             <x-input-label for="avatar" value="Photo"/>
                             <input id="avatar" type="file" name="avatar" accept="{{ $avatar_accept }}" aria-describedby="avatar-formats" class="text-sm">
-                            <x-primary-button>Envoyer la photo</x-primary-button>
+                            <x-button variant="primary" type="submit">Envoyer la photo</x-button>
                         </div>
                     </noscript>
 

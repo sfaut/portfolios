@@ -22,7 +22,7 @@
     </x-slot:description>
 
     <x-slot:footer>
-        <x-danger-button type="button" commandfor="delete-user" command="show-modal">Supprimer</x-danger-button>
+        <x-button variant="danger" type="button" commandfor="delete-user" command="show-modal">Supprimer</x-button>
     </x-slot:footer>
 </x-card>
 
@@ -53,7 +53,7 @@
 
     <x-slot:footer>
         <button type="button" commandfor="delete-user" command="close" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</button>
-        <x-danger-button form="user-deletion-form">Supprimer mon compte</x-danger-button>
+        <x-button variant="danger" type="submit" form="user-deletion-form">Supprimer mon compte</x-button>
     </x-slot:footer>
 </x-dialog>
 @endif

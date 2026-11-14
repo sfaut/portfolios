@@ -19,7 +19,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="account-form" icon="check">Modifier</x-primary-button>
+                <x-button variant="primary" type="submit" form="account-form" icon="check">Modifier</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -37,7 +37,7 @@
                         @csrf
 
                         <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                        <x-primary-button>Désarchiver</x-primary-button>
+                        <x-button variant="primary" type="submit">Désarchiver</x-button>
                     </form>
                 </x-slot:footer>
             </x-card>
@@ -51,7 +51,7 @@
 
                 <x-slot:footer>
                     <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                    <x-danger-button type="button" commandfor="archive-account" command="show-modal">Archiver</x-danger-button>
+                    <x-button variant="danger" type="button" commandfor="archive-account" command="show-modal">Archiver</x-button>
                 </x-slot:footer>
             </x-card>
 
@@ -68,7 +68,7 @@
                         @method('delete')
                         @csrf
 
-                        <x-danger-button>Archiver le compte</x-danger-button>
+                        <x-button variant="danger" type="submit">Archiver le compte</x-button>
                     </form>
                 </x-slot:footer>
             </x-dialog>

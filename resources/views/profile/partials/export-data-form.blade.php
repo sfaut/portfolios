@@ -9,6 +9,6 @@
     </x-slot:description>
 
     <x-slot:footer>
-        <x-link.primary :target="route('profile.export')">Télécharger mes données</x-link.primary>
+        <x-button variant="primary" :href="route('profile.export')">Télécharger mes données</x-button>
     </x-slot:footer>
 </x-card>

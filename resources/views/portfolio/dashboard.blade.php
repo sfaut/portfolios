@@ -89,7 +89,7 @@
                     les suivra dès la première opération.
                 </x-slot:description>
                 <x-slot:footer>
-                    <x-link.primary :target="route('portfolio.show', $portfolio)">Voir les comptes</x-link.primary>
+                    <x-button variant="primary" :href="route('portfolio.show', $portfolio)">Voir les comptes</x-button>
                 </x-slot:footer>
             </x-card>
         @else

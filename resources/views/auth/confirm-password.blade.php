@@ -22,6 +22,6 @@
             <x-input-error :messages="$errors->get('password')"/>
         </div>
 
-        <x-primary-button class="w-full justify-center">Confirmer</x-primary-button>
+        <x-button variant="primary" type="submit" class="w-full">Confirmer</x-button>
     </form>
 </x-guest-layout>

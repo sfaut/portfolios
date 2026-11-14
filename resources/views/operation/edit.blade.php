@@ -19,7 +19,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="operation-form" icon="check">Modifier</x-primary-button>
+                <x-button variant="primary" type="submit" form="operation-form" icon="check">Modifier</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -31,7 +31,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('account.show', $operation->account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-danger-button type="button" commandfor="delete-operation" command="show-modal">Supprimer</x-danger-button>
+                <x-button variant="danger" type="button" commandfor="delete-operation" command="show-modal">Supprimer</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -48,7 +48,7 @@
                     @method('delete')
                     @csrf
 
-                    <x-danger-button>Supprimer l'opération</x-danger-button>
+                    <x-button variant="danger" type="submit">Supprimer l'opération</x-button>
                 </form>
             </x-slot:footer>
         </x-dialog>

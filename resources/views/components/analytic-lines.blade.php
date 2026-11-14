@@ -132,8 +132,8 @@
     </div>
 
     <div>
-        <x-secondary-button x-on:click="add()" x-bind:disabled="! canAdd">
+        <x-button x-on:click="add()" x-bind:disabled="! canAdd">
             Ajouter une ligne analytique
-        </x-secondary-button>
+        </x-button>
     </div>
 </div>
