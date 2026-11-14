@@ -106,25 +106,27 @@
 
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Sens</span>
-                <x-switch
-                    label="Sens des montants"
+                <x-multi-select
                     name="flow"
-                    :options="['' => 'Tout', 'sales' => 'Ventes', 'payments' => 'Paiements']"
+                    label="Sens des montants"
+                    :multiple="false"
+                    :options="[['value' => 'sales', 'label' => 'Ventes'], ['value' => 'payments', 'label' => 'Paiements']]"
                     :value="$filters->flow"
-                    model="flow"
-                    class="py-0.5"
+                    placeholder="Tout"
+                    x-model="flow"
                 />
             </div>
 
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Pointage</span>
-                <x-switch
-                    label="Pointage des opérations"
+                <x-multi-select
                     name="ticked"
-                    :options="['' => 'Toutes', 'yes' => 'Pointées', 'no' => 'Non pointées']"
+                    label="Pointage des opérations"
+                    :multiple="false"
+                    :options="[['value' => 'yes', 'label' => 'Pointées'], ['value' => 'no', 'label' => 'Non pointées']]"
                     :value="$filters->ticked"
-                    model="ticked"
-                    class="py-0.5"
+                    placeholder="Toutes"
+                    x-model="ticked"
                 />
             </div>
 
