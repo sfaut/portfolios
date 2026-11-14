@@ -453,7 +453,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   sélection (« 3 comptes », par `noun`) et un popover de cases à cocher natives, envoyées dans
   `name[]` sans JavaScript, avec un champ de recherche au-delà de 8 options. Une option peut porter
   une icône (`icon`, nom Lucide) et sa couleur (`iconClass`), affichées devant son libellé. Son
-  identifiant vient de `name` : un nom par page.
+  identifiant vient de `name` : un nom par page. `:multiple="false"` en fait un choix unique, au
+  même déclencheur et au même popover : des radios natifs envoyés dans `name`, précédés d'un radio
+  vide libellé par le placeholder (« Tout »), la valeur liée en texte (`''` sans choix) ; un clic de
+  souris ou Entrée choisit et ferme, les flèches changent le choix sans fermer. « Sens » et
+  « Pointage » du Grand livre l'utilisent.
   Toute colonne triable d'un tableau passe par `<x-sortable-heading column="…" :sort :direction>`
   (`App\View\Components\SortableHeading`) : un `<th>` à `aria-sort` dont le lien pose `sort` et `dir`
   dans l'adresse courante, en gardant ses autres paramètres ; le contrôleur valide les deux valeurs.
