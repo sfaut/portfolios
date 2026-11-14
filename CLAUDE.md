@@ -132,11 +132,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   supprimée physiquement. Les horodatages sont en précision 6, d'où `$dateFormat = 'Y-m-d H:i:s.u'` sur
   les modèles, `User` compris : sans lui, Laravel écrit les dates à la seconde (`.000000`). Un nouveau
   modèle le reprend et s'ajoute à `tests/Feature/TimestampPrecisionTest.php`.
-- Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (solde, nombre
-  d'opérations, première et dernière date) et `operation_reports` (cumul `amount_running_sum` par compte,
-  ordonné par `delivery_at`, `id`) sont créées dans la migration
+- Lecture et écriture passent par des modèles distincts. Les vues SQL `account_reports` (description,
+  solde, nombre d'opérations, première et dernière date) et `operation_reports` (cumul
+  `amount_running_sum` par compte, ordonné par `delivery_at`, `id`) sont créées dans la migration
   `database/migrations/2024_12_21_222937_create_operation_table.php` (`operation_reports` recréée par
-  `2026_11_10_003926_add_is_ticked_to_operations_table.php`) et lues par les modèles en lecture
+  `2026_11_10_003926_add_is_ticked_to_operations_table.php`, `account_reports` par
+  `2026_11_14_131521_add_description_to_account_reports_view.php`) et lues par les modèles en lecture
   seule `AccountReport` / `OperationReport`. L'affichage les utilise (`Portfolio::accountsReport()`,
   `Account::operationsReport()`) ; les écritures passent par `Account` / `Operation`. Changer les colonnes
   de `accounts` ou `operations` demande de recréer ces vues dans une nouvelle migration.
@@ -246,7 +247,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   ce qu'est la page. La barre porte le logo, qui mène à la liste des portfolios, et le menu de
   l'utilisateur. Dans un portfolio, elle porte aussi le sélecteur de portfolio, de largeur fixe (ses
   portfolios, puis modifier, tous, créer), et `<x-portfolio-nav>`, toujours à la même place : ces deux
-  éléments passent sur une seconde ligne sur un écran étroit, et `scrollbar-gutter: stable` empêche
+  éléments passent sur une seconde ligne tant que la barre ne tient pas sur une seule (sous `xl`),
+  l'un sous l'autre sur un téléphone, côte à côte au-delà de `md`, et `scrollbar-gutter: stable` empêche
   la barre de défilement de les décaler d'une page à l'autre. Le portfolio et la section viennent de
   `App\Support\PortfolioContext`, qui les déduit du modèle lié par la route (portfolio, compte,
   opération ou axe) et de son nom. Un composeur de vue (`AppServiceProvider`) les passe à la barre.
@@ -508,6 +510,14 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   corps, sous un `id`, et le bouton du pied s'y rattache par l'attribut `form` ; une carte d'archivage
   n'a pas de corps, son formulaire tient dans le pied. `danger` ajoute l'anneau et le titre rouges des
   cartes d'archivage et de suppression. Pagination par la vue `pagination.narrow`.
+  Toute liste en cartes (portfolios, comptes, axes) passe par `<x-link-card :href :archived>` : un
+  lien sur toute la carte, bordure grise qui passe en indigo au survol, contour de focus, estompé
+  s'il est archivé ; ses mesures vont dans le slot `stats`, en bas, chacune par
+  `<x-link-card.stat icon="…">` (icône et court texte en petit gris). La grille est
+  `grid gap-6 sm:grid-cols-2 lg:grid-cols-3`, terminée par `<x-create-card :href>` (carte pointillée
+  « Créer un… »). Carte de portfolio : nom, description, nombre de comptes actifs ; carte de compte
+  (`account/partials/card`) : nom et icônes de ses axes, description, solde coloré à droite, période
+  de ses opérations et leur nombre.
 - Aucun champ ne porte `autofocus` par défaut : il s'ajoute au cas par cas, quand un formulaire le
   demande.
 - Toute confirmation passe par `<x-dialog id="…">`, sans `confirm()` JavaScript : un `<dialog>` natif
