@@ -345,10 +345,11 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   JavaScript, le formulaire recharge la page filtrée.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
-  effective, libellé, montant, axes et pointage. La page occupe toute la largeur de l'écran (la barre
-  et le bandeau restent à `max-w-7xl`), et la colonne des axes écrit chaque ligne analytique, sans
-  infobulle : pastille, part et montant (`AnalyticLine::amountShare()`), en colonnes de largeur fixe
-  alignées d'une opération à l'autre. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
+  effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`), et la
+  colonne des axes écrit chaque ligne analytique, sans infobulle : pastille (tronquée au-delà de
+  8rem), part et montant (`AnalyticLine::amountShare()`), en colonnes de largeur fixe alignées d'une
+  opération à l'autre. Compte et libellé ont une largeur minimale ; sur un écran étroit, le tableau
+  défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
   des opérations), `label`, `flow` (`sales` / `payments`), `amount[min]` / `amount[max]` (valeur
@@ -387,7 +388,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   (`account/show`), `status` (vues Breeze). Un flash n'apparaît que si la vue de destination lit sa clef.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
-- Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`). Les
+- Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`).
+  Barre, bandeau et contenu ont la même largeur, `max-w-7xl` ; une page large (`<x-app-layout wide>`,
+  le Grand livre) les passe ensemble à `AppLayout::WIDE_CONTAINER` (120rem et marges de la barre),
+  que son contenu reprend. Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
   `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). `x-alert type="…"`
   (`info` par défaut, `success`, `warning`, `danger`) tient de sa classe `App\View\Components\Alert` ses
