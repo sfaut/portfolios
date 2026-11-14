@@ -331,13 +331,17 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   de filtres : les comptes (`<x-multi-select>`, paramètre `accounts[]`, archivés compris, aucun pour
   tous, identifiant étranger au portfolio ignoré), qui valent pour toute la page, chiffres clefs
   compris, et la période. Le composant Alpine `dashboardFilters` recharge la page dès que la période
-  change, et quand la sélection des comptes a changé à la fermeture de son popover. Puis les chiffres
+  change, et quand la sélection des comptes a changé à la fermeture de son popover. « Effacer les
+  filtres » apparaît dès que des comptes sont choisis ou que la période n'est pas celle par défaut
+  (`filtered`). Des comptes choisis sans opération gardent la barre, sans la période, et la page
+  propose d'effacer les filtres. Puis les chiffres
   clefs à la date du jour (`SalesFigures`), date que donne la description du bandeau : comptes actifs, ventes du mois en cours (à date), du mois
   précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`,
   tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
-  ventes de la période (`SalesDashboard`), choisie par `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
-  refusée ignorée, par défaut de M − 13 à M, M étant le mois en cours ou celui de la dernière
-  opération s'il est antérieur) ; les chiffres clefs restent au jour. Pour la période : total,
+  ventes de la période (`SalesDashboard`), choisie par `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations des comptes
+  choisis, `Portfolio::operationMonths($account_ids)`, une période refusée ignorée, par défaut de
+  M − 13 à M, M étant le mois en cours ou celui de la dernière opération de ces comptes s'il est
+  antérieur) ; les chiffres clefs restent au jour. Pour la période : total,
   graphe des ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
   « Non réparti » en dernier). Une période qui dépasse aujourd'hui s'arrête à aujourd'hui, et sa
   comparaison au même jour un an plus tôt. Les graphiques se dessinent sans bibliothèque :

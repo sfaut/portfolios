@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Portfolio;
 use App\Models\User;
+use App\Support\MonthRestriction;
 use App\Support\SalesDashboard;
 use App\Support\SalesFigures;
 use Carbon\CarbonImmutable;
@@ -301,6 +302,61 @@ test('the dashboard keeps a chosen period, in order, and ignores one outside the
     'before the first operation' => [['period' => ['start' => '2025-05', 'end' => '2025-12']], ['start' => '2025-09', 'end' => '2026-10']],
     'incomplete' => [['period' => ['start' => '2025-07']], ['start' => '2025-09', 'end' => '2026-10']],
     'not a range' => [['period' => '2025-07'], ['start' => '2025-09', 'end' => '2026-10']],
+]);
+
+test('the dashboard period keeps to the months of the chosen accounts', function () {
+    operations($this->account, [['2025-06-01', '-1.00'], ['2026-10-15', '-1.00']]);
+    $other = $this->portfolio->accounts()->create(['name' => 'Autre']);
+    operations($other, [['2026-03-01', '-1.00'], ['2026-05-31', '-1.00']]);
+
+    $response = $this->get(route('portfolio.dashboard', [
+        $this->portfolio,
+        'accounts' => [(string) $other->id],
+        'period' => ['start' => '2025-07', 'end' => '2025-12'],
+    ]));
+
+    $response->assertOk()
+        ->assertViewHas('period', ['start' => '2026-03', 'end' => '2026-05'])
+        ->assertViewHas('restriction', fn (MonthRestriction $restriction): bool => $restriction->isChoosable('2026-04')
+            && ! $restriction->isChoosable('2026-02')
+            && ! $restriction->isChoosable('2026-06'));
+});
+
+test('the dashboard of chosen accounts without operations keeps the account filter and offers to clear it', function () {
+    operations($this->account, [['2026-10-15', '-1.00']]);
+    $empty = $this->portfolio->accounts()->create(['name' => 'Vide']);
+
+    $response = $this->get(route('portfolio.dashboard', [$this->portfolio, 'accounts' => [(string) $empty->id]]));
+
+    $response->assertOk()
+        ->assertViewHas('period', null)
+        ->assertSee('name="accounts[]"', escape: false)
+        ->assertDontSee('name="period[start]"', escape: false)
+        ->assertSeeText('Aucune opération sur ces comptes')
+        ->assertSeeInOrder(['Effacer les filtres', 'href="'.route('portfolio.dashboard', $this->portfolio).'"', 'Effacer les filtres'], escape: false);
+});
+
+test('the dashboard offers to clear its filters once accounts or another period are chosen', function (array $query, bool $choose_account, bool $filtered) {
+    operations($this->account, [['2025-06-01', '-1.00'], ['2026-10-15', '-1.00']]);
+
+    if ($choose_account) {
+        $query['accounts'] = [(string) $this->account->id];
+    }
+
+    $response = $this->get(route('portfolio.dashboard', [$this->portfolio, ...$query]));
+
+    $response->assertOk()->assertViewHas('filtered', $filtered);
+
+    if ($filtered) {
+        $response->assertSeeText('Effacer les filtres');
+    } else {
+        $response->assertDontSeeText('Effacer les filtres');
+    }
+})->with([
+    'no filter' => [[], false, false],
+    'the default period' => [['period' => ['start' => '2025-09', 'end' => '2026-10']], false, false],
+    'another period' => [['period' => ['start' => '2025-07', 'end' => '2025-12']], false, true],
+    'chosen accounts' => [[], true, true],
 ]);
 
 test('the dashboard shows the figures and the sales of the period', function () {

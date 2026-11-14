@@ -49,10 +49,12 @@ class PortfolioController extends Controller
      * Le tableau porte sur tous les comptes du portfolio, ou sur ceux choisis (paramètre accounts[],
      * archivés compris), chiffres clefs compris ; un identifiant étranger au portfolio est ignoré.
      *
-     * La période se choisit entre le premier et le dernier mois où le portfolio a des opérations ; une
-     * période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur, comme il convient
-     * à un filtre. Par défaut, elle va de M − 13 à M, M étant le mois en cours, ou celui de la dernière
-     * opération s'il est antérieur (sans remonter avant la première opération).
+     * La période se choisit entre le premier et le dernier mois où les comptes retenus ont des
+     * opérations ; une période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur,
+     * comme il convient à un filtre. Par défaut, elle va de M − 13 à M, M étant le mois en cours, ou
+     * celui de la dernière opération s'il est antérieur (sans remonter avant la première opération).
+     * Les filtres sont actifs dès que des comptes sont choisis ou que la période n'est pas celle par
+     * défaut ; la vue propose alors de les effacer.
      *
      * @param  Request  $request  Requête, avec la période et les comptes éventuels.
      * @param  Portfolio  $portfolio  Portfolio affiché.
@@ -60,17 +62,20 @@ class PortfolioController extends Controller
     public function dashboard(Request $request, Portfolio $portfolio): View
     {
         $today = CarbonImmutable::today();
-        $months = $portfolio->operationMonths();
-        $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
-        $period = $this->dashboardPeriod($request->query('period'), $months, $restriction, $today);
         $account_options = $portfolio->accountOptions();
         $accounts = $this->dashboardAccounts($request->query('accounts'), array_column($account_options, 'value'));
+        $months = $portfolio->operationMonths($accounts);
+        $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
+        $period = $this->dashboardPeriod($request->query('period'), $months, $restriction, $today);
+        $default_period = $this->dashboardPeriod(null, $months, $restriction, $today);
         $figures = new SalesFigures($portfolio, $today, $accounts);
         $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today, $accounts);
 
         return view('portfolio.dashboard', [
             'portfolio' => $portfolio,
             'today' => $today,
+            'has_operations' => $accounts === [] ? $months !== [] : $portfolio->operationMonths() !== [],
+            'filtered' => $accounts !== [] || $period !== $default_period,
             'active_accounts' => $figures->activeAccountCount(),
             'archived_accounts' => $figures->archivedAccountCount(),
             'current_month' => $figures->currentMonth(),
