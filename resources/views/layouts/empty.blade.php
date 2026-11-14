@@ -4,6 +4,8 @@
     enregistré (App\Enums\ColorScheme), son choix et l'adresse où l'enregistrer, lus par
     resources/js/theme.js.
 
+    @var \Illuminate\Contracts\Support\Htmlable|string $title Titre de la page, devant le nom de l'application dans
+        l'onglet ; vide pour le nom seul.
     @var \Illuminate\View\ComponentSlot $slot Corps de la page.
 --}}
 <html
@@ -51,7 +53,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link rel="stylesheet" href="https://fonts.bunny.net/css?family=sarabun:200,300,400,500,600,700,800,900,400i">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>@if ($title !== ''){{ $title }} – @endif{{ config('app.name', 'Laravel') }}</title>
 
         @vite(["resources/css/app.css", "resources/js/app.js"])
     </head>

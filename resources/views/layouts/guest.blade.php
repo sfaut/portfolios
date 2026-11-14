@@ -5,12 +5,12 @@
     boucle (x-balance-steps). À droite, le titre de la page, sa description, son contenu, puis ses
     liens secondaires sous un filet.
 
-    @var \Illuminate\View\ComponentSlot $title Titre de la page, dans le h1.
+    @var \Illuminate\View\ComponentSlot $title Titre de la page, dans le h1 et dans l'onglet.
     @var \Illuminate\View\ComponentSlot|null $description Phrase sous le titre, omise si absente.
     @var \Illuminate\View\ComponentSlot $slot Contenu de la page (formulaire, message…).
     @var \Illuminate\View\ComponentSlot|null $footer Liens secondaires, omis si absents.
 --}}
-<x-empty-layout>
+<x-empty-layout :title="$title">
 
     <div class="min-h-dvh grid lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)] bg-white dark:bg-gray-900">
 
