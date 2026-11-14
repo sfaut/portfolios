@@ -18,11 +18,16 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Comptes</h2>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ count($portfolio->accounts) }}
-            {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
-            {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col gap-1">
+                <h2 class="text-xl font-semibold">Comptes</h2>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ count($portfolio->accounts) }}
+                    {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
+                    {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
+                </div>
+            </div>
+            <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
         </div>
     </x-slot>
 
@@ -104,10 +109,6 @@
                     class="truncate text-sm text-red-700 dark:text-red-400"
                 >La recherche n'a pas abouti. Réessayez.</span>
             </form>
-
-            <div class="shrink-0">
-                <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
-            </div>
         </div>
 
         <div
