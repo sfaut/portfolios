@@ -19,7 +19,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="account-form" icon="plus">Créer</x-primary-button>
+                <x-button variant="primary" type="submit" form="account-form" icon="plus">Créer</x-button>
             </x-slot:footer>
         </x-card>
 

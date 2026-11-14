@@ -67,7 +67,7 @@
             @endif
         </div>
 
-        <x-primary-button class="w-full justify-center">Se connecter</x-primary-button>
+        <x-button variant="primary" type="submit" class="w-full">Se connecter</x-button>
     </form>
 
     <x-slot:footer>

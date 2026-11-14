@@ -17,9 +17,9 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Relevé du {{ $taken_at }}</p>
             </div>
 
-            <x-link.secondary :target="route('admin.server')" icon="refresh-cw">
+            <x-button :href="route('admin.server')" icon="refresh-cw">
                 Actualiser
-            </x-link.secondary>
+            </x-button>
         </div>
     </x-slot>
 

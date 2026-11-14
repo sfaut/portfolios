@@ -24,7 +24,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('analytic-axis.index', $analytic_axis->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="analytic-axis-form" icon="check">Modifier</x-primary-button>
+                <x-button variant="primary" type="submit" form="analytic-axis-form" icon="check">Modifier</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -42,7 +42,7 @@
                         @csrf
 
                         <a href="{{ route('analytic-axis.index', $analytic_axis->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                        <x-primary-button>Désarchiver</x-primary-button>
+                        <x-button variant="primary" type="submit">Désarchiver</x-button>
                     </form>
                 </x-slot:footer>
             </x-card>
@@ -56,7 +56,7 @@
 
                 <x-slot:footer>
                     <a href="{{ route('analytic-axis.index', $analytic_axis->portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                    <x-danger-button type="button" commandfor="archive-analytic-axis" command="show-modal">Archiver</x-danger-button>
+                    <x-button variant="danger" type="button" commandfor="archive-analytic-axis" command="show-modal">Archiver</x-button>
                 </x-slot:footer>
             </x-card>
 
@@ -73,7 +73,7 @@
                         @method('delete')
                         @csrf
 
-                        <x-danger-button>Archiver l'axe</x-danger-button>
+                        <x-button variant="danger" type="submit">Archiver l'axe</x-button>
                     </form>
                 </x-slot:footer>
             </x-dialog>

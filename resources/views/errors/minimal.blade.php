@@ -13,5 +13,5 @@
     <x-slot:title>@yield('message')</x-slot:title>
     <x-slot:description>Erreur @yield('code')</x-slot:description>
 
-    <x-link.primary :target="url('/')" class="self-start">Retour à l'accueil</x-link.primary>
+    <x-button variant="primary" :href="url('/')" class="self-start">Retour à l'accueil</x-button>
 </x-guest-layout>

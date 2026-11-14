@@ -19,7 +19,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('account.show', $account) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="operation-form" icon="check">Enregistrer</x-primary-button>
+                <x-button variant="primary" type="submit" form="operation-form" icon="check">Enregistrer</x-button>
             </x-slot:footer>
         </x-card>
 

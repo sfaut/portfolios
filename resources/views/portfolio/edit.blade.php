@@ -17,7 +17,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-primary-button form="portfolio-form" icon="check">Modifier</x-primary-button>
+                <x-button variant="primary" type="submit" form="portfolio-form" icon="check">Modifier</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -31,7 +31,7 @@
 
             <x-slot:footer>
                 <a href="{{ route('portfolio.show', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Annuler</a>
-                <x-danger-button type="button" commandfor="archive-portfolio" command="show-modal">Archiver</x-danger-button>
+                <x-button variant="danger" type="button" commandfor="archive-portfolio" command="show-modal">Archiver</x-button>
             </x-slot:footer>
         </x-card>
 
@@ -48,7 +48,7 @@
                     @method('delete')
                     @csrf
 
-                    <x-danger-button>Archiver le portfolio</x-danger-button>
+                    <x-button variant="danger" type="submit">Archiver le portfolio</x-button>
                 </form>
             </x-slot:footer>
         </x-dialog>

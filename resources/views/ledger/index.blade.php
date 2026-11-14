@@ -166,7 +166,7 @@
                     Le grand livre n'a pas pu être rechargé. Réessayez.
                 </span>
                 <noscript>
-                    <x-primary-button>Filtrer</x-primary-button>
+                    <x-button variant="primary" type="submit">Filtrer</x-button>
                 </noscript>
                 <a
                     href="{{ route('ledger.index', $portfolio) }}"
@@ -223,9 +223,9 @@
 
                     <div class="flex items-center gap-3">
                         @if ($totals['count'] > 0)
-                            <x-link.secondary :target="route('ledger.export', ['portfolio' => $portfolio, ...$filters->query()])" icon="download">
+                            <x-button :href="route('ledger.export', ['portfolio' => $portfolio, ...$filters->query()])" icon="download">
                                 Exporter en CSV
-                            </x-link.secondary>
+                            </x-button>
                         @endif
                         <x-toggle-button name="all" form="ledger-filters" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
                         @unless ($show_all)

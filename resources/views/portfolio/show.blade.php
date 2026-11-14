@@ -106,7 +106,7 @@
             </form>
 
             <div class="shrink-0">
-                <x-link.primary :target="route('account.create', $portfolio)" icon="plus">Créer un compte</x-link.primary>
+                <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
             </div>
         </div>
 
@@ -122,7 +122,7 @@
                 @if ($filtered && $accounts->isEmpty() && $archived_accounts->isEmpty())
                     <div class="flex flex-col items-center gap-4 rounded-md border-2 border-dashed border-gray-300 dark:border-gray-700 p-8 text-center text-gray-500 dark:text-gray-400">
                         <p>{{ $empty_message }}</p>
-                        <x-secondary-button x-on:click="clearFilters()">Effacer les filtres</x-secondary-button>
+                        <x-button x-on:click="clearFilters()">Effacer les filtres</x-button>
                     </div>
                 @endif
 

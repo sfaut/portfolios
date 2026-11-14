@@ -26,7 +26,7 @@
             <x-input-error :messages="$errors->get('email')"/>
         </div>
 
-        <x-primary-button class="w-full justify-center">Envoyer le lien</x-primary-button>
+        <x-button variant="primary" type="submit" class="w-full">Envoyer le lien</x-button>
     </form>
 
     <x-slot:footer>

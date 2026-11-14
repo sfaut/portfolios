@@ -43,7 +43,7 @@
             <x-input-error :messages="$errors->get('password_confirmation')"/>
         </div>
 
-        <x-primary-button class="w-full justify-center">Créer un compte</x-primary-button>
+        <x-button variant="primary" type="submit" class="w-full">Créer un compte</x-button>
     </form>
 
     <x-slot:footer>

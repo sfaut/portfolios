@@ -79,15 +79,15 @@
             </div>
 
             <div x-show="mode === 'camera'" class="flex gap-2">
-                <x-primary-button type="button" x-on:click="shoot()" x-bind:disabled="!live" icon="camera" class="grow justify-center">
+                <x-button variant="primary" type="button" x-on:click="shoot()" x-bind:disabled="!live" icon="camera" class="grow">
                     Déclencher
-                </x-primary-button>
+                </x-button>
 
-                <x-secondary-button x-on:click="toggleTimer()" x-bind:disabled="!live" x-bind:aria-pressed="countdown > 0" class="justify-center gap-1.5 whitespace-nowrap">
+                <x-button x-on:click="toggleTimer()" x-bind:disabled="!live" x-bind:aria-pressed="countdown > 0" class="gap-1.5 whitespace-nowrap">
                     <x-lucide-timer class="size-4" aria-hidden="true"/>
                     <span x-show="countdown === 0"><span class="sr-only">Dans</span> 3 s</span>
                     <span x-show="countdown > 0">Arrêter<span class="sr-only"> le retardateur</span></span>
-                </x-secondary-button>
+                </x-button>
             </div>
         </div>
 
@@ -147,6 +147,6 @@
 
     <x-slot:footer>
         <button type="button" commandfor="avatar-dialog" command="close" class="text-indigo-700 underline hover:no-underline dark:text-indigo-400">Annuler</button>
-        <x-primary-button type="button" x-on:click="save()" x-bind:disabled="saving || mode !== 'crop'">Enregistrer la photo</x-primary-button>
+        <x-button variant="primary" type="button" x-on:click="save()" x-bind:disabled="saving || mode !== 'crop'">Enregistrer la photo</x-button>
     </x-slot:footer>
 </x-dialog>

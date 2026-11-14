@@ -18,7 +18,7 @@
     <form method="post" action="{{ route('verification.send') }}">
         @csrf
 
-        <x-primary-button class="w-full justify-center">Renvoyer le lien de vérification</x-primary-button>
+        <x-button variant="primary" type="submit" class="w-full">Renvoyer le lien de vérification</x-button>
     </form>
 
     <x-slot:footer>
