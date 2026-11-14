@@ -267,30 +267,7 @@
                                     <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ date('d/m/Y', strtotime($operation->delivery_at)) }}</td>
                                     <td class="border px-3 py-2">{{ $operation->label }}</td>
                                     <td class="border px-3 py-2 text-right whitespace-nowrap tabular-nums">{{ Number::amount($operation->amount) }}</td>
-                                    <td class="border px-3 py-2">
-                                        {{--
-                                            Une ligne par axe, du plus lourd au plus léger, comme l'infobulle de la liste d'un
-                                            compte : icône colorée et nom, part, montant en gris, alignés dans la cellule. Un axe
-                                            seul porte tout le montant, déjà écrit : son nom suffit.
-                                        --}}
-                                        @if ($operation->analyticLines->isNotEmpty())
-                                            <div class="inline-grid grid-cols-[auto_auto_auto] items-center gap-x-3 gap-y-0.5">
-                                                @foreach ($operation->analyticLines as $line)
-                                                    <span @class(['flex items-center gap-1.5', 'col-span-3' => $operation->analyticLines->count() === 1])>
-                                                        <x-axis-badge :axis="$line->analyticAxis" icon-only/>
-                                                        <span class="max-w-48 shrink-0 truncate">{{ $line->analyticAxis->name }}</span>
-                                                        @if ($line->analyticAxis->trashed())
-                                                            <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">(archivé)</span>
-                                                        @endif
-                                                    </span>
-                                                    @if ($operation->analyticLines->count() > 1)
-                                                        <span class="text-right whitespace-nowrap tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
-                                                        <span class="text-right whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </td>
+                                    <td class="border px-3 py-2"><x-analytic-breakdown :operation="$operation"/></td>
                                     <td class="relative border px-3 py-2 text-center">
                                         <x-tick-box :operation="$operation" :disabled="$operation->account->trashed()"/>
                                     </td>

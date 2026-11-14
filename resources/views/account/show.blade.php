@@ -1,6 +1,6 @@
 {{--
     Compte et ses opérations, paginées ou toutes à la fois (bouton poussoir « Tout »), avec leur solde
-    cumulé et leur repère analytique. Toutes à la fois, la page s'ouvre sur l'opération modifiée, ou
+    cumulé et leur répartition analytique. Toutes à la fois, la page s'ouvre sur l'opération modifiée, ou
     à défaut au bas du tableau, sur les plus récentes.
 
     @var \App\Models\Account $account Compte affiché, archivé ou non.
@@ -95,26 +95,7 @@
                             <td class="border px-3 py-2 text-right whitespace-nowrap">
                                 {{ Number::amount($operation->amount) }}
                             </td>
-                            <td class="border px-3 py-2 text-center whitespace-nowrap">
-                                @if ($operation->analyticLines->isNotEmpty())
-                                    <x-tooltip>
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                                            <span aria-hidden="true">✓</span>
-                                            {{ $operation->analyticLines->count() }} {{ Str::plural('axe', $operation->analyticLines->count()) }}
-                                        </span>
-
-                                        <x-slot:content>
-                                            <span class="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1">
-                                                @foreach ($operation->analyticLines as $line)
-                                                    <span class="inline-flex items-center gap-1.5"><x-axis-badge :axis="$line->analyticAxis" icon-only on-dark class="size-3.5"/>{{ $line->analyticAxis->name }}</span>
-                                                    <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
-                                                    <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
-                                                @endforeach
-                                            </span>
-                                        </x-slot:content>
-                                    </x-tooltip>
-                                @endif
-                            </td>
+                            <td class="border px-3 py-2"><x-analytic-breakdown :operation="$operation"/></td>
                             <td @class([
                                 'border px-3 py-2 text-right font-semibold whitespace-nowrap',
                                 'text-red-700 dark:text-red-400' => $operation->amount_running_sum < 0,
