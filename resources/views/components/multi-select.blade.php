@@ -6,7 +6,11 @@
     (popovertarget), et les cases cochées partent avec le formulaire dans name[]. Le parent lie la
     sélection par x-model (x-modelable).
 
-    @var string $name Nom du champ envoyé (name[]).
+    En choix unique, les options sont des radios envoyés dans name, précédés du radio vide du
+    placeholder ; un clic de souris ou Entrée sur un radio ferme le popover.
+
+    @var string $name Nom du champ envoyé (name[], ou name en choix unique).
+    @var bool $multiple Si plusieurs options se cochent (cases), sinon une seule (radios).
     @var string $label Libellé accessible du sélecteur.
     @var list<array{value: string, label: string, hint: string}> $choices Options proposées.
     @var list<string> $selection Valeurs cochées.
@@ -96,17 +100,47 @@
         @endif
 
         <ul class="flex max-h-64 flex-col overflow-y-auto">
+            @unless ($multiple)
+                <li x-show="matches(@js($placeholder))">
+                    <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 has-focus-visible:outline-2 has-focus-visible:outline-indigo-500">
+                        <input
+                            type="radio"
+                            name="{{ $name }}"
+                            value=""
+                            x-model="value"
+                            x-on:click="onPick($event)"
+                            x-on:keydown.enter.prevent="close()"
+                            @checked($selection === [])
+                            class="border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                        >
+                        <span class="min-w-0 grow truncate">{{ $placeholder }}</span>
+                    </label>
+                </li>
+            @endunless
             @foreach ($choices as $choice)
                 <li x-show="matches(@js($choice['label']))">
                     <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 has-focus-visible:outline-2 has-focus-visible:outline-indigo-500">
-                        <input
-                            type="checkbox"
-                            name="{{ $name }}[]"
-                            value="{{ $choice['value'] }}"
-                            x-model="value"
-                            @checked(in_array($choice['value'], $selection, strict: true))
-                            class="rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-indigo-600 focus:ring-0 focus:ring-offset-0"
-                        >
+                        @if ($multiple)
+                            <input
+                                type="checkbox"
+                                name="{{ $name }}[]"
+                                value="{{ $choice['value'] }}"
+                                x-model="value"
+                                @checked(in_array($choice['value'], $selection, strict: true))
+                                class="rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                            >
+                        @else
+                            <input
+                                type="radio"
+                                name="{{ $name }}"
+                                value="{{ $choice['value'] }}"
+                                x-model="value"
+                                x-on:click="onPick($event)"
+                                x-on:keydown.enter.prevent="close()"
+                                @checked(in_array($choice['value'], $selection, strict: true))
+                                class="border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                            >
+                        @endif
                         @if ($choice['icon'] !== '')
                             <x-dynamic-component :component="'lucide-'.$choice['icon']" :class="Arr::toCssClasses(['size-4', 'shrink-0', $choice['iconClass']])" aria-hidden="true"/>
                         @endif
@@ -124,11 +158,13 @@
         @endif
 
         <div class="flex items-center justify-end gap-4 border-t border-gray-200 dark:border-gray-700 pt-2">
-            <button
-                type="button"
-                x-on:click="clear()"
-                class="rounded-md text-indigo-700 dark:text-indigo-400 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-500"
-            >{{ $placeholder !== '' ? $placeholder : 'Effacer' }}</button>
+            @if ($multiple)
+                <button
+                    type="button"
+                    x-on:click="clear()"
+                    class="rounded-md text-indigo-700 dark:text-indigo-400 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-500"
+                >{{ $placeholder !== '' ? $placeholder : 'Effacer' }}</button>
+            @endif
             <button
                 type="button"
                 popovertarget="{{ $popoverId }}"

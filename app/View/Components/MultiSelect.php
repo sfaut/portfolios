@@ -19,6 +19,11 @@ use Illuminate\View\Component;
  * options. Cette normalisation évite d'afficher une sélection impossible ; elle ne remplace pas le
  * contrôle de la valeur reçue, qui reste à la charge du serveur.
  *
+ * En choix unique (multiple à false), les options sont des radios natifs envoyés dans name, précédés
+ * d'un radio vide libellé par le placeholder (« Tout »), coché sans choix : le retour à « tout » se
+ * fait aussi sans JavaScript. La sélection tient alors en une valeur au plus, et une valeur seule
+ * (« sales ») est acceptée au départ comme une liste ; le parent la lie en texte, '' sans choix.
+ *
  * Le composant Alpine multiSelect (resources/js/multi-select.js) tient le libellé à jour, filtre la
  * liste et mène le clavier ; le parent lie la sélection par x-model (x-modelable).
  */
@@ -37,7 +42,7 @@ class MultiSelect extends Component
     public array $choices;
 
     /**
-     * Valeurs cochées, parmi celles des options et dans leur ordre.
+     * Valeurs cochées, parmi celles des options et dans leur ordre ; une au plus en choix unique.
      *
      * @var list<string>
      */
@@ -62,7 +67,7 @@ class MultiSelect extends Component
     /**
      * Configuration transmise au composant Alpine multiSelect.
      *
-     * @var array{value: list<string>, options: list<array{value: string, label: string}>, placeholder: string, noun: string}
+     * @var array{value: list<string>|string, options: list<array{value: string, label: string}>, placeholder: string, noun: string, multiple: bool}
      */
     public array $config;
 
@@ -77,6 +82,7 @@ class MultiSelect extends Component
      * @param  list<int|string>|mixed  $value  Valeurs cochées au départ.
      * @param  string  $placeholder  Texte du déclencheur sans option cochée.
      * @param  string  $noun  Nom au pluriel qui suit le nombre d'options cochées (« comptes »).
+     * @param  bool  $multiple  Si plusieurs options se cochent (cases), sinon une seule (radios).
      */
     public function __construct(
         public string $name,
@@ -85,6 +91,7 @@ class MultiSelect extends Component
         mixed $value = [],
         public string $placeholder = '',
         public string $noun = 'options',
+        public bool $multiple = true,
     ) {
         $this->choices = array_map(fn (array $option): array => [
             'value' => (string) $option['value'],
@@ -94,22 +101,26 @@ class MultiSelect extends Component
             'iconClass' => $option['iconClass'] ?? '',
         ], array_values($options));
 
-        $checked = array_map(strval(...), array_filter(is_array($value) ? $value : [], fn (mixed $item): bool => is_int($item) || is_string($item)));
+        $values = is_array($value) ? $value : ($multiple ? [] : [$value]);
+        $checked = array_map(strval(...), array_filter($values, fn (mixed $item): bool => is_int($item) || is_string($item)));
 
-        $this->selection = array_values(array_filter(
-            array_column($this->choices, 'value'),
-            fn (string $choice): bool => in_array($choice, $checked, strict: true),
-        ));
+        $this->selection = $multiple
+            ? array_values(array_filter(
+                array_column($this->choices, 'value'),
+                fn (string $choice): bool => in_array($choice, $checked, strict: true),
+            ))
+            : array_slice(array_values(array_intersect($checked, array_column($this->choices, 'value'))), 0, 1);
 
         $this->triggerLabel = $this->describe();
         $this->popoverId = 'multi-select-'.Str::slug($this->name);
         $this->searchable = count($this->choices) > self::SEARCH_THRESHOLD;
 
         $this->config = [
-            'value' => $this->selection,
+            'value' => $multiple ? $this->selection : ($this->selection[0] ?? ''),
             'options' => array_map(fn (array $choice): array => ['value' => $choice['value'], 'label' => $choice['label']], $this->choices),
             'placeholder' => $this->placeholder,
             'noun' => $this->noun,
+            'multiple' => $multiple,
         ];
     }
 
