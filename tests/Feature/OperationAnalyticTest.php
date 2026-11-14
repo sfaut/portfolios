@@ -233,3 +233,32 @@ test('the analytic tooltip rounds the part of the amount half away from zero', f
 
     $response->assertOk()->assertSeeInOrder(['Cours piano', "−0,03\u{a0}€", 'Cours échecs', "−0,03\u{a0}€"]);
 });
+
+test('a new operation starts from the default breakdown of its account, without its archived axes', function () {
+    $singing = $this->portfolio->analyticAxes()->create(['name' => 'Cours chant']);
+    $this->account->analyticAxes()->attach([
+        $this->chess->id => ['percentage' => '20', 'position' => 0],
+        $this->piano->id => ['percentage' => '70', 'position' => 1],
+        $singing->id => ['percentage' => '10', 'position' => 2],
+    ]);
+    $singing->delete();
+
+    $html = (string) $this->actingAs($this->owner)->get(route('operation.create', $this->account))->assertOk()->getContent();
+
+    expect(editorLines($html))->toBe([
+        ['analytic_axis_id' => (string) $this->piano->id, 'percentage' => '70.00'],
+        ['analytic_axis_id' => (string) $this->chess->id, 'percentage' => '20.00'],
+    ]);
+});
+
+test('an operation edited keeps its own lines, whatever the breakdown of its account', function () {
+    $this->account->analyticAxes()->attach($this->piano, ['percentage' => '100', 'position' => 0]);
+    $operation = $this->account->operations()->create(lessonOperation([]));
+    $operation->analyticLines()->create(['analytic_axis_id' => $this->chess->id, 'percentage' => '100']);
+    $unsplit = $this->account->operations()->create(lessonOperation([]));
+
+    $edit = fn ($operation) => editorLines((string) $this->actingAs($this->owner)->get(route('operation.edit', $operation))->assertOk()->getContent());
+
+    expect($edit($operation))->toBe([['analytic_axis_id' => (string) $this->chess->id, 'percentage' => '100.00']])
+        ->and($edit($unsplit))->toBe([]);
+});
