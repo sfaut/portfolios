@@ -63,16 +63,16 @@
             <table class="w-full **:border-gray-200 dark:**:border-gray-700">
                 <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                     <tr>
-                        <th class="border px-3 py-2">ID</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Date effective</th>
-                        <th class="border px-3 py-2">Libellé</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Montant (€)</th>
-                        <th class="border px-3 py-2">Analytique</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Solde (€)</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Horodatage écriture</th>
-                        <th class="border px-3 py-2 whitespace-nowrap">Pointée ?</th>
+                        <th scope="col" class="border px-3 py-2 text-right">ID</th>
+                        <th scope="col" class="border px-3 py-2 whitespace-nowrap">Horodatage écriture</th>
+                        <th scope="col" class="border px-3 py-2 whitespace-nowrap">Date effective</th>
+                        <th scope="col" class="min-w-44 border px-3 py-2 text-left">Libellé</th>
+                        <th scope="col" class="border px-3 py-2 text-right whitespace-nowrap">Montant (€)</th>
+                        <th scope="col" class="border px-3 py-2 text-left">Axes</th>
+                        <th scope="col" class="border px-3 py-2 text-right whitespace-nowrap">Solde (€)</th>
+                        <th scope="col" class="border px-3 py-2 whitespace-nowrap">Pointée ?</th>
                         @unless ($account->trashed())
-                            <th class="border px-3 py-2">Action</th>
+                            <th scope="col" class="border px-3 py-2">Action</th>
                         @endunless
                     </tr>
                 </thead>
@@ -87,24 +87,22 @@
                             ])
                         >
                             <td @class([
-                                'border', 'px-3', 'py-2', 'text-right',
+                                'border', 'px-3', 'py-2', 'text-right', 'tabular-nums',
                                 'shadow-[inset_4px_0_0_var(--color-primary-600)] dark:shadow-[inset_4px_0_0_var(--color-primary-400)]' => ($operation->id === session('updated_operation_id')),
                             ])>{{ $operation->id }}</td>
-                            <td class="border px-3 py-2 text-center">{{ date('d/m/Y', strtotime($operation->delivery_at)) }}</td>
+                            <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
+                            <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ date('d/m/Y', strtotime($operation->delivery_at)) }}</td>
                             <td class="border px-3 py-2">{{ $operation->label }}</td>
-                            <td class="border px-3 py-2 text-right whitespace-nowrap">
-                                {{ Number::amount($operation->amount) }}
-                            </td>
+                            <td class="border px-3 py-2 text-right whitespace-nowrap tabular-nums">{{ Number::amount($operation->amount) }}</td>
                             <td class="border px-3 py-2"><x-analytic-breakdown :operation="$operation"/></td>
                             <td @class([
-                                'border px-3 py-2 text-right font-semibold whitespace-nowrap',
+                                'border px-3 py-2 text-right font-semibold whitespace-nowrap tabular-nums',
                                 'text-red-700 dark:text-red-400' => $operation->amount_running_sum < 0,
                                 'text-emerald-700 dark:text-emerald-400' => $operation->amount_running_sum == 0,
                                 'text-blue-700 dark:text-blue-400' => $operation->amount_running_sum > 0,
                             ])>
                                 {{ Number::amount($operation->amount_running_sum, signed: true) }}
                             </td>
-                            <td class="border px-3 py-2 text-center whitespace-nowrap tabular-nums">{{ $operation->created_at?->format('d/m/Y H:i:s') }}</td>
                             <td class="relative border px-3 py-2 text-center">
                                 <x-tick-box :operation="$operation" :disabled="$account->trashed()"/>
                             </td>
