@@ -580,7 +580,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   de tableau `gray-700`, texte `gray-300`, accents `indigo-400`. Les variantes de
   `<x-button>`, bouton ou lien, ont la même forme et le même anneau de focus au clavier : le
   principal est indigo plein (`indigo-600` en clair, `indigo-500` en sombre, plus clair au survol,
-  plus foncé à l'appui), le secondaire blanc bordé de gris, le danger rouge (`red-600`). En sombre,
+  plus foncé à l'appui), le secondaire gris très clair (`gray-100`) bordé de gris, le danger rouge (`red-600`). En sombre,
   aucun bouton n'est clair : le secondaire passe en surface grise surélevée (`gray-700`, bordure
   `gray-600`), le danger reste rouge.
 
