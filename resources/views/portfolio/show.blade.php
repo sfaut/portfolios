@@ -134,21 +134,7 @@
                         @endforeach
 
                         @unless ($filtered)
-                            <a
-                                href="{{ route('account.create', $portfolio) }}"
-                                @class([
-                                    'col-start-1', 'block',
-                                    'rounded-md', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'hover:shadow-md',
-                                    'p-4',
-                                    'border-2', 'border-dashed', 'border-gray-400', 'dark:border-gray-600',
-                                    'hover:border-indigo-700', 'hover:text-indigo-700', 'dark:hover:border-indigo-400', 'dark:hover:text-indigo-400',
-                                    'text-center', 'text-gray-400', 'dark:text-gray-500',
-                                    'transition-all', 'duration-200', 'ease-linear', 'hover:scale-102',
-                                ])
-                            >
-                                <x-lucide-circle-plus class="mx-auto size-7.5 stroke-[1.25]" aria-hidden="true"/>
-                                <h3>Créer un compte</h3>
-                            </a>
+                            <x-create-card :href="route('account.create', $portfolio)">Créer un compte</x-create-card>
                         @endunless
                     </div>
                 @endif
