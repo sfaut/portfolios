@@ -2,6 +2,49 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.9.0 (2026-11-14)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.9.0, qui donne à toutes les pages la même structure et
+renouvelle les pages de connexion :
+
+- un bandeau commun : fil d'Ariane parti de « Portfolios », titre, rôle de la page, actions à droite ;
+- les chiffres de chaque page réunis au-dessus de ses données ;
+- une même barre de filtres partout, et un tableau de bord filtré par comptes ;
+- des pages de connexion en écran partagé, et des boutons harmonisés.
+
+### ✨ Nouvelles fonctionnalités
+
+- Tableau de bord : un filtre de comptes, qui vaut pour toute la page, chiffres clefs compris. La
+  période ne propose que les mois où ces comptes ont des opérations, et « Effacer les filtres »
+  apparaît dès qu'un filtre s'écarte du réglage par défaut.
+- Bandeau des pages : au-dessus du titre, le fil d'Ariane part de la liste des portfolios et passe
+  par le portfolio courant ; sous le titre, une phrase dit le rôle de la page. Les actions sur toute
+  la page vont à droite : « Créer un compte », « Écrire une opération », « Créer un axe ».
+- Chiffres : chaque page les montre en tête de ses données (portfolios, comptes, compte, Grand livre,
+  axes, état du serveur), avec « sur N » quand un filtre réduit la liste. Le tableau de bord date ses
+  chiffres clefs.
+- Filtres : la liste des comptes et le tableau de bord prennent la barre de filtres du Grand livre.
+- Le sélecteur de portfolio montre une icône devant chaque portfolio.
+- Connexion, inscription et mot de passe : un écran partagé, avec à gauche le logotype et la ligne en
+  paliers du logo, qui se trace en boucle (immobile quand le système réduit les animations). L'onglet
+  du navigateur porte le titre de la page.
+- Boutons : un même dessin partout, le principal en indigo, le secondaire en gris clair, le danger en
+  rouge.
+
+### 🐞 Corrections
+
+- Mot de passe oublié, réinitialisation et changement du mot de passe, suppression du compte : les
+  messages d'erreur nomment les champs en français.
+
+### ⚙️ Améliorations internes
+
+- La CI vérifie que les classes Tailwind sont écrites sous leur forme canonique (`npm run lint:css`).
+- Dépendances directes (développement) : ajout de `@tailwindcss/node` 4.3.5 et de
+  `@tailwindcss/oxide` 4.3.5, pour ce contrôle.
+- Aucune migration ni action sur le serveur.
+
 ## v1.8.0 (2026-11-14)
 
 ### 🚀 Lancement
