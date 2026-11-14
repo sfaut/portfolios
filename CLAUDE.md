@@ -172,15 +172,25 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   par Node) : aperçu de la pastille qui suit le nom saisi, couleurs en pastilles rondes, puis grille
   d'icônes teintée de la couleur choisie, avec recherche et onglets de thème ; ce sont des radios
   natifs, envoyés sans JavaScript. « Non réparti » se montre en gris avec `circle-dashed`.
-  Un compte a aussi de 0 à n axes, pour le repérer seulement (aucun effet sur les opérations ni les
-  calculs) : table pivot `account_analytic_axis`, relation `analyticAxes()` sur `Account` et sur
-  `AccountReport` (archivés inclus, par nom, chargée d'un coup par la liste du portfolio). Le
-  formulaire du compte les coche en pastilles (`analytic_axes[]`, aucune cochée les retire toutes),
-  parmi `Portfolio::assignableAnalyticAxes()` : les axes non archivés, plus les archivés déjà
-  affectés au compte, seule liste blanche de `AccountRequest`. `<x-axis-icons :axes>` les montre
-  après le nom du compte (carte de la liste, titre de la page du compte), chaque icône dans un
-  `<x-tooltip>` qui donne son nom ; `focusable` hors d'un lien. L'export les écrit dans
-  `axes-comptes.csv`.
+  Un compte a une répartition analytique par défaut, facultative et ordonnée : table pivot
+  `account_analytic_axis` (`percentage`, total exactement 100 % dès qu'il y a une ligne, et
+  `position`, à partir de 0), relation `analyticAxes()` sur `Account` et sur `AccountReport`
+  (archivés inclus, par position, chargée d'un coup par la liste du portfolio). Le formulaire du
+  compte la saisit par `<x-analytic-lines sortable>` (`analytic_axes[i][analytic_axis_id|percentage]`,
+  la position étant l'ordre d'envoi, aucune ligne la retire), parmi
+  `Portfolio::assignableAnalyticAxes()` : les axes non archivés, plus les archivés déjà affectés au
+  compte, seule liste blanche de `AccountRequest`. Les lignes s'y réordonnent par une poignée
+  (`@alpinejs/sort`, `x-sort`), ou par ses flèches haut / bas au clavier. Elle n'a d'autre effet que
+  de préremplir une nouvelle opération du compte (`OperationController::analyticForm()`, axes
+  archivés exclus) ; les opérations existantes ne changent pas. L'ordre des axes du compte est celui
+  de leur affichage : `<x-axis-icons :axes>` les montre après le nom du compte (carte de la liste,
+  titre de la page du compte), chaque icône dans un `<x-tooltip>` qui donne son nom ; `focusable`
+  hors d'un lien. Les lignes d'une opération s'affichent de la plus lourde à la plus légère, à
+  égalité dans l'ordre des axes de son compte, puis par nom : portée `AnalyticLine::inDisplayOrder()`,
+  à poser sur chaque chargement d'affichage (liste du compte, Grand livre, formulaire en
+  modification), jamais dans la relation `Operation::analyticLines()`, qui sert aussi aux
+  suppressions. Le tri « Axes » du Grand livre suit le premier axe ainsi affiché. L'export écrit la
+  répartition dans `axes-comptes.csv`.
 - `bootstrap/app.php` redéfinit la pile de middlewares globaux sans `ConvertEmptyStringsToNull` : un champ
   vide arrive en `''`, en accord avec les colonnes `description` à valeur par défaut `''`.
 - La session est sérialisée en JSON (`config/session.php`) et le cache ne désérialise aucune classe PHP
@@ -349,7 +359,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   pagination rechargent la page. `ledger.export` télécharge la sélection triée en CSV, diffusée au fil
   de la lecture. Un nouveau filtre entre dans `LedgerFilters` (lecture, `filterQuery()`, `state()`),
   `Ledger::filtered()`, le formulaire, `ledger.js` et `tests/Feature/LedgerTest.php`.
-- Répartition analytique du formulaire d'opération : composant Alpine `analyticLines`
+- Répartition analytique du formulaire d'opération : `<x-analytic-lines :form>`, éditeur partagé avec
+  la répartition par défaut d'un compte (options `name`, `amount`, `sortable`), contrôle du total
+  partagé par `App\Http\Requests\Concerns\ValidatesAnalyticBreakdown`. Composant Alpine `analyticLines`
   (`resources/js/analytic-lines.js`, enregistré par `Alpine.data()` dans `app.js`), qui ajoute et retire
   les lignes, préremplit une nouvelle ligne du reste jusqu'à 100 % et affiche le total, dans la colonne
   des pourcentages. Entrée dans un pourcentage ajoute une ligne et en sélectionne le pourcentage, sans
