@@ -171,8 +171,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   familles vives de Tailwind et gray, ses classes écrites en entier dans des `match` pour que
   Tailwind les trouve (`badgeClasses()`, `textClasses()`, `onDarkClasses()`, `barClasses()`).
   `<x-axis-badge :axis>` (`App\View\Components\AxisBadge`) affiche l'axe partout : pastille colorée,
-  icône devant le nom, « (archivé) » ; `icon-only` ne garde que l'icône colorée, `on-dark` sur le
-  fond sombre d'une infobulle. Il accepte un modèle ou une ligne de requête `toBase()` (name, icon,
+  icône devant le nom, « (archivé) » ; `icon-only` ne garde que l'icône colorée, en `size-4` sauf
+  si la classe passée donne une autre taille, `on-dark` sur le fond sombre d'une infobulle. Il accepte un modèle ou une ligne de requête `toBase()` (name, icon,
   color, archived). Le formulaire de l'axe choisit les deux par `<x-axis-appearance>` (composant
   Alpine `axisAppearance`, recherche sans casse ni accents dans `axis-appearance-rules.js`, testée
   par Node) : aperçu de la pastille qui suit le nom saisi, couleurs en pastilles rondes, puis grille
@@ -356,7 +356,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   tableau et celui de la liste d'un compte ont les mêmes colonnes, dans le même ordre : ID, Compte
   (Grand livre seul), Horodatage écriture, Date effective, Libellé, Montant (€), Axes, Solde (€)
   (compte seul), Pointée ?, Action. Leur colonne des axes passe par `<x-analytic-breakdown
-  :operation>`, qui écrit chaque ligne analytique, sans infobulle : icône colorée et nom, part,
+  :operation>`, qui écrit chaque ligne analytique, sans infobulle, un cran sous le texte du tableau
+  (`text-xs`) : icône colorée et nom, part,
   montant en gris (`AnalyticLine::amountShare()`), alignés dans la cellule ; un axe seul ne montre
   que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran
   étroit, le tableau défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
@@ -373,6 +374,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   pagination rechargent la page. `ledger.export` télécharge la sélection triée en CSV, diffusée au fil
   de la lecture. Un nouveau filtre entre dans `LedgerFilters` (lecture, `filterQuery()`, `state()`),
   `Ledger::filtered()`, le formulaire, `ledger.js` et `tests/Feature/LedgerTest.php`.
+- Le formulaire d'opération suit l'ordre des colonnes de la liste d'un compte : date effective,
+  libellé, montant et sa répartition, pointage.
 - Répartition analytique du formulaire d'opération : `<x-analytic-lines :form>`, éditeur partagé avec
   la répartition par défaut d'un compte (options `name`, `amount`, `sortable`), contrôle du total
   partagé par `App\Http\Requests\Concerns\ValidatesAnalyticBreakdown`. Composant Alpine `analyticLines`
