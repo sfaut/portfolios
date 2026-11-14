@@ -11,16 +11,13 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-col gap-1">
-                <h2 class="text-xl font-semibold">État du serveur</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Relevé du {{ $taken_at }}</p>
-            </div>
-
-            <x-button :href="route('admin.server')" icon="refresh-cw">
-                Actualiser
-            </x-button>
-        </div>
+        <x-page-header>
+            État du serveur
+            <x-slot:status>Relevé du {{ $taken_at }}</x-slot:status>
+            <x-slot:actions>
+                <x-button :href="route('admin.server')" icon="refresh-cw">Actualiser</x-button>
+            </x-slot:actions>
+        </x-page-header>
     </x-slot>
 
     <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">

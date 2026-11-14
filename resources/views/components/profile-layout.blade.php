@@ -13,7 +13,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">{{ $title }}</h2>
+        <x-page-header>{{ $title }}</x-page-header>
     </x-slot>
 
     <div class="max-w-5xl mx-auto grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start">

@@ -98,6 +98,12 @@ test('the ledger lists the operations of every account, the last written first',
         ->assertSeeInOrder(['Facture Bêta', '−250,50', 'Formation', 'Études'], escape: false);
 });
 
+test('the ledger header tells how many operations the portfolio has, whatever the filters', function () {
+    ledger(['label' => 'Alpha'])
+        ->assertOk()
+        ->assertSeeInOrder(['<header', 'Grand livre', '5 opérations enregistrées', '</header>'], escape: false);
+});
+
 test('the ledger writes each analytic line of an operation in its row, without tooltip', function () {
     $response = ledger();
 

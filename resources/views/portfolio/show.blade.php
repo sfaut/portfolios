@@ -18,17 +18,13 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div class="flex flex-col gap-1">
-                <h2 class="text-xl font-semibold">Comptes</h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ count($portfolio->accounts) }}
-                    {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
-                    {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
-                </div>
-            </div>
-            <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
-        </div>
+        <x-page-header>
+            Comptes
+            <x-slot:status>{{ trans_choice('{0,1} :count compte enregistré|[2,*] :count comptes enregistrés', count($portfolio->accounts), ['count' => Number::format(count($portfolio->accounts), locale: 'fr')]) }}</x-slot:status>
+            <x-slot:actions>
+                <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
+            </x-slot:actions>
+        </x-page-header>
     </x-slot>
 
     <div x-data="accountSearch(@js($search), @js($month))" class="flex flex-col gap-6">

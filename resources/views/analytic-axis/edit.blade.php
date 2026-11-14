@@ -5,10 +5,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-1">
-            <h2 class="text-xl font-semibold">Axe analytique <span class="text-indigo-700 dark:text-indigo-400">{{ $analytic_axis->name }}</span></h2>
-            <x-breadcrumb :links="[route('analytic-axis.index', $analytic_axis->portfolio) => 'Axes analytiques']"/>
-        </div>
+        <x-page-header :breadcrumb="[route('analytic-axis.index', $analytic_axis->portfolio) => 'Axes analytiques']">Axe analytique <span class="text-indigo-700 dark:text-indigo-400">{{ $analytic_axis->name }}</span></x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

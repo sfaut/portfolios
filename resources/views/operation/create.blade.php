@@ -1,9 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-1">
-            <h2 class="text-xl font-semibold">Écriture d'une opération</h2>
-            <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]"/>
-        </div>
+        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]">Écriture d'une opération</x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

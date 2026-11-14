@@ -81,10 +81,13 @@ class AccountController extends Controller
         ]);
 
         if ($show_all) {
+            $operations = $query->get();
+
             return view('account.show', [
                 'account' => $account,
-                'operations' => $query->get(),
+                'operations' => $operations,
                 'show_all' => true,
+                'operation_count' => $operations->count(),
             ]);
         }
 
@@ -103,6 +106,7 @@ class AccountController extends Controller
             'account' => $account,
             'operations' => $operations,
             'show_all' => false,
+            'operation_count' => $operations->total(),
         ]);
     }
 

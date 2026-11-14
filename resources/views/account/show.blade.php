@@ -7,19 +7,21 @@
     @var \Illuminate\Pagination\LengthAwarePaginator<int, \App\Models\OperationReport>|\Illuminate\Database\Eloquent\Collection<int, \App\Models\OperationReport> $operations
         Opérations de la page, ou toutes sans pagination, avec leurs lignes analytiques.
     @var bool $show_all Si toutes les opérations sont affichées, sans pagination.
+    @var int $operation_count Nombre d'opérations du compte.
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div class="flex flex-col gap-1">
-                <h2 class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xl font-semibold">
-                    <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
-                    <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
-                </h2>
-                <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes']"/>
-            </div>
-            <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
-        </div>
+        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes']" class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
+            <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
+            <x-slot:status>{{ trans_choice('{0,1} :count opération enregistrée|[2,*] :count opérations enregistrées', $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:status>
+            <x-slot:actions>
+                <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
+                @unless ($account->trashed())
+                    <x-button variant="primary" :href="route('operation.create', $account)" icon="plus">Écrire une opération</x-button>
+                @endunless
+            </x-slot:actions>
+        </x-page-header>
     </x-slot>
 
     <div class="flex flex-col gap-6">
@@ -37,20 +39,13 @@
             </x-alert>
         @endif
 
-        <div @class(['flex', 'justify-between' => ! $account->trashed(), 'justify-end' => $account->trashed()])>
-            @unless ($account->trashed())
-                <x-button variant="primary" :href="route('operation.create', $account)" icon="plus">Écrire une opération</x-button>
+        <div class="flex items-center justify-end gap-3">
+            <form method="GET" action="{{ route('account.show', $account) }}">
+                <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
+            </form>
+            @unless ($show_all)
+                {{ $operations->links('pagination.narrow') }}
             @endunless
-            <div class="flex items-center gap-3">
-                <form method="GET" action="{{ route('account.show', $account) }}">
-                    <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
-                </form>
-                @if ($show_all)
-                    <span class="text-xs text-gray-600 dark:text-gray-300">{{ trans_choice(':count opération|:count opérations', $operations->count()) }}</span>
-                @else
-                    {{ $operations->links('pagination.narrow') }}
-                @endif
-            </div>
         </div>
 
         <div
