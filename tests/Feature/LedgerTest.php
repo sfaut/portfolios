@@ -108,7 +108,9 @@ test('the ledger writes each analytic line of an operation in its row, without t
         'Règlement Alpha',
     ], escape: false);
 
-    expect($response->getContent())->not->toContain('role="tooltip"');
+    // Facture Alpha, on a single axis, shows its name alone: its share is the whole amount.
+    expect($response->getContent())->not->toContain('role="tooltip"')
+        ->and($response->getContent())->not->toContain("100\u{a0}%");
 });
 
 test('the ledger is a wide page, its bar and its header at the width of its content', function () {
