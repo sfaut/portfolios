@@ -43,8 +43,8 @@
 
                             <x-slot name="content">
                                 @foreach ($portfolios as $portfolio)
-                                    <x-dropdown-link :href="route('portfolio.dashboard', $portfolio)" class="flex items-center justify-between gap-2">
-                                        <span class="truncate">{{ $portfolio->name }}</span>
+                                    <x-dropdown-link :href="route('portfolio.dashboard', $portfolio)" icon="briefcase">
+                                        <span class="min-w-0 flex-1 truncate">{{ $portfolio->name }}</span>
                                         @if ($portfolio->is($current_portfolio))
                                             <span class="sr-only">(portfolio affiché)</span>
                                             <x-lucide-check class="size-4 shrink-0 text-indigo-600 dark:text-indigo-400" aria-hidden="true"/>

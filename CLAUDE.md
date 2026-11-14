@@ -265,7 +265,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Navigation : la barre du haut (`layouts/navigation.blade.php`) dit où l'on est, le bandeau de la page
   ce qu'est la page. La barre porte le logo, qui mène à la liste des portfolios, et le menu de
   l'utilisateur. Dans un portfolio, elle porte aussi le sélecteur de portfolio, de largeur fixe (ses
-  portfolios, puis modifier, tous, créer), et `<x-portfolio-nav>`, toujours à la même place : ces deux
+  portfolios, chacun derrière l'icône `briefcase`, puis modifier, tous, créer), et `<x-portfolio-nav>`, toujours à la même place : ces deux
   éléments passent sur une seconde ligne tant que la barre ne tient pas sur une seule (sous `xl`),
   l'un sous l'autre sur un téléphone, côte à côte au-delà de `md`, et `scrollbar-gutter: stable` empêche
   la barre de défilement de les décaler d'une page à l'autre. Le portfolio et la section viennent de
