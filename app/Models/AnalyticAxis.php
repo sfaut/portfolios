@@ -81,6 +81,22 @@ class AnalyticAxis extends Model
     }
 
     /**
+     * Axe tel que le propose l'éditeur d'une répartition (resources/js/analytic-lines.js) : avec son
+     * icône colorée, rendue ici en SVG.
+     *
+     * @return array{id: int, name: string, archived: bool, icon: string}
+     */
+    public function formOption(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'archived' => $this->trashed(),
+            'icon' => svg("lucide-{$this->icon}", "size-4 {$this->color->textClasses()}", ['aria-hidden' => 'true'])->toHtml(),
+        ];
+    }
+
+    /**
      * Lignes analytiques des opérations réparties sur l'axe.
      *
      * @return HasMany<AnalyticLine, $this>

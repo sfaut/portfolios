@@ -167,12 +167,7 @@ class OperationController extends Controller
 
         return [
             'axes' => $this->selectableAnalyticAxes($account, $operation)
-                ->map(fn (AnalyticAxis $axis): array => [
-                    'id' => $axis->id,
-                    'name' => $axis->name,
-                    'archived' => $axis->trashed(),
-                    'icon' => svg("lucide-{$axis->icon}", "size-4 {$axis->color->textClasses()}", ['aria-hidden' => 'true'])->toHtml(),
-                ])
+                ->map(fn (AnalyticAxis $axis): array => $axis->formOption())
                 ->values()
                 ->all(),
             'lines' => $lines,

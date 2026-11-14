@@ -1,20 +1,26 @@
 /**
- * Analytic breakdown of an operation (operation/partials/form.blade.php): lines that each
- * give an analytic axis and a percentage of the amount, which total 100 %.
+ * Analytic breakdown editor, shared by the form of an operation (operation/partials/form.blade.php)
+ * and the default breakdown of an account (account/partials/form.blade.php): lines that each give
+ * an analytic axis and a percentage, which total 100 %.
  *
- * The lines are posted as analytic_lines[i][analytic_axis_id] and analytic_lines[i][percentage].
- * Each line also shows the part of the amount it stands for, read from the "amount" field of the
- * form, outside the component.
- * The total is computed in whole hundredths, as OperationRequest does, which has the last word.
+ * The lines are posted as <name>[i][analytic_axis_id] and <name>[i][percentage], in their order.
+ * With the amount option, each line also shows the part of the amount it stands for, read from the
+ * "amount" field of the form, outside the component. With the sortable option, the lines are
+ * reordered by their handle (x-sort, @alpinejs/sort), or with the arrow keys on it.
+ * The total is computed in whole hundredths, as the server does, which has the last word.
  *
- * @param {object} form Data prepared by OperationController::analyticForm().
+ * @param {object} form Data prepared by the controller (OperationController::analyticForm(),
+ *     AccountController::analyticForm()).
  * @param {{id: number, name: string, archived: boolean, icon: string}[]} form.axes Selectable axes,
  *     each with its colored icon, an SVG rendered by the server and shown before the select.
  * @param {{analytic_axis_id: string, percentage: string}[]} form.lines Initial lines.
  * @param {Object<string, string[]>} errors Server errors of the form, those of the lines keyed
- *     "analytic_lines.<i>.<field>".
+ *     "<name>.<i>.<field>".
+ * @param {object} [options]
+ * @param {string} [options.name] Name of the field of the lines.
+ * @param {boolean} [options.amount] Whether each line shows its part of the amount.
  */
-export default function analyticLines({ axes, lines }, errors) {
+export default function analyticLines({ axes, lines }, errors, { name = "analytic_lines", amount = true } = {}) {
     let next_key = 0;
 
     /**
@@ -45,13 +51,15 @@ export default function analyticLines({ axes, lines }, errors) {
         axes,
         lines: lines.map(keyed),
         errors,
+        name,
         amount: "",
 
         /**
-         * Follows the amount field of the form, whose value may come back from a failed validation.
+         * Follows the amount field of the form, whose value may come back from a failed validation,
+         * when the lines show their part of it.
          */
         init() {
-            const field = this.$root.closest("form")?.elements.namedItem("amount");
+            const field = amount ? this.$root.closest("form")?.elements.namedItem("amount") : null;
 
             if (!field) {
                 return;
@@ -153,6 +161,57 @@ export default function analyticLines({ axes, lines }, errors) {
         },
 
         /**
+         * Name of a field of a line, posted in the order of the lines.
+         *
+         * @param {number} index
+         * @param {string} field analytic_axis_id or percentage.
+         */
+        fieldName(index, field) {
+            return `${this.name}[${index}][${field}]`;
+        },
+
+        /**
+         * Handler of x-sort: puts the dragged line at its new position. The plugin has already moved
+         * its element, where x-for, keyed, then finds it. The server errors are cleared, as for a
+         * removal.
+         *
+         * @param {number} key Key of the dragged line.
+         * @param {number} position New index of the line.
+         */
+        move(key, position) {
+            const from = this.lines.findIndex((line) => line.key === key);
+
+            if (from === -1 || from === position) {
+                return;
+            }
+
+            const [line] = this.lines.splice(from, 1);
+
+            this.lines.splice(position, 0, line);
+            this.errors = {};
+        },
+
+        /**
+         * Arrow keys on the handle of a line: moves it up or down by one place, the focus staying
+         * on its handle.
+         *
+         * @param {number} index
+         * @param {number} delta -1 (up) or 1 (down).
+         */
+        moveBy(index, delta) {
+            const position = index + delta;
+
+            if (position < 0 || position >= this.lines.length) {
+                return;
+            }
+
+            const key = this.lines[index].key;
+
+            this.move(key, position);
+            this.$nextTick(() => this.$root.querySelector(`[data-line-key="${key}"] [data-line-handle]`)?.focus());
+        },
+
+        /**
          * Server errors of a line.
          *
          * @param {number} index
@@ -160,8 +219,9 @@ export default function analyticLines({ axes, lines }, errors) {
          */
         lineErrors(index) {
             return [
-                ...(this.errors[`analytic_lines.${index}.analytic_axis_id`] ?? []),
-                ...(this.errors[`analytic_lines.${index}.percentage`] ?? []),
+                ...(this.errors[`${this.name}.${index}`] ?? []),
+                ...(this.errors[`${this.name}.${index}.analytic_axis_id`] ?? []),
+                ...(this.errors[`${this.name}.${index}.percentage`] ?? []),
             ];
         },
 

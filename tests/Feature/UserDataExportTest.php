@@ -75,7 +75,7 @@ test('the export holds the data of the user, archived included, and nothing of a
     $stranger_account = $stranger_portfolio->accounts()->create(['name' => 'Compte du voisin']);
     $stranger_account->operations()->create(['label' => 'Achat du voisin', 'amount' => '10.00', 'delivery_at' => '2026-11-05']);
     $stranger_axis = $stranger_portfolio->analyticAxes()->create(['name' => 'Axe du voisin']);
-    $account->analyticAxes()->attach($axis);
+    $account->analyticAxes()->attach($axis, ['percentage' => '100.00', 'position' => 0]);
     $stranger_account->analyticAxes()->attach($stranger_axis);
 
     $files = (new UserDataExport($user))->csvFiles();
@@ -89,8 +89,8 @@ test('the export holds the data of the user, archived included, and nothing of a
         ->and(array_column(csvRows($files['axes-analytiques.csv']), 3))->toBe(['nom', 'Logement', 'Vacances'])
         ->and(csvRows($files['repartitions-analytiques.csv'])[1])->toBe([(string) $operation->id, (string) $axis->id, 'Logement', '100,00'])
         ->and(csvRows($files['axes-comptes.csv']))->toBe([
-            ['compte_id', 'compte', 'axe_id', 'axe'],
-            [(string) $account->id, 'Compte courant', (string) $axis->id, 'Logement'],
+            ['compte_id', 'compte', 'axe_id', 'axe', 'pourcentage', 'position'],
+            [(string) $account->id, 'Compte courant', (string) $axis->id, 'Logement', '100,00', '0'],
         ])
         ->and(csvRows($files['utilisateur.csv'])[1][2])->toBe($user->email);
 });

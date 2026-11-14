@@ -33,14 +33,16 @@ class AccountReport extends Model
     }
 
     /**
-     * Axes analytiques affectés au compte, pour le repérer, par nom ; un axe archivé reste affiché.
+     * Répartition analytique par défaut du compte : ses axes, dans l'ordre choisi (position), chacun
+     * avec sa part (pivot percentage, total de 100 %) ; un axe archivé reste affiché.
      *
      * @return BelongsToMany<AnalyticAxis, $this>
      */
     public function analyticAxes(): BelongsToMany
     {
         return $this->belongsToMany(AnalyticAxis::class, 'account_analytic_axis', 'account_id')
+            ->withPivot('percentage', 'position')
             ->withTrashed()
-            ->orderBy('analytic_axes.name');
+            ->orderByPivot('position');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AccountRequest;
 use App\Models\Account;
+use App\Models\AnalyticAxis;
 use App\Models\Portfolio;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -21,14 +22,13 @@ class AccountController extends Controller
     {
         return view('account.create', [
             'portfolio' => $portfolio,
-            'analytic_axes' => $portfolio->assignableAnalyticAxes(),
+            'analytic_form' => $this->analyticForm($portfolio),
             'axes_index_url' => route('analytic-axis.index', $portfolio),
-            'checked_axis_ids' => $this->checkedAxisIds(),
         ]);
     }
 
     /**
-     * Crée le compte dans le portfolio, avec ses axes analytiques.
+     * Crée le compte dans le portfolio, avec sa répartition analytique par défaut.
      *
      * @param  AccountRequest  $request  Données validées du compte.
      * @param  Portfolio  $portfolio  Portfolio du compte.
@@ -41,7 +41,7 @@ class AccountController extends Controller
                 'portfolio_id' => $portfolio->id,
             ]);
 
-            $account->analyticAxes()->sync($request->validated('analytic_axes', []));
+            $account->analyticAxes()->sync($request->analyticAxes());
         });
 
         return to_route('portfolio.show', $portfolio)
@@ -106,32 +106,46 @@ class AccountController extends Controller
     {
         return view('account.edit', [
             'account' => $account,
-            'analytic_axes' => $account->portfolio->assignableAnalyticAxes($account),
+            'analytic_form' => $this->analyticForm($account->portfolio, $account),
             'axes_index_url' => route('analytic-axis.index', $account->portfolio),
-            'checked_axis_ids' => $this->checkedAxisIds($account),
         ]);
     }
 
     /**
-     * Axes cochés dans le formulaire : après une validation refusée, ceux envoyés, même aucun ;
-     * sinon, ceux du compte modifié, aucun en création.
+     * Données de la répartition par défaut du formulaire (resources/js/analytic-lines.js) : axes
+     * proposés au compte, avec leur icône, et lignes initiales. Après une validation échouée, les
+     * lignes envoyées reviennent, même aucune ; sinon, celles du compte modifié, dans leur ordre,
+     * aucune en création.
      *
+     * @param  Portfolio  $portfolio  Portfolio du compte.
      * @param  Account|null  $account  Compte modifié, null en création.
-     * @return list<int>
+     * @return array{
+     *     axes: list<array{id: int, name: string, archived: bool, icon: string}>,
+     *     lines: list<array{analytic_axis_id: string, percentage: string}>,
+     * }
      */
-    private function checkedAxisIds(?Account $account = null): array
+    private function analyticForm(Portfolio $portfolio, ?Account $account = null): array
     {
-        if (session()->hasOldInput()) {
-            $old = old('analytic_axes', []);
-
-            return array_values(array_map(intval(...), array_filter(is_array($old) ? $old : [], is_numeric(...))));
-        }
-
-        return $account?->analyticAxes()->pluck('analytic_axes.id')->all() ?? [];
+        return [
+            'axes' => $portfolio->assignableAnalyticAxes($account)
+                ->map(fn (AnalyticAxis $axis): array => $axis->formOption())
+                ->values()
+                ->all(),
+            'lines' => session()->hasOldInput()
+                ? array_values(array_filter((array) old('analytic_axes', []), is_array(...)))
+                : $account?->analyticAxes
+                    ->map(fn (AnalyticAxis $axis): array => [
+                        'analytic_axis_id' => (string) $axis->id,
+                        'percentage' => $axis->pivot->percentage,
+                    ])
+                    ->values()
+                    ->all() ?? [],
+        ];
     }
 
     /**
-     * Modifie le compte et remplace ses axes analytiques par ceux cochés, aucun s'il n'y en a pas.
+     * Modifie le compte et remplace sa répartition analytique par défaut par celle envoyée, dans son
+     * ordre, aucune s'il n'y a pas de ligne.
      *
      * @param  AccountRequest  $request  Données validées du compte.
      * @param  Account  $account  Compte modifié, archivé ou non.
@@ -140,7 +154,7 @@ class AccountController extends Controller
     {
         DB::transaction(function () use ($request, $account): void {
             $account->update($request->safe()->except('analytic_axes'));
-            $account->analyticAxes()->sync($request->validated('analytic_axes', []));
+            $account->analyticAxes()->sync($request->analyticAxes());
         });
 
         return to_route('account.show', ['account' => $account])

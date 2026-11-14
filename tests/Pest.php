@@ -48,3 +48,19 @@ function something()
 {
     // ..
 }
+
+/**
+ * Lignes initiales de l'éditeur de répartition analytique (<x-analytic-lines>) d'une page, lues dans
+ * son x-data, où Js::from() les écrit en JSON.parse('…'), dans une chaîne JSON échappée.
+ *
+ * @param  string  $html  Page qui contient l'éditeur.
+ * @return list<array{analytic_axis_id: string|int, percentage: string}>
+ */
+function editorLines(string $html): array
+{
+    expect($html)->toMatch("/analyticLines\\(JSON\\.parse\\('([^']*)'\\)/");
+
+    preg_match("/analyticLines\\(JSON\\.parse\\('([^']*)'\\)/", $html, $matches);
+
+    return json_decode(json_decode("\"{$matches[1]}\""), associative: true)['lines'];
+}
