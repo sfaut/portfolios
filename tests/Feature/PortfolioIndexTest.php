@@ -46,3 +46,15 @@ test('each portfolio card leads to its dashboard and counts its active accounts'
             'Créer un portfolio',
         ], escape: false);
 });
+
+test('the portfolio list counts the portfolios of the user in its figures', function () {
+    $this->user->portfolios()->create(['name' => 'Famille']);
+    $this->user->portfolios()->create(['name' => 'Cours particuliers']);
+    User::factory()->create()->portfolios()->create(['name' => 'Ailleurs']);
+
+    $response = $this->actingAs($this->user)->get(route('portfolio.index'));
+
+    $response->assertOk();
+
+    expect(summaryFigures($response->getContent()))->toBe(['Portfolios' => '2']);
+});

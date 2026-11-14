@@ -21,6 +21,10 @@
             </x-alert>
         @endif
 
+        <x-summary>
+            <x-summary.item label="Portfolios">{{ Number::format(count($portfolios), locale: 'fr') }}</x-summary.item>
+        </x-summary>
+
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($portfolios as $portfolio)
                 <x-link-card :href="route('portfolio.dashboard', $portfolio)">
