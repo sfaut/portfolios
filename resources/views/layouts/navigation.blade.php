@@ -4,6 +4,8 @@
     place, et le menu de l'utilisateur (profil, thème, déconnexion). Sur un écran étroit, sélecteur et
     navigation passent sur une seconde ligne, en pleine largeur.
 
+    @var bool $wide Si la page est large (AppLayout::WIDE_CONTAINER), sinon max-w-7xl.
+
     Variables passées par le composeur de AppServiceProvider (App\Support\PortfolioContext) :
 
     @var \App\Models\Portfolio|null $current_portfolio Portfolio de la page, null hors d'un portfolio.
@@ -12,7 +14,7 @@
 --}}
 <nav aria-label="Navigation principale" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div @class([$wide ? \App\View\Components\AppLayout::WIDE_CONTAINER : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'])>
         <div class="flex flex-wrap items-center gap-x-6 gap-y-2 py-2 sm:h-14 sm:py-0">
             <a href="{{ route('portfolio.index') }}" class="order-1 shrink-0 rounded-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500">
                 <x-application-logo class="block h-8 w-auto text-indigo-800 dark:text-gray-200"/>

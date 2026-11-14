@@ -6,6 +6,7 @@ use App\Models\AnalyticAxis;
 use App\Models\Operation;
 use App\Models\User;
 use App\Support\Ledger\Ledger;
+use App\View\Components\AppLayout;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Testing\TestResponse;
 
@@ -108,6 +109,13 @@ test('the ledger writes each analytic line of an operation in its row, without t
     ], escape: false);
 
     expect($response->getContent())->not->toContain('role="tooltip"');
+});
+
+test('the ledger is a wide page, its bar and its header at the width of its content', function () {
+    $html = (string) ledger()->assertOk()->getContent();
+
+    expect(substr_count($html, AppLayout::WIDE_CONTAINER))->toBe(3)
+        ->and(substr_count((string) $this->get(route('portfolio.dashboard', $this->portfolio))->getContent(), AppLayout::WIDE_CONTAINER))->toBe(0);
 });
 
 test('the ledger shows the identifier of each operation', function () {

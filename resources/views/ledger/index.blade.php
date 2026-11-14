@@ -19,12 +19,12 @@
     @var \App\Support\DateRestriction $written_restriction Jours d'écriture admis.
     @var \App\Support\DateRestriction $effective_restriction Dates effectives admises.
 --}}
-<x-app-layout>
+<x-app-layout wide>
     <x-slot name="header">
         <h2 class="text-xl font-semibold">Grand livre</h2>
     </x-slot>
 
-    <div x-data="ledger(@js($filters->state()))" class="w-full px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
+    <div x-data="ledger(@js($filters->state()))" @class([\App\View\Components\AppLayout::WIDE_CONTAINER, 'flex flex-col gap-6'])>
 
         <form
             id="ledger-filters"
