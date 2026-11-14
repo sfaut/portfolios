@@ -17,6 +17,9 @@
             <x-slot:status>{{ trans_choice('{0,1} :count opération enregistrée|[2,*] :count opérations enregistrées', $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:status>
             <x-slot:actions>
                 <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
+                @unless ($account->trashed())
+                    <x-button variant="primary" :href="route('operation.create', $account)" icon="plus">Écrire une opération</x-button>
+                @endunless
             </x-slot:actions>
         </x-page-header>
     </x-slot>
@@ -36,18 +39,13 @@
             </x-alert>
         @endif
 
-        <div @class(['flex', 'justify-between' => ! $account->trashed(), 'justify-end' => $account->trashed()])>
-            @unless ($account->trashed())
-                <x-button variant="primary" :href="route('operation.create', $account)" icon="plus">Écrire une opération</x-button>
+        <div class="flex items-center justify-end gap-3">
+            <form method="GET" action="{{ route('account.show', $account) }}">
+                <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
+            </form>
+            @unless ($show_all)
+                {{ $operations->links('pagination.narrow') }}
             @endunless
-            <div class="flex items-center gap-3">
-                <form method="GET" action="{{ route('account.show', $account) }}">
-                    <x-toggle-button name="all" :pressed="$show_all" aria-label="Toutes les opérations, sans pagination">Tout</x-toggle-button>
-                </form>
-                @unless ($show_all)
-                    {{ $operations->links('pagination.narrow') }}
-                @endunless
-            </div>
         </div>
 
         <div

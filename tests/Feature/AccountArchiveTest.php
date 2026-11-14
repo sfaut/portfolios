@@ -45,6 +45,17 @@ test('the operations of an archived account can be read but not written', functi
         ->assertDontSee(route('operation.edit', $this->operation));
 });
 
+test('the header of an active account offers to edit it, then to write an operation', function () {
+    $this->account->restore();
+
+    $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]))
+        ->assertOk()
+        ->assertSeeInOrder([
+            '<header', 'href="'.route('account.edit', $this->account).'"',
+            'href="'.route('operation.create', $this->account).'"', '</header>',
+        ], escape: false);
+});
+
 test('an archived account can be edited and offers to be restored', function () {
     $response = $this->actingAs($this->owner)->get(route('account.edit', $this->account));
 
