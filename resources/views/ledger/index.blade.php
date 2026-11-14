@@ -26,17 +26,14 @@
 
     <div x-data="ledger(@js($filters->state()))" class="flex flex-col gap-6">
 
-        <form
+        <x-filter-bar
             id="ledger-filters"
             method="get"
             action="{{ route('ledger.index', $portfolio) }}"
-            role="search"
             aria-label="Filtres du grand livre"
             x-on:submit="onSubmit($event)"
-            class="flex flex-wrap items-end gap-x-4 gap-y-3 rounded-md bg-white dark:bg-gray-800 p-4 text-sm shadow-sm"
         >
-            <div class="flex w-full flex-col gap-1 sm:w-64">
-                <label for="ledger-label" class="text-xs font-medium text-gray-500 dark:text-gray-400">Libellé</label>
+            <x-filter-field label="Libellé" for="ledger-label" class="w-full sm:w-64">
                 <x-text-input
                     id="ledger-label"
                     type="search"
@@ -48,10 +45,9 @@
                     x-model.debounce.300ms="label"
                     class="w-full text-sm"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Comptes</span>
+            <x-filter-field label="Comptes">
                 <x-multi-select
                     name="accounts"
                     label="Comptes"
@@ -61,10 +57,9 @@
                     noun="comptes"
                     x-model="accounts"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Axes analytiques</span>
+            <x-filter-field label="Axes analytiques">
                 <x-multi-select
                     name="axes"
                     label="Axes analytiques"
@@ -74,10 +69,9 @@
                     noun="axes"
                     x-model="axes"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Date effective</span>
+            <x-filter-field label="Date effective">
                 <x-date-picker
                     name="effective"
                     label="Date effective"
@@ -88,10 +82,9 @@
                     placeholder="Toutes les dates"
                     x-model="effective"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Date d'écriture</span>
+            <x-filter-field label="Date d'écriture">
                 <x-date-picker
                     name="written"
                     label="Date d'écriture"
@@ -102,10 +95,9 @@
                     placeholder="Toutes les dates"
                     x-model="written"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Sens</span>
+            <x-filter-field label="Sens">
                 <x-multi-select
                     name="flow"
                     label="Sens des montants"
@@ -115,10 +107,9 @@
                     placeholder="Tout"
                     x-model="flow"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Pointage</span>
+            <x-filter-field label="Pointage">
                 <x-multi-select
                     name="ticked"
                     label="Pointage des opérations"
@@ -128,10 +119,9 @@
                     placeholder="Toutes"
                     x-model="ticked"
                 />
-            </div>
+            </x-filter-field>
 
-            <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-hidden="true">Montant (€)</span>
+            <x-filter-field label="Montant (€)">
                 <div class="flex items-center gap-2">
                     <x-number-input
                         name="amount[min]"
@@ -153,9 +143,9 @@
                         class="w-28 text-sm"
                     />
                 </div>
-            </div>
+            </x-filter-field>
 
-            <div class="flex grow items-center justify-end gap-4 self-end py-2">
+            <x-slot:status>
                 <x-lucide-loader-circle
                     x-show="loading"
                     style="display: none"
@@ -174,8 +164,8 @@
                     @style(['display: none' => ! $filters->isFiltered()])
                     class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline"
                 >Effacer les filtres</a>
-            </div>
-        </form>
+            </x-slot:status>
+        </x-filter-bar>
 
         <div
             x-ref="results"
