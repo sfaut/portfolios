@@ -5,7 +5,10 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header :breadcrumb="[route('analytic-axis.index', $analytic_axis->portfolio) => 'Axes analytiques']">Axe analytique <span class="text-indigo-700 dark:text-indigo-400">{{ $analytic_axis->name }}</span></x-page-header>
+        <x-page-header :breadcrumb="[route('analytic-axis.index', $analytic_axis->portfolio) => 'Axes analytiques']">
+            Axe analytique <span class="text-indigo-700 dark:text-indigo-400">{{ $analytic_axis->name }}</span>
+            <x-slot:description>Un axe se reconnaît à son nom, son icône et sa couleur, dans chaque répartition.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

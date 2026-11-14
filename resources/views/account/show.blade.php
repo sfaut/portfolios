@@ -15,7 +15,7 @@
         <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes']" class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
             <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
-            <x-slot:description>{{ trans_choice("{0} Le compte n'a pas encore d'opération.|{1} La seule opération du compte, avec son solde.|[2,*] Les :count opérations du compte, avec leur solde cumulé.", $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Les opérations du compte, avec leur solde cumulé, leur répartition analytique et leur pointage.</x-slot:description>
             <x-slot:actions>
                 <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
                 @unless ($account->trashed())

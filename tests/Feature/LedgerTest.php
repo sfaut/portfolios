@@ -98,10 +98,13 @@ test('the ledger lists the operations of every account, the last written first',
         ->assertSeeInOrder(['Facture Bêta', '−250,50', 'Formation', 'Études'], escape: false);
 });
 
-test('the ledger header tells how many operations the portfolio has, whatever the filters', function () {
-    ledger(['label' => 'Alpha'])
-        ->assertOk()
-        ->assertSeeInOrder(['<header', 'Grand livre', 'Les 5 opérations du portfolio, tous comptes confondus, archivés compris.', '</header>'], escape: false);
+test('the ledger header describes the page, and its figures count the filtered operations', function () {
+    $response = ledger(['label' => 'Alpha']);
+
+    $response->assertOk()
+        ->assertSeeInOrder(['<header', 'Grand livre', 'Toutes les opérations du portfolio, tous comptes confondus, à filtrer, trier et exporter.', '</header>'], escape: false);
+
+    expect(summaryFigures($response->getContent())['Opérations'])->toBe('2 sur 5');
 });
 
 test('the ledger writes each analytic line of an operation in its row, without tooltip', function () {

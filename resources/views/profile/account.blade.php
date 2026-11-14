@@ -3,7 +3,7 @@
 
     @var \App\Models\User $user Utilisateur connecté, lu par les formulaires inclus.
 --}}
-<x-profile-layout title="Données et compte" current="profile.account">
+<x-profile-layout title="Données et compte" description="Le téléchargement de vos données, et la suppression du compte." current="profile.account">
     @include('profile.partials.export-data-form')
 
     @include('profile.partials.delete-user-form')

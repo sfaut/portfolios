@@ -30,7 +30,7 @@
     <x-slot name="header">
         <x-page-header>
             Tableau de bord
-            <x-slot:description>Les ventes du portfolio, arrêtées au {{ $today->translatedFormat('j F Y') }}.</x-slot:description>
+            <x-slot:description>Le suivi des ventes du portfolio : chiffres clefs du jour, puis ventes de la période choisie.</x-slot:description>
         </x-page-header>
     </x-slot>
 

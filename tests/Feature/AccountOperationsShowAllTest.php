@@ -29,7 +29,6 @@ test('the operations of an account are paginated by default, from the last page'
 
     $response->assertOk()
         ->assertSee('Page 2')
-        ->assertSeeInOrder(['<header', 'Les 25 opérations du compte, avec leur solde cumulé.', '</header>'], escape: false)
         ->assertSee('Operation 25')
         ->assertDontSee('Operation 05')
         ->assertSeeInOrder(['name="all"', 'value="1"', 'aria-pressed="false"', '>Tout</button>'], escape: false);
@@ -57,7 +56,7 @@ test('all the operations are shown at once while the all button is pressed', fun
 
     $response->assertOk()
         ->assertSeeInOrder(['Operation 01', 'Operation 25'])
-        ->assertSeeInOrder(['<header', 'Les 25 opérations du compte, avec leur solde cumulé.', '</header>'], escape: false)
+        ->assertSeeInOrder(['Opérations</dt>', '25', '</dd>'], escape: false)
         ->assertDontSee('Page 1')
         ->assertSeeInOrder(['name="all"', 'value="0"', 'aria-pressed="true"', '>Tout</button>'], escape: false)
         ->assertSee('scrollIntoView', escape: false);

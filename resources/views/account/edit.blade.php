@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]">Modification du compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></x-page-header>
+        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes', route('account.show', $account) => $account->name]">
+            Modification du compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span>
+            <x-slot:description>Un compte regroupe des opérations datées, et peut proposer une répartition analytique par défaut.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

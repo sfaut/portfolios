@@ -7,7 +7,7 @@
     @var \App\Models\User $user Utilisateur connecté.
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
-<x-profile-layout title="Préférences" current="profile.preferences">
+<x-profile-layout title="Préférences" description="L'apparence de l'interface." current="profile.preferences">
     <x-card>
         <x-slot:title>Apparence</x-slot:title>
         <x-slot:description>Le thème de l'interface, sur tous vos appareils.</x-slot:description>

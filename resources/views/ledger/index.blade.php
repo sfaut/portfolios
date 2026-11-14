@@ -23,7 +23,7 @@
     <x-slot name="header">
         <x-page-header>
             Grand livre
-            <x-slot:description>{{ trans_choice("{0} Le grand livre réunit les opérations de tous les comptes du portfolio, archivés compris.|{1} La seule opération du portfolio, tous comptes confondus, archivés compris.|[2,*] Les :count opérations du portfolio, tous comptes confondus, archivés compris.", $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:description>
+            <x-slot:description>Toutes les opérations du portfolio, tous comptes confondus, à filtrer, trier et exporter.</x-slot:description>
         </x-page-header>
     </x-slot>
 

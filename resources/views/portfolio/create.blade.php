@@ -1,7 +1,10 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <x-page-header>Création d'un portfolio</x-page-header>
+        <x-page-header>
+            Création d'un portfolio
+            <x-slot:description>Un portfolio regroupe des comptes, leurs opérations et leurs axes analytiques.</x-slot:description>
+        </x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">
