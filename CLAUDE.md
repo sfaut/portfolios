@@ -425,10 +425,14 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   page remplit les slots `title` (le `<h1>`), `description` et `footer` (liens secondaires sous un
   filet), facultatifs hormis le titre ; l'action principale y est en pleine largeur. Les
   textes mettent une espace insécable (`&nbsp;`) avant « ? » et « : ». Les
-  composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
-  `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). Ces deux liens,
-  `x-primary-button` et `x-secondary-button` prennent une icône Lucide devant leur texte par la prop
-  `icon` : `plus` pour créer (« Créer un compte », bouton d'envoi « Créer »), `pencil` pour ouvrir
+  composants sont surtout anonymes (`resources/views/components`, dont `x-text-input` / `x-textarea`
+  pour les champs). Tout bouton, et tout lien à l'allure de bouton, passe par `<x-button>`
+  (`App\View\Components\Button`), hormis le bouton poussoir `<x-toggle-button>` : `variant`
+  `primary` (action principale), `secondary` (par défaut) ou `danger` (archivage, suppression), une
+  variante inconnue levant une exception ; `:href` en fait un lien `<a>` ; sinon c'est un `<button>`
+  de type `button`, et un bouton d'envoi l'écrit (`type="submit"`). Il garde les attributs de
+  l'appelant (`form`, `commandfor`, `x-on:…`, `class`) et prend une icône Lucide devant son texte
+  par la prop `icon` : `plus` pour créer (« Créer un compte », bouton d'envoi « Créer »), `pencil` pour ouvrir
   une modification (« Modifier le compte », et les liens « Modifier » des lignes de tableau, en
   `size-3.5`), `check` pour l'envoyer (« Modifier », « Enregistrer », « Sauvegarder »). `x-alert type="…"`
   (`info` par défaut, `success`, `warning`, `danger`) tient de sa classe `App\View\Components\Alert` ses
@@ -573,11 +577,12 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   en page invité : elles suivent donc le thème choisi. Si leur rendu échoue (manifeste Vite absent…),
   Laravel répond hors débogage par sa page brute de secours. Toute vue nouvelle ou modifiée porte ses
   variantes `dark:`, sur la palette en place : fond de page `gray-900`, surfaces `gray-800`, en-têtes
-  de tableau `gray-700`, texte `gray-300`, accents `indigo-400`. Le bouton principal
-  (`x-primary-button`, et `x-link.primary` à l'identique, mêmes couleurs et mêmes états) est indigo
-  plein : `indigo-600` en clair, `indigo-500` en sombre, plus clair au survol et au focus, plus
-  foncé à l'appui. En sombre, aucun bouton n'est clair : le secondaire passe en surface grise
-  surélevée (`gray-700`, bordure `gray-600`), le danger reste rouge.
+  de tableau `gray-700`, texte `gray-300`, accents `indigo-400`. Les variantes de
+  `<x-button>`, bouton ou lien, ont la même forme et le même anneau de focus au clavier : le
+  principal est indigo plein (`indigo-600` en clair, `indigo-500` en sombre, plus clair au survol,
+  plus foncé à l'appui), le secondaire blanc bordé de gris, le danger rouge (`red-600`). En sombre,
+  aucun bouton n'est clair : le secondaire passe en surface grise surélevée (`gray-700`, bordure
+  `gray-600`), le danger reste rouge.
 
 ### Mails
 
