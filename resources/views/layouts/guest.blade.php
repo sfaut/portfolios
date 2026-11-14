@@ -27,7 +27,7 @@
                 Vos portefeuilles, vos comptes et leur solde au jour près.
             </p>
 
-            <x-balance-steps class="absolute inset-x-0 bottom-0 -z-10 w-full max-h-full aspect-[640/520]"/>
+            <x-balance-steps class="absolute inset-x-0 bottom-0 -z-10 w-full max-h-full aspect-640/520"/>
         </aside>
 
         <main class="flex items-center justify-center px-6 py-10 sm:px-10 lg:py-14">
