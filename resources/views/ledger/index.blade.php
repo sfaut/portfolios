@@ -21,7 +21,10 @@
 --}}
 <x-app-layout wide>
     <x-slot name="header">
-        <x-page-header>Grand livre</x-page-header>
+        <x-page-header>
+            Grand livre
+            <x-slot:status>{{ trans_choice('{0,1} :count opération enregistrée|[2,*] :count opérations enregistrées', $operation_count, ['count' => Number::format($operation_count, locale: 'fr')]) }}</x-slot:status>
+        </x-page-header>
     </x-slot>
 
     <div x-data="ledger(@js($filters->state()))" class="flex flex-col gap-6">

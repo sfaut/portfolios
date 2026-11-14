@@ -9,11 +9,7 @@
     <x-slot name="header">
         <x-page-header>
             Portfolios
-            <x-slot:status>
-                {{ count($portfolios) }}
-                {{ Str::of('portfolio')->plural(count($portfolios)) }}
-                {{ Str::of('enregistré')->plural(count($portfolios)) }}
-            </x-slot:status>
+            <x-slot:status>{{ trans_choice('{0,1} :count portfolio enregistré|[2,*] :count portfolios enregistrés', count($portfolios), ['count' => Number::format(count($portfolios), locale: 'fr')]) }}</x-slot:status>
         </x-page-header>
     </x-slot>
 

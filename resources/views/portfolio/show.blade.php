@@ -20,11 +20,7 @@
     <x-slot name="header">
         <x-page-header>
             Comptes
-            <x-slot:status>
-                {{ count($portfolio->accounts) }}
-                {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
-                {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
-            </x-slot:status>
+            <x-slot:status>{{ trans_choice('{0,1} :count compte enregistré|[2,*] :count comptes enregistrés', count($portfolio->accounts), ['count' => Number::format(count($portfolio->accounts), locale: 'fr')]) }}</x-slot:status>
             <x-slot:actions>
                 <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
             </x-slot:actions>

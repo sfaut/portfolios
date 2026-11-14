@@ -8,7 +8,10 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header>Axes analytiques</x-page-header>
+        <x-page-header>
+            Axes analytiques
+            <x-slot:status>{{ trans_choice('{0,1} :count axe enregistré|[2,*] :count axes enregistrés', $analytic_axes->count(), ['count' => Number::format($analytic_axes->count(), locale: 'fr')]) }}</x-slot:status>
+        </x-page-header>
     </x-slot>
 
     <div class="flex flex-col gap-6">
