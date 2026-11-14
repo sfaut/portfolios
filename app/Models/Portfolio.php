@@ -51,6 +51,24 @@ class Portfolio extends Model
     }
 
     /**
+     * Comptes du portfolio proposés à un filtre (<x-multi-select>), archivés compris, par nom, les
+     * archivés signalés.
+     *
+     * @return list<array{value: string, label: string, hint?: string}>
+     */
+    public function accountOptions(): array
+    {
+        return $this->accounts()->withTrashed()->toBase()
+            ->get(['accounts.id', 'accounts.name', 'accounts.deleted_at'])
+            ->map(fn (object $account): array => [
+                'value' => (string) $account->id,
+                'label' => $account->name,
+                ...($account->deleted_at === null ? [] : ['hint' => 'archivé']),
+            ])
+            ->all();
+    }
+
+    /**
      * Axes analytiques du portfolio, par nom.
      *
      * @return HasMany<AnalyticAxis, $this>

@@ -233,6 +233,50 @@ test('the analytic split shares the sales by axis, archived axes included, the u
         ->and(array_column($axes, 'percent'))->toBe(["50\u{202F}%", "28\u{202F}%", "1\u{202F}%", "21\u{202F}%"]);
 });
 
+test('the figures and the sales of a period keep to the chosen accounts, archived ones included', function () {
+    operations($this->account, [['2026-10-01', '-100.00'], ['2026-11-02', '-10.00']]);
+    $other = $this->portfolio->accounts()->create(['name' => 'Autre']);
+    operations($other, [['2026-10-01', '-40.00'], ['2026-11-02', '-4.00']]);
+    $archived = $this->portfolio->accounts()->create(['name' => 'Clos']);
+    operations($archived, [['2026-10-01', '-7.00']]);
+    $archived->delete();
+    $chosen = [(string) $other->id, (string) $archived->id];
+
+    $figures = new SalesFigures($this->portfolio, CarbonImmutable::today(), $chosen);
+    $comparison = (new SalesDashboard($this->portfolio, '2026-10', '2026-11', CarbonImmutable::today(), $chosen))->comparison();
+
+    expect($figures->activeAccountCount())->toBe(1)
+        ->and($figures->archivedAccountCount())->toBe(1)
+        ->and($figures->currentMonth()->amount)->toBe(4.0)
+        ->and($figures->previousMonth()->amount)->toBe(47.0)
+        ->and($figures->outstanding())->toBe(['amount' => 51.0, 'accounts' => 2])
+        ->and($comparison->amount)->toBe(51.0);
+});
+
+test('the dashboard keeps the chosen accounts of the portfolio and ignores the others', function () {
+    operations($this->account, [['2026-10-01', '-1.00']]);
+    $other = $this->portfolio->accounts()->create(['name' => 'Autre']);
+    $foreign = $this->user->portfolios()->create(['name' => 'Ailleurs'])->accounts()->create(['name' => 'Étranger']);
+    $stranger = User::factory()->create()->portfolios()->create(['name' => 'Inconnu'])->accounts()->create(['name' => 'Inconnu']);
+
+    $response = $this->get(route('portfolio.dashboard', [$this->portfolio, 'accounts' => [
+        (string) $other->id, (string) $foreign->id, (string) $stranger->id, (string) $other->id, ['nested'],
+    ]]));
+
+    $response->assertOk()
+        ->assertViewHas('accounts', [(string) $other->id])
+        ->assertViewHas('active_accounts', 1)
+        ->assertDontSee('Étranger');
+});
+
+test('the dashboard of all the accounts ignores a selection that is not a list', function () {
+    operations($this->account, [['2026-10-01', '-1.00']]);
+
+    $this->get(route('portfolio.dashboard', [$this->portfolio, 'accounts' => (string) $this->account->id]))
+        ->assertOk()
+        ->assertViewHas('accounts', []);
+});
+
 test('the dashboard period defaults to the thirteen months before the current one, up to the last operation, not before the first one', function (array $operations, array $period) {
     operations($this->account, $operations);
 
@@ -265,7 +309,7 @@ test('the dashboard shows the figures and the sales of the period', function () 
     $response = $this->get(route('portfolio.dashboard', [$this->portfolio, 'period' => ['start' => '2026-03', 'end' => '2026-05']]));
 
     $response->assertOk()
-        ->assertSeeInOrder(['<header', 'Tableau de bord', 'name="period[start]"', '</header>', 'Au 9 novembre 2026'], escape: false)
+        ->assertSeeInOrder(['<header', 'Tableau de bord', '</header>', 'name="accounts[]"', 'name="period[start]"', 'Au 9 novembre 2026'], escape: false)
         ->assertSeeText('reste à encaisser')
         ->assertSeeText(Number::amount(35, currency: 'EUR'))
         ->assertSeeText('de ventes de mars à mai 2026')

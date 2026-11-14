@@ -321,12 +321,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   d'accueil, où mènent la liste des portfolios et l'ancienne adresse `/portfolio/{id}`. Il suit les
   ventes, selon la convention du métier : un montant négatif est une vente, comptée en valeur absolue,
   un montant positif un paiement, et un compte soldé à zéro a ses ventes payées. Les ventes se lisent
-  par `App\Support\PortfolioSales` (comptes archivés compris, par `delivery_at`). En tête, les chiffres
+  par `App\Support\PortfolioSales` (comptes archivés compris, par `delivery_at`). En tête, la barre
+  de filtres : les comptes (`<x-multi-select>`, paramètre `accounts[]`, archivés compris, aucun pour
+  tous, identifiant étranger au portfolio ignoré), qui valent pour toute la page, chiffres clefs
+  compris, et la période. Le composant Alpine `dashboardFilters` recharge la page dès que la période
+  change, et quand la sélection des comptes a changé à la fermeture de son popover. Puis les chiffres
   clefs à la date du jour (`SalesFigures`) : comptes actifs, ventes du mois en cours (à date), du mois
   précédent et des 12 derniers mois complets, chacune comparée à un an plus tôt (`SalesComparison`,
   tendance en icône et en couleur par `<x-trend>`), et reste à encaisser (soldes négatifs). Puis les
-  ventes de la période (`SalesDashboard`), choisie dans le bandeau de la page par
-  `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
+  ventes de la période (`SalesDashboard`), choisie par `<x-month-picker mode="range">` (paramètre `period`, borné aux mois d'opérations, une période
   refusée ignorée, par défaut de M − 13 à M, M étant le mois en cours ou celui de la dernière
   opération s'il est antérieur) ; les chiffres clefs restent au jour. Pour la période : total,
   graphe des ventes par mois, répartition analytique (arrondi de `AnalyticLine::amountShare()`,
@@ -355,8 +358,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Le composant Alpine `accountSearch` (`resources/js/account-search.js`) interroge la même route après
   300 ms de pause (aussitôt pour le mois), avec `X-Requested-With` : `PortfolioController::show()` ne renvoie alors que le
   fragment Blade `accounts` (`fragmentIf()`, en-tête `Vary`), qui remplace les résultats. Le résumé
-  (« 2 comptes sur 14 ») se place à droite des filtres, sans changer la hauteur de la barre ; sans
-  JavaScript, le formulaire recharge la page filtrée.
+  (« 2 comptes sur 14 ») se place à droite de la barre de filtres ; sans JavaScript, le formulaire
+  recharge la page filtrée. « Créer un compte » est à droite du bandeau.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
   effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`). Son
@@ -506,7 +509,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   même déclencheur et au même popover : des radios natifs envoyés dans `name`, précédés d'un radio
   vide libellé par le placeholder (« Tout »), la valeur liée en texte (`''` sans choix) ; un clic de
   souris ou Entrée choisit et ferme, les flèches changent le choix sans fermer. « Sens » et
-  « Pointage » du Grand livre l'utilisent.
+  « Pointage » du Grand livre l'utilisent. Les comptes proposés à un filtre viennent de
+  `Portfolio::accountOptions()`.
+  Toute barre de filtres (Grand livre, comptes, tableau de bord) passe par `<x-filter-bar>`, un
+  formulaire en carte (`role="search"`, attributs de l'appelant), en tête du contenu de la page,
+  jamais dans le bandeau. Ses champs, alignés par le bas et repliés à la ligne, passent chacun par
+  `<x-filter-field label="…">` : un petit libellé gris au-dessus du contrôle, `<label for>` avec `for`,
+  masqué aux lecteurs d'écran sans (le contrôle porte son nom). La barre est en `text-sm`, que ses
+  contrôles héritent, sans prop de taille. Son slot `status`, à droite, reçoit l'état : chargement,
+  erreur, résumé, « Effacer les filtres », bouton d'envoi du `<noscript>`.
   Toute colonne triable d'un tableau passe par `<x-sortable-heading column="…" :sort :direction>`
   (`App\View\Components\SortableHeading`) : un `<th>` à `aria-sort` dont le lien pose `sort` et `dir`
   dans l'adresse courante, en gardant ses autres paramètres ; le contrôleur valide les deux valeurs.

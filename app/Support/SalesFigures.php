@@ -12,42 +12,45 @@ use Carbon\CarbonImmutable;
  *
  * La date est passée au constructeur, pour que l'appelant (et les tests) la fixent. Les ventes
  * suivent la convention de PortfolioSales (montant négatif, en valeur absolue, comptes archivés
- * compris, par date effective).
+ * compris, par date effective). Tous les chiffres portent sur les comptes retenus : tous ceux du
+ * portfolio, ou une sélection.
  */
 final readonly class SalesFigures
 {
     /**
-     * Ventes du portfolio.
+     * Ventes des comptes retenus.
      */
     private PortfolioSales $sales;
 
     /**
-     * Retient le portfolio et la date, ramenée au début du jour.
+     * Retient le portfolio, la date et les comptes retenus, et prépare la lecture de leurs ventes.
      *
      * @param  Portfolio  $portfolio  Portfolio dont les chiffres sont calculés.
      * @param  CarbonImmutable  $today  Date du calcul.
+     * @param  list<int|string>  $accountIds  Identifiants des comptes retenus, vide pour tous.
      */
     public function __construct(
         private Portfolio $portfolio,
         private CarbonImmutable $today,
+        array $accountIds = [],
     ) {
-        $this->sales = new PortfolioSales($portfolio);
+        $this->sales = new PortfolioSales($portfolio, $accountIds);
     }
 
     /**
-     * Nombre de comptes actifs (non archivés).
+     * Nombre de comptes actifs (non archivés) parmi les comptes retenus.
      */
     public function activeAccountCount(): int
     {
-        return $this->portfolio->accounts()->count();
+        return $this->sales->accounts()->withoutTrashed()->count();
     }
 
     /**
-     * Nombre de comptes archivés.
+     * Nombre de comptes archivés parmi les comptes retenus.
      */
     public function archivedAccountCount(): int
     {
-        return $this->portfolio->accounts()->onlyTrashed()->count();
+        return $this->sales->accounts()->onlyTrashed()->count();
     }
 
     /**
@@ -102,7 +105,7 @@ final readonly class SalesFigures
 
     /**
      * Reste à encaisser : ventes non encore payées, soit la somme des soldes négatifs des comptes
-     * (archivés compris), en valeur absolue, avec le nombre de ces comptes. Un solde positif (paiement
+     * retenus (archivés compris), en valeur absolue, avec le nombre de ces comptes. Un solde positif (paiement
      * d'avance) n'entre pas dans le calcul.
      *
      * @return array{amount: float, accounts: int}
@@ -111,6 +114,7 @@ final readonly class SalesFigures
     {
         $outstanding = $this->portfolio->accountsReport()
             ->withTrashed()
+            ->whereIn('id', $this->sales->accounts()->select('accounts.id'))
             ->where('operation_balance', '<', 0)
             ->toBase()
             ->selectRaw('-COALESCE(SUM(operation_balance), 0) AS amount, COUNT(*) AS accounts')

@@ -4,7 +4,7 @@
     Deux filtres cumulables réduisent les deux listes (composant Alpine accountSearch) : la recherche
     sur le nom des comptes, et le mois, qui garde les comptes ayant une opération dans ce mois. Le
     fragment accounts, que le contrôleur renvoie seul aux requêtes ajax, porte les résultats et leur
-    résumé (data-summary), que le composant reporte à droite des filtres.
+    résumé (data-summary), que le composant reporte à droite de la barre de filtres.
 
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var string $search Recherche sur le nom des comptes, vide sans recherche.
@@ -18,11 +18,16 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Comptes</h2>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ count($portfolio->accounts) }}
-            {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
-            {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col gap-1">
+                <h2 class="text-xl font-semibold">Comptes</h2>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ count($portfolio->accounts) }}
+                    {{ Str::of('comptes')->plural(count($portfolio->accounts)) }}
+                    {{ Str::of('enregistré')->plural(count($portfolio->accounts)) }}
+                </div>
+            </div>
+            <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
         </div>
     </x-slot>
 
@@ -34,16 +39,14 @@
             </x-alert>
         @endif
 
-        <div class="flex justify-between items-center gap-4">
-            <form
-                method="get"
-                action="{{ route('portfolio.show', $portfolio) }}"
-                role="search"
-                x-on:submit.prevent="refresh()"
-                class="flex flex-1 min-w-0 items-center gap-4"
-            >
-                <label for="account-search" class="sr-only">Rechercher un compte</label>
-                <div class="relative w-full max-w-sm">
+        <x-filter-bar
+            method="get"
+            action="{{ route('portfolio.show', $portfolio) }}"
+            aria-label="Filtres des comptes"
+            x-on:submit.prevent="refresh()"
+        >
+            <x-filter-field label="Nom du compte" for="account-search" class="w-full sm:w-72">
+                <div class="relative">
                     <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 dark:text-gray-500">
                         <x-lucide-search x-show="! loading" class="size-4" aria-hidden="true"/>
                         <x-lucide-loader-circle
@@ -79,8 +82,10 @@
                         <x-lucide-x class="size-4" aria-hidden="true"/>
                     </button>
                 </div>
+            </x-filter-field>
 
-                @if ($month_restriction->allow !== [])
+            @if ($month_restriction->allow !== [])
+                <x-filter-field label="Mois d'opération">
                     <x-month-picker
                         name="month"
                         :restriction="$month_restriction"
@@ -88,27 +93,25 @@
                         label="Mois d'opération"
                         placeholder="Tous les mois"
                         x-model="month"
-                        class="text-sm"
                     />
-                @endif
+                </x-filter-field>
+            @endif
+
+            <x-slot:status>
                 <span
                     x-ref="summary"
                     x-show="! failed"
                     role="status"
-                    class="truncate text-sm text-gray-500 dark:text-gray-400"
+                    class="truncate text-gray-500 dark:text-gray-400"
                 >{{ $summary }}</span>
                 <span
                     x-show="failed"
                     style="display: none"
                     role="alert"
-                    class="truncate text-sm text-red-700 dark:text-red-400"
+                    class="truncate text-red-700 dark:text-red-400"
                 >La recherche n'a pas abouti. Réessayez.</span>
-            </form>
-
-            <div class="shrink-0">
-                <x-button variant="primary" :href="route('account.create', $portfolio)" icon="plus">Créer un compte</x-button>
-            </div>
-        </div>
+            </x-slot:status>
+        </x-filter-bar>
 
         <div
             x-ref="results"

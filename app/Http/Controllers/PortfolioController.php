@@ -46,13 +46,15 @@ class PortfolioController extends Controller
     /**
      * Tableau de bord du portfolio, sa page d'accueil : chiffres clefs à la date du jour, puis ventes
      * de la période choisie (paramètre period, plage de mois « period[start] » / « period[end] »).
+     * Le tableau porte sur tous les comptes du portfolio, ou sur ceux choisis (paramètre accounts[],
+     * archivés compris), chiffres clefs compris ; un identifiant étranger au portfolio est ignoré.
      *
      * La période se choisit entre le premier et le dernier mois où le portfolio a des opérations ; une
      * période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur, comme il convient
      * à un filtre. Par défaut, elle va de M − 13 à M, M étant le mois en cours, ou celui de la dernière
      * opération s'il est antérieur (sans remonter avant la première opération).
      *
-     * @param  Request  $request  Requête, avec la période éventuelle.
+     * @param  Request  $request  Requête, avec la période et les comptes éventuels.
      * @param  Portfolio  $portfolio  Portfolio affiché.
      */
     public function dashboard(Request $request, Portfolio $portfolio): View
@@ -61,8 +63,10 @@ class PortfolioController extends Controller
         $months = $portfolio->operationMonths();
         $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
         $period = $this->dashboardPeriod($request->query('period'), $months, $restriction, $today);
-        $figures = new SalesFigures($portfolio, $today);
-        $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today);
+        $account_options = $portfolio->accountOptions();
+        $accounts = $this->dashboardAccounts($request->query('accounts'), array_column($account_options, 'value'));
+        $figures = new SalesFigures($portfolio, $today, $accounts);
+        $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today, $accounts);
 
         return view('portfolio.dashboard', [
             'portfolio' => $portfolio,
@@ -75,6 +79,8 @@ class PortfolioController extends Controller
             'outstanding' => $figures->outstanding(),
             'restriction' => $restriction,
             'period' => $period,
+            'account_options' => $account_options,
+            'accounts' => $accounts,
             'dashboard' => $dashboard,
             'comparison' => $dashboard?->comparison(),
             'months' => $dashboard?->monthly() ?? [],
@@ -156,6 +162,21 @@ class PortfolioController extends Controller
 
         return response($view->fragmentIf($request->ajax(), 'accounts'))
             ->header('Vary', 'X-Requested-With');
+    }
+
+    /**
+     * Comptes retenus par le tableau de bord : les identifiants reçus qui sont ceux de comptes du
+     * portfolio, sans doublon, dans l'ordre des comptes ; vide pour tous les comptes.
+     *
+     * @param  mixed  $value  Valeur reçue du paramètre accounts, de n'importe quel type.
+     * @param  list<string>  $allowed  Identifiants des comptes du portfolio, archivés compris.
+     * @return list<string>
+     */
+    private function dashboardAccounts(mixed $value, array $allowed): array
+    {
+        $given = array_filter(is_array($value) ? $value : [], is_string(...));
+
+        return array_values(array_filter($allowed, fn (string $id): bool => in_array($id, $given, strict: true)));
     }
 
     /**

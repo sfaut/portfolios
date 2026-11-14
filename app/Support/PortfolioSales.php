@@ -2,10 +2,12 @@
 
 namespace App\Support;
 
+use App\Models\Account;
 use App\Models\Operation;
 use App\Models\Portfolio;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Ventes d'un portfolio, lues sur ses opérations.
@@ -15,20 +17,40 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * Les opérations des comptes archivés comptent : leurs ventes ont eu lieu. Les périodes portent sur la
  * date effective (delivery_at) et s'écrivent en intervalles semi-ouverts [début, fin[.
+ *
+ * Les ventes se lisent sur tous les comptes du portfolio, ou sur une sélection de ses comptes.
  */
 final readonly class PortfolioSales
 {
     /**
      * @param  Portfolio  $portfolio  Portfolio dont les ventes sont lues.
+     * @param  list<int|string>  $accountIds  Identifiants des comptes retenus, vide pour tous.
      */
     public function __construct(
         private Portfolio $portfolio,
+        private array $accountIds = [],
     ) {
         //
     }
 
     /**
-     * Opérations du portfolio, comptes archivés compris, entre deux dates.
+     * Comptes retenus du portfolio, archivés compris : tous, ou ceux de la sélection.
+     *
+     * @return HasMany<Account, Portfolio>
+     */
+    public function accounts(): HasMany
+    {
+        $accounts = $this->portfolio->accounts()->withTrashed();
+
+        if ($this->accountIds !== []) {
+            $accounts->whereKey($this->accountIds);
+        }
+
+        return $accounts;
+    }
+
+    /**
+     * Opérations des comptes retenus, archivés compris, entre deux dates.
      *
      * @param  CarbonInterface  $from  Premier jour compris.
      * @param  CarbonInterface  $until  Premier jour exclu.
@@ -37,7 +59,7 @@ final readonly class PortfolioSales
     public function operations(CarbonInterface $from, CarbonInterface $until): Builder
     {
         return Operation::query()
-            ->whereIn('operations.account_id', $this->portfolio->accounts()->withTrashed()->select('id'))
+            ->whereIn('operations.account_id', $this->accounts()->select('accounts.id'))
             ->where('operations.delivery_at', '>=', $from->toDateString())
             ->where('operations.delivery_at', '<', $until->toDateString());
     }
