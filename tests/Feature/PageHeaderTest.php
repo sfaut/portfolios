@@ -81,9 +81,16 @@ describe('the breadcrumb of a page', function () {
         expect(breadcrumbLinks($html))->toBe([route('portfolio.index') => 'Portfolios']);
     })->with(['portfolio.create', 'profile.edit', 'profile.preferences', 'profile.password', 'profile.account']);
 
-    test('is absent from the portfolio list, its root', function () {
-        $this->get(route('portfolio.index'))
+    test('shows on the portfolio list its root alone, as the current page', function () {
+        $html = $this->get(route('portfolio.index'))->assertOk()->getContent();
+
+        expect(breadcrumbLinks($html))->toBe([route('portfolio.index') => 'Portfolios'])
+            ->and($html)->toContain('<a href="'.route('portfolio.index').'" aria-current="page"');
+    });
+
+    test('marks no link as the current page elsewhere', function () {
+        $this->get(route('ledger.index', $this->portfolio))
             ->assertOk()
-            ->assertDontSee('aria-label="Fil d', escape: false);
+            ->assertDontSee('aria-current="page" class="truncate', escape: false);
     });
 });

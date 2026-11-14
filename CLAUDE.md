@@ -266,8 +266,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   titre, le fil d'Ariane (`<x-breadcrumb>`) part toujours de la liste des portfolios, passe par le
   portfolio de la page (`PortfolioContext`), qui mène à son tableau de bord, puis suit les liens
   que la page donne par `:breadcrumb`, de sa section à sa page parente : « Portfolios › Famille ›
-  Comptes » sur un compte. La page elle-même n'y est jamais : la liste des portfolios n'a pas de
-  fil, le tableau de bord n'a que « Portfolios ». Le titre nomme la page, jamais le portfolio, que
+  Comptes » sur un compte. La page elle-même n'y est pas, sauf la liste des portfolios, racine du
+  fil, qui s'y montre seule en page courante (`aria-current="page"`, sans soulignement) ; le
+  tableau de bord n'a que « Portfolios ». Le titre nomme la page, jamais le portfolio, que
   montre la barre. Sous le titre, toute page a sa description : une phrase grise, écrite en dur,
   qui dit le rôle de la page en termes généraux, sans chiffre ni date (« Les comptes du portfolio,
   avec leur solde et la période de leurs opérations. ») ; `NavigationTest` le vérifie. Les chiffres
