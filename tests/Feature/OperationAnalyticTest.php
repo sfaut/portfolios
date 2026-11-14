@@ -281,7 +281,7 @@ test('the lines of an operation show from the heaviest, then in the order of the
 
     $this->actingAs($this->owner)->get(route($route, [$this->{$model}, 'page' => 1]))
         ->assertOk()
-        ->assertSeeInOrder(['Cours collectif', 'role="tooltip"', 'Cours chant', 'Cours piano', 'Cours échecs', 'Cours violon', 'Cours dessin'], escape: false);
+        ->assertSeeInOrder(['Cours collectif', 'Cours chant', 'Cours piano', 'Cours échecs', 'Cours violon', 'Cours dessin'], escape: false);
 })->with([
     'account' => ['account.show', 'account'],
     'ledger' => ['ledger.index', 'portfolio'],

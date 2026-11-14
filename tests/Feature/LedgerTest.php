@@ -97,6 +97,19 @@ test('the ledger lists the operations of every account, the last written first',
         ->assertSeeInOrder(['Facture Bêta', '−250,50', 'Formation', 'Études'], escape: false);
 });
 
+test('the ledger writes each analytic line of an operation in its row, without tooltip', function () {
+    $response = ledger();
+
+    $response->assertSeeInOrder([
+        'Facture Bêta', '−250,50',
+        'Formation', "60\u{a0}%", "−150,30\u{a0}€",
+        'Études', "40\u{a0}%", "−100,20\u{a0}€",
+        'Règlement Alpha',
+    ], escape: false);
+
+    expect($response->getContent())->not->toContain('role="tooltip"');
+});
+
 test('the ledger shows the identifier of each operation', function () {
     ledger(['sort' => 'id', 'dir' => 'asc'])->assertSeeInOrder([
         'ID',

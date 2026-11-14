@@ -268,24 +268,15 @@
                                     <td class="border px-3 py-2">{{ $operation->label }}</td>
                                     <td class="border px-3 py-2 text-right whitespace-nowrap tabular-nums">{{ Number::amount($operation->amount) }}</td>
                                     <td class="border px-3 py-2">
+                                        {{-- Une ligne par axe, du plus lourd au plus léger : pastille, part et montant, en colonnes de largeur fixe alignées d'une opération à l'autre. --}}
                                         @if ($operation->analyticLines->isNotEmpty())
-                                            <x-tooltip>
-                                                <span class="flex flex-wrap gap-1">
-                                                    @foreach ($operation->analyticLines as $line)
-                                                        <x-axis-badge :axis="$line->analyticAxis"/>
-                                                    @endforeach
-                                                </span>
-
-                                                <x-slot:content>
-                                                    <span class="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1">
-                                                        @foreach ($operation->analyticLines as $line)
-                                                            <span class="inline-flex items-center gap-1.5"><x-axis-badge :axis="$line->analyticAxis" icon-only on-dark class="size-3.5"/>{{ $line->analyticAxis->name }}</span>
-                                                            <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
-                                                            <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
-                                                        @endforeach
-                                                    </span>
-                                                </x-slot:content>
-                                            </x-tooltip>
+                                            <div class="grid grid-cols-[minmax(0,1fr)_3.5rem_6.5rem] items-center gap-x-3 gap-y-1">
+                                                @foreach ($operation->analyticLines as $line)
+                                                    <span class="min-w-0"><x-axis-badge :axis="$line->analyticAxis"/></span>
+                                                    <span class="text-right whitespace-nowrap tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
+                                                    <span class="text-right whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
+                                                @endforeach
+                                            </div>
                                         @endif
                                     </td>
                                     <td class="relative border px-3 py-2 text-center">
