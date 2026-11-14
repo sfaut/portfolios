@@ -405,7 +405,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   pagination, avec leur nombre, et la page s'ouvre sur l'opération modifiée, centrée, ou à défaut au
   bas du tableau.
 - Messages flash : la clef varie selon la vue qui l'affiche, `message` (vues portfolio), `alert`
-  (`account/show`), `status` (vues Breeze). Un flash n'apparaît que si la vue de destination lit sa clef.
+  (`account/show`), `status` (vues d'authentification). Un flash n'apparaît que si la vue de destination lit sa clef.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`).
@@ -422,7 +422,8 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   un panneau `indigo-950` (bandeau au-dessus du contenu sous `lg`) porte le logotype, l'accroche et
   `<x-balance-steps>`, la ligne en paliers du logo, qui se trace en 2 s, reste puis s'efface, en
   boucle de 5 s (`animate-balance-*` de `app.css`), immobile sous `motion-reduce`. À droite, la
-  page remplit les slots `title` (le `<h1>`), `description` et `footer` (liens secondaires sous un
+  page remplit les slots `title` (le `<h1>`, et l'onglet « Connexion – Portfolios » par la prop
+  `title` de `<x-empty-layout>` ; les pages de l'application gardent « Portfolios »), `description` et `footer` (liens secondaires sous un
   filet), facultatifs hormis le titre ; l'action principale y est en pleine largeur. Les
   textes mettent une espace insécable (`&nbsp;`) avant « ? » et « : ». Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-text-input` / `x-textarea`
