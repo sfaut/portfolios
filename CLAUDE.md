@@ -409,7 +409,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   lui-même autour du contenu, dans `<main>` : une page ne déclare aucune largeur, sauf une page
   étroite, centrée dans le conteneur : un formulaire (création, modification) garde une largeur de
   lecture, `max-w-2xl mx-auto`, et le profil (`x-profile-layout`) `max-w-5xl mx-auto`.
-  `tests/Feature/PageWidthTest.php` le vérifie sur un jeu de pages. Les
+  `tests/Feature/PageWidthTest.php` le vérifie sur un jeu de pages.
+  Les pages invité (connexion, inscription, mot de passe, vérification, erreurs) passent par
+  `<x-guest-layout>` → `layouts/guest.blade.php` → `<x-empty-layout>` : un écran partagé. À gauche,
+  un panneau `indigo-950` (bandeau au-dessus du contenu sous `lg`) porte le logotype, l'accroche et
+  `<x-balance-steps>`, la ligne en paliers du logo, qui se trace en 2 s, reste puis s'efface, en
+  boucle de 5 s (`animate-balance-*` de `app.css`), immobile sous `motion-reduce`. À droite, la
+  page remplit les slots `title` (le `<h1>`), `description` et `footer` (liens secondaires sous un
+  filet), facultatifs hormis le titre ; l'action principale y est en pleine largeur. Les
+  textes mettent une espace insécable (`&nbsp;`) avant « ? » et « : ». Les
   composants sont surtout anonymes (`resources/views/components`, dont `x-link.primary` /
   `x-link.secondary` avec `:target`, `x-text-input` / `x-textarea` pour les champs). Ces deux liens,
   `x-primary-button` et `x-secondary-button` prennent une icône Lucide devant leur texte par la prop
@@ -446,7 +454,7 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   `<x-switch label="…">` (`App\View\Components\ChoiceSwitch`, enregistré sous ce nom, Switch étant
   réservé en PHP) est un interrupteur de 2 ou 3 options en radios natifs, au curseur glissant en CSS ;
   `variant="color-scheme"` donne clair / système / sombre, `model` le lie à Alpine. Pas de SVG copié dans les vues, hormis le logo
-  (`x-application-logo`). La taille passe par `size-*` et l'épaisseur du trait, 2 par défaut, par une
+  (`x-application-logo`) et son illustration en paliers (`x-balance-steps`). La taille passe par `size-*` et l'épaisseur du trait, 2 par défaut, par une
   classe (`stroke-1`, `stroke-[1.25]`) : un attribut `stroke-width` sortirait en double sur le `<svg>`.
   Tout choix de mois passe par `<x-month-picker>` (`App\View\Components\MonthPicker`, composant
   Alpine `monthPicker` de `resources/js/month-picker.js`), inspiré de `<input type="month">`, que

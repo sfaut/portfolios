@@ -1,14 +1,16 @@
 {{--
-    Connexion : adresse électronique, mot de passe (affichable), « Se souvenir de moi », puis lien vers
-    l'inscription.
+    Connexion : adresse électronique, mot de passe (affichable), « Se souvenir de moi » et lien vers le
+    mot de passe oublié, puis, en pied, le lien vers l'inscription.
 
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
 <x-guest-layout>
+    <x-slot:title>Connexion</x-slot:title>
+    <x-slot:description>Connectez-vous pour retrouver vos portfolios.</x-slot:description>
 
     <x-auth-session-status :status="session('status')"/>
 
-    <form method="post" action="{{ route('login') }}" class="flex flex-col gap-4">
+    <form method="post" action="{{ route('login') }}" class="flex flex-col gap-5">
         @csrf
 
         <div class="flex flex-col gap-1">
@@ -51,29 +53,28 @@
             <x-input-error :messages="$errors->get('password')"/>
         </div>
 
-        <div>
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <label for="remember_me" class="inline-flex items-center gap-2">
-                <input type="checkbox" id="remember_me" name="remember" class="rounded-sm dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-xs focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                <input type="checkbox" id="remember_me" name="remember" class="rounded-sm dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-xs focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-900">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Se souvenir de moi</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end gap-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    Mot de passe oublié ?
-                </a>
+                <a
+                    href="{{ route('password.request') }}"
+                    class="text-sm font-medium text-indigo-700 dark:text-indigo-400 underline hover:no-underline rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                >Mot de passe oublié&nbsp;?</a>
             @endif
-
-            <x-primary-button>Se connecter</x-primary-button>
         </div>
+
+        <x-primary-button class="w-full justify-center">Se connecter</x-primary-button>
     </form>
 
-    <p class="border-t border-gray-200 dark:border-gray-700 pt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        Pas encore de compte ?
+    <x-slot:footer>
+        Pas encore de compte&nbsp;?
         <a
             href="{{ route('register') }}"
-            class="font-medium text-indigo-700 dark:text-indigo-400 underline hover:no-underline rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+            class="font-medium text-indigo-700 dark:text-indigo-400 underline hover:no-underline rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
         >Créer un compte</a>
-    </p>
+    </x-slot:footer>
 </x-guest-layout>

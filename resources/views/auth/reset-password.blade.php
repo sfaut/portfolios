@@ -6,8 +6,10 @@
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
 <x-guest-layout>
+    <x-slot:title>Nouveau mot de passe</x-slot:title>
+    <x-slot:description>Choisissez le nouveau mot de passe de votre compte.</x-slot:description>
 
-    <form method="post" action="{{ route('password.store') }}" class="flex flex-col gap-4">
+    <form method="post" action="{{ route('password.store') }}" class="flex flex-col gap-5">
         @csrf
 
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
@@ -49,9 +51,6 @@
             <x-input-error :messages="$errors->get('password_confirmation')"/>
         </div>
 
-        <div class="flex items-center justify-end">
-            <x-primary-button>Réinitialiser le mot de passe</x-primary-button>
-        </div>
+        <x-primary-button class="w-full justify-center">Enregistrer le mot de passe</x-primary-button>
     </form>
-
 </x-guest-layout>

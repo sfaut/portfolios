@@ -1,5 +1,6 @@
 {{--
-    Layout of the error pages: the guest layout, so they follow the chosen theme.
+    Layout of the error pages: the guest layout, so they follow the chosen theme. The message is
+    the title of the page, the code its description.
 
     The pages of each status code (401, 403, 404, 419, 500, 503…) come from Laravel
     (vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views): they only set
@@ -9,12 +10,8 @@
     them at its current version.
 --}}
 <x-guest-layout>
-    <div class="flex flex-col items-center gap-6">
-        <div class="flex items-center gap-4 text-lg uppercase tracking-wider text-gray-500 dark:text-gray-400">
-            <span class="border-r border-gray-400 dark:border-gray-600 pr-4">@yield('code')</span>
-            <span>@yield('message')</span>
-        </div>
+    <x-slot:title>@yield('message')</x-slot:title>
+    <x-slot:description>Erreur @yield('code')</x-slot:description>
 
-        <x-link.primary :target="url('/')">Retour à l'accueil</x-link.primary>
-    </div>
+    <x-link.primary :target="url('/')" class="self-start">Retour à l'accueil</x-link.primary>
 </x-guest-layout>
