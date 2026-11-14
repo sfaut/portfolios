@@ -40,8 +40,15 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   que sur des modules purs, sans DOM ni Alpine (`resources/js/month-picker-rules.js`,
   `date-picker-rules.js`…). Les cas que PHP
   et JavaScript doivent appliquer à l'identique sont dans `tests/fixtures/*.json`, lus par les deux.
+- Classes Tailwind : `npm run lint:css` (`bin/check-tailwind-classes.mjs`) signale toute classe qui
+  n'est pas sous sa forme canonique (`aspect-[640/520]` pour `aspect-640/520`), comme l'alerte
+  « suggestCanonicalClasses » de Tailwind CSS IntelliSense, mais sur tous les fichiers, ouverts ou
+  non : vues, scripts de `resources/js` et classes PHP de `app/`, lus par le système de
+  `resources/css/app.css`. Il passe par l'API `__unstable__loadDesignSystem()` de `@tailwindcss/node`
+  et le `Scanner` de `@tailwindcss/oxide`, déclarés pour lui en dépendances de développement ; une
+  mise à jour de Tailwind qui change cette API le fait échouer.
 - GitHub Actions : `.github/workflows/ci.yaml` vérifie le code (Pint, ShellCheck sur `bin/*.sh`,
-  build du front, tests JavaScript, tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
+  classes Tailwind, build du front, tests JavaScript, tests Pest sur un service MySQL) à chaque push sur `master` et à chaque pull request. À la
   publication d'une release, il
   construit en plus l'archive de déploiement (`composer install --no-dev`, `npm run build`), qu'il
   ajoute à la release avec son empreinte SHA-256 (`portfolios-vX.Y.Z.tar.gz`, `.sha256`).
