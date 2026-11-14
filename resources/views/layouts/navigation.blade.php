@@ -54,9 +54,9 @@
 
                                 <div class="border-t border-gray-100 dark:border-gray-600"></div>
 
-                                <x-dropdown-link :href="route('portfolio.edit', $current_portfolio)">Modifier ce portfolio</x-dropdown-link>
-                                <x-dropdown-link :href="route('portfolio.index')">Tous les portfolios</x-dropdown-link>
-                                <x-dropdown-link :href="route('portfolio.create')">Créer un portfolio</x-dropdown-link>
+                                <x-dropdown-link :href="route('portfolio.edit', $current_portfolio)" icon="pencil">Modifier ce portfolio</x-dropdown-link>
+                                <x-dropdown-link :href="route('portfolio.index')" icon="list">Tous les portfolios</x-dropdown-link>
+                                <x-dropdown-link :href="route('portfolio.create')" icon="plus">Créer un portfolio</x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
                     </div>

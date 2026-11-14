@@ -17,8 +17,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Relevé du {{ $taken_at }}</p>
             </div>
 
-            <x-link.secondary :target="route('admin.server')" class="flex items-center gap-2">
-                <x-lucide-refresh-cw class="size-4" aria-hidden="true"/>
+            <x-link.secondary :target="route('admin.server')" icon="refresh-cw">
                 Actualiser
             </x-link.secondary>
         </div>

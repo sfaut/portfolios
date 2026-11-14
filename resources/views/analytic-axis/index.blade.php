@@ -23,7 +23,7 @@
                 Les axes répartissent le montant d'une opération, en pourcentages, depuis son formulaire.
             </p>
             <div class="shrink-0">
-                <x-link.primary :target="route('analytic-axis.create', $portfolio)">Créer un axe</x-link.primary>
+                <x-link.primary :target="route('analytic-axis.create', $portfolio)" icon="plus">Créer un axe</x-link.primary>
             </div>
         </div>
 

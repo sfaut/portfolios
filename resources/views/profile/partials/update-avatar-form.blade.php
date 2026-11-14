@@ -43,8 +43,7 @@
                     >
 
                     <div class="flex flex-wrap gap-2">
-                        <x-secondary-button hidden x-bind:hidden="false" x-on:click="pickFile()" aria-describedby="avatar-formats" class="gap-2">
-                            <x-lucide-image-up class="size-4" aria-hidden="true"/>
+                        <x-secondary-button hidden x-bind:hidden="false" x-on:click="pickFile()" aria-describedby="avatar-formats" icon="image-up">
                             Importer une photo
                         </x-secondary-button>
 
@@ -54,9 +53,8 @@
                             x-bind:disabled="camera !== 'available'"
                             x-bind:aria-describedby="camera === 'insecure' ? 'avatar-camera-https' : null"
                             x-on:click="openCamera()"
-                            class="gap-2"
+                            icon="camera"
                         >
-                            <x-lucide-camera class="size-4" aria-hidden="true"/>
                             Prendre une photo
                         </x-secondary-button>
                     </div>

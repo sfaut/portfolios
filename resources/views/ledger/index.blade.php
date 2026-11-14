@@ -223,8 +223,7 @@
 
                     <div class="flex items-center gap-3">
                         @if ($totals['count'] > 0)
-                            <x-link.secondary :target="route('ledger.export', ['portfolio' => $portfolio, ...$filters->query()])" class="inline-flex items-center gap-2">
-                                <x-lucide-download class="size-4" aria-hidden="true"/>
+                            <x-link.secondary :target="route('ledger.export', ['portfolio' => $portfolio, ...$filters->query()])" icon="download">
                                 Exporter en CSV
                             </x-link.secondary>
                         @endif
@@ -275,8 +274,8 @@
                                         @unless ($operation->account->trashed())
                                             <a
                                                 href="{{ route('operation.edit', $operation) }}"
-                                                class="text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400 no-underline hover:underline"
-                                            >Modifier</a>
+                                                class="inline-flex items-center gap-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400 no-underline hover:underline"
+                                            ><x-lucide-pencil class="size-3.5 shrink-0" aria-hidden="true"/>Modifier</a>
                                         @endunless
                                     </td>
                                 </tr>

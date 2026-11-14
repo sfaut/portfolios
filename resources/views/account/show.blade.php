@@ -18,7 +18,7 @@
                 </h2>
                 <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes']"/>
             </div>
-            <x-link.secondary :target="route('account.edit', $account)">Modifier le compte</x-link.secondary>
+            <x-link.secondary :target="route('account.edit', $account)" icon="pencil">Modifier le compte</x-link.secondary>
         </div>
     </x-slot>
 
@@ -39,7 +39,7 @@
 
         <div @class(['flex', 'justify-between' => ! $account->trashed(), 'justify-end' => $account->trashed()])>
             @unless ($account->trashed())
-                <x-link.primary :target="route('operation.create', $account)">Écrire une opération</x-link.primary>
+                <x-link.primary :target="route('operation.create', $account)" icon="plus">Écrire une opération</x-link.primary>
             @endunless
             <div class="flex items-center gap-3">
                 <form method="GET" action="{{ route('account.show', $account) }}">
@@ -111,10 +111,12 @@
                                     <a
                                         href="{{ route('operation.edit', $operation) }}"
                                         @class([
+                                            'inline-flex', 'items-center', 'gap-1',
                                             'text-xs', 'font-semibold', 'uppercase', 'text-indigo-700', 'dark:text-indigo-400',
                                             'no-underline', 'hover:underline',
                                         ])
                                     >
+                                        <x-lucide-pencil class="size-3.5 shrink-0" aria-hidden="true"/>
                                         Modifier
                                     </a>
                                 </td>

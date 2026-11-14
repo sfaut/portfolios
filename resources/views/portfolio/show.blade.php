@@ -106,7 +106,7 @@
             </form>
 
             <div class="shrink-0">
-                <x-link.primary :target="route('account.create', $portfolio)">Créer un compte</x-link.primary>
+                <x-link.primary :target="route('account.create', $portfolio)" icon="plus">Créer un compte</x-link.primary>
             </div>
         </div>
 

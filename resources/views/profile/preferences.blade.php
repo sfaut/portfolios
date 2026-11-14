@@ -34,7 +34,7 @@
             @endif
 
             <noscript>
-                <x-primary-button>Enregistrer</x-primary-button>
+                <x-primary-button icon="check">Enregistrer</x-primary-button>
             </noscript>
         </form>
     </x-card>
