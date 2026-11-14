@@ -11,7 +11,7 @@ use Illuminate\View\View;
  * Barre, bandeau et contenu partagent un même conteneur, donc la même largeur et les mêmes marges :
  * CONTAINER (max-w-7xl) par défaut, WIDE_CONTAINER (120rem) pour une page large (wide), comme le
  * Grand livre. Une page range son contenu dans ce conteneur sans redéclarer de largeur, sauf un
- * formulaire, qui garde une largeur de lecture (max-w-2xl), aligné à gauche.
+ * formulaire, qui garde une largeur de lecture (max-w-2xl), centré.
  */
 class AppLayout extends Component
 {

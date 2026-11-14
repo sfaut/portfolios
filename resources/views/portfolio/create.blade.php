@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-2xl flex flex-col gap-6">
+    <div class="max-w-2xl mx-auto flex flex-col gap-6">
 
         <x-card>
             <x-slot:title>Informations du portfolio</x-slot:title>

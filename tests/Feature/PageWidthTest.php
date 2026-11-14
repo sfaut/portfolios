@@ -30,9 +30,8 @@ test('every page shares the width and the margins of the bar and the header', fu
     'server status' => [fn () => route('admin.server')],
 ]);
 
-test('a form keeps a reading width, aligned on the left of the page', function () {
+test('a form keeps a reading width, centered in the page', function () {
     $this->get(route('account.create', $this->portfolio))
         ->assertOk()
-        ->assertSee('<div class="max-w-2xl flex flex-col gap-6">', escape: false)
-        ->assertDontSee('mx-auto flex flex-col', escape: false);
+        ->assertSee('<div class="max-w-2xl mx-auto flex flex-col gap-6">', escape: false);
 });
