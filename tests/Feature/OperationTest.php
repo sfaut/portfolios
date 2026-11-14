@@ -48,3 +48,16 @@ test('the operation just updated is marked in the list of the account', function
     $response->assertOk()->assertSeeInOrder(['Rent', 'aria-current="true"', 'Groceries'], escape: false);
     expect(substr_count($response->getContent(), 'aria-current="true"'))->toBe(1);
 });
+
+test('the operation form follows the order of the columns of the account', function () {
+    Mail::fake();
+
+    $user = User::factory()->create();
+    $account = $user->portfolios()->create(['name' => 'Portfolio'])
+        ->accounts()->create(['name' => 'Account']);
+
+    $this->actingAs($user)
+        ->get(route('operation.create', $account))
+        ->assertOk()
+        ->assertSeeInOrder(['id="delivery_at"', 'id="label"', 'id="amount"', 'Répartition analytique', 'id="is_ticked"'], escape: false);
+});
