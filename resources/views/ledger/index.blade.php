@@ -24,7 +24,7 @@
         <h2 class="text-xl font-semibold">Grand livre</h2>
     </x-slot>
 
-    <div x-data="ledger(@js($filters->state()))" class="max-w-7xl mx-auto flex flex-col gap-6">
+    <div x-data="ledger(@js($filters->state()))" class="w-full px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
 
         <form
             id="ledger-filters"
@@ -243,9 +243,9 @@
                                 <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left">Compte</x-sortable-heading>
                                 <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Horodatage écriture</x-sortable-heading>
                                 <x-sortable-heading column="effective" :sort="$filters->sort" :direction="$filters->direction">Date effective</x-sortable-heading>
-                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left">Libellé</x-sortable-heading>
+                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-64">Libellé</x-sortable-heading>
                                 <x-sortable-heading column="amount" :sort="$filters->sort" :direction="$filters->direction" align="right">Montant (€)</x-sortable-heading>
-                                <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left">Axes</x-sortable-heading>
+                                <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-80">Axes</x-sortable-heading>
                                 <x-sortable-heading column="ticked" :sort="$filters->sort" :direction="$filters->direction" align="center">Pointée ?</x-sortable-heading>
                                 <th scope="col" class="border px-3 py-2">Action</th>
                             </tr>
