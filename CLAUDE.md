@@ -397,9 +397,10 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   Les messages de portfolio sont dans `lang/fr/portfolio.php` ; les autres sont écrits en dur dans les
   contrôleurs.
 - Mise en page : `<x-app-layout>` → `layouts/app.blade.php` → `<x-empty-layout>` (HTML, `@vite`).
-  Barre, bandeau et contenu partagent un même conteneur, donc la même largeur et les mêmes marges :
-  `AppLayout::container()`, soit `AppLayout::CONTAINER` (`max-w-7xl`), soit, pour une page large
-  (`<x-app-layout wide>`, le Grand livre), `AppLayout::WIDE_CONTAINER` (120rem). Le layout le pose
+  La barre du haut a la même largeur sur toutes les pages, celle de la plus large
+  (`AppLayout::WIDE_CONTAINER`, 120rem). Bandeau et contenu partagent le conteneur de la page,
+  centré : `AppLayout::container()`, soit `AppLayout::CONTAINER` (`max-w-7xl`), soit, pour une page
+  large (`<x-app-layout wide>`, le Grand livre), `AppLayout::WIDE_CONTAINER`. Le layout le pose
   lui-même autour du contenu, dans `<main>` : une page ne déclare aucune largeur, sauf une page
   étroite, centrée dans le conteneur : un formulaire (création, modification) garde une largeur de
   lecture, `max-w-2xl mx-auto`, et le profil (`x-profile-layout`) `max-w-5xl mx-auto`.
