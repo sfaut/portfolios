@@ -2,6 +2,74 @@
 
 Versions de Portfolios, de la plus récente à la plus ancienne.
 
+## v1.8.0 (2026-11-14)
+
+### 🚀 Lancement
+
+Nous sommes fiers d'annoncer Portfolios v1.8.0, qui donne à chaque compte sa répartition analytique
+par défaut et harmonise l'interface :
+
+- une répartition par défaut, ordonnée, qui préremplit chaque nouvelle opération du compte ;
+- le détail des axes écrit dans les tableaux du Grand livre et des comptes ;
+- des cartes pour les portfolios, les comptes et les axes analytiques ;
+- une même largeur de page partout, et une icône sur les boutons de création et de modification.
+
+### ✨ Nouvelles fonctionnalités
+
+- Répartition analytique par défaut d'un compte : dans son formulaire, chaque axe reçoit un
+  pourcentage, le total faisant exactement 100 %. Les lignes se réordonnent par une poignée, ou au
+  clavier par ses flèches. Cet ordre est celui de l'affichage des axes du compte.
+- Une nouvelle opération part de la répartition par défaut de son compte, sans ses axes archivés ;
+  les opérations existantes ne changent pas.
+- Les axes d'une opération s'affichent du plus lourd au plus léger, à égalité dans l'ordre des axes
+  de son compte.
+- Grand livre et liste d'un compte : chaque ligne écrit le détail de ses axes (icône, nom, part et
+  montant), sans infobulle. Les deux tableaux ont les mêmes colonnes, dans le même ordre.
+- Grand livre : la page occupe une plus grande largeur, et les filtres « Sens » et « Pointage »
+  deviennent des menus déroulants, comme « Axes analytiques ».
+- Cartes : les portfolios (nombre de comptes), les comptes (description, solde, période et nombre
+  d'opérations) et les axes analytiques (opérations réparties, comptes qui l'ont par défaut)
+  s'affichent en cartes, chacune menant à sa page.
+- Toutes les pages ont la même largeur, sous une barre du haut identique partout ; les formulaires
+  et le profil restent centrés.
+- Les boutons de création (+), de modification (crayon) et d'enregistrement (coche) portent une
+  icône.
+- Le formulaire d'une opération suit l'ordre des colonnes du compte : date effective, libellé,
+  montant et répartition, pointage.
+- Export des données : `axes-comptes.csv` donne le pourcentage et la position de chaque axe d'un
+  compte.
+
+### 🐞 Corrections
+
+- Sur un écran de largeur moyenne, la barre du haut débordait sur le titre de la page : elle passe
+  désormais sur deux lignes tant qu'elle ne tient pas sur une seule.
+
+### ⚙️ Améliorations internes
+
+- Deux migrations, jouées au déploiement : la table `account_analytic_axis` reçoit le pourcentage et
+  la position de chaque axe (les répartitions existantes deviennent des parts égales), et la vue
+  `account_reports` reprend la description du compte.
+- Photos de profil : leur disque se choisit par `AVATAR_DISK` (`local` par défaut, sans action sur
+  un serveur), pour un bucket privé sur Laravel Cloud.
+- Déploiement sur Laravel Cloud par `bin/deploy-laravel-cloud.sh`.
+- Le script de déploiement devient le fichier `bin/deploy.sh`, vérifié par ShellCheck dans la CI.
+  **Action sur le serveur : installer le script depuis le tag v1.8.0**, comme le décrit le README
+  (section « Script de déploiement »).
+- Dépendances directes :
+  - ajout de `league/flysystem-aws-s3-v3` 3.35.3, pilote S3 des buckets de Laravel Cloud ;
+  - ajout de `@alpinejs/sort` 3.17.5, pour réordonner les lignes de la répartition ;
+  - `laravel/framework` v13.40.0 → v13.42.0 ;
+  - `laravel/tinker` v3.0.2 → v3.1.0 ;
+  - `mallardduck/blade-lucide-icons` 2.0.42 → 2.0.45 ;
+  - `laravel/pail` v1.2.7 → v1.3.0 ;
+  - `laravel/pint` v1.32.1 → v1.32.3 ;
+  - `vite` 8.3.7 → 8.3.8.
+
+### 📝 Documentation
+
+- README : déploiement sur Laravel Cloud (configuration, déploiement d'une version, bascule depuis
+  un serveur) et installation du script de déploiement depuis le tag d'une version.
+
 ## v1.7.0 (2026-11-10)
 
 ### 🚀 Lancement
