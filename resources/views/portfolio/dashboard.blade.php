@@ -8,15 +8,16 @@
     Une vente est une opération de montant négatif, affichée en valeur positive (App\Support\PortfolioSales).
 
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
-    @var \Carbon\CarbonImmutable $today Date du tableau de bord, dans le statut du bandeau.
+    @var \Carbon\CarbonImmutable $today Date du tableau de bord, dans la description du bandeau.
+    @var bool $has_operations Si le portfolio a au moins une opération, sur l'un de ses comptes.
     @var int $active_accounts Nombre de comptes actifs.
     @var int $archived_accounts Nombre de comptes archivés.
     @var \App\Support\SalesComparison $current_month Ventes du mois en cours, à date.
     @var \App\Support\SalesComparison $previous_month Ventes du mois précédent.
     @var \App\Support\SalesComparison $last_twelve_months Ventes des douze derniers mois complets.
     @var array{amount: float, accounts: int} $outstanding Reste à encaisser et nombre de comptes concernés.
-    @var \App\Support\MonthRestriction $restriction Mois choisissables pour la période.
-    @var array{start: string, end: string}|null $period Période choisie, null sans opération.
+    @var \App\Support\MonthRestriction $restriction Mois choisissables pour la période : ceux des comptes choisis.
+    @var array{start: string, end: string}|null $period Période choisie, null sans opération sur les comptes choisis.
     @var list<array{value: string, label: string, hint?: string}> $account_options Comptes proposés au filtre.
     @var list<string> $accounts Comptes choisis, vide pour tous.
     @var \App\Support\SalesDashboard|null $dashboard Ventes de la période, null sans opération.
@@ -34,7 +35,7 @@
 
     <div class="flex flex-col gap-6">
 
-        @if ($period !== null)
+        @if ($has_operations)
             <x-filter-bar
                 method="get"
                 action="{{ route('portfolio.dashboard', $portfolio) }}"
@@ -54,17 +55,19 @@
                     />
                 </x-filter-field>
 
-                <x-filter-field label="Période">
-                    <x-month-picker
-                        name="period"
-                        label="Période"
-                        mode="range"
-                        :value="$period"
-                        :restriction="$restriction"
-                        placeholder="Période par défaut"
-                        x-model="period"
-                    />
-                </x-filter-field>
+                @if ($period !== null)
+                    <x-filter-field label="Période">
+                        <x-month-picker
+                            name="period"
+                            label="Période"
+                            mode="range"
+                            :value="$period"
+                            :restriction="$restriction"
+                            placeholder="Période par défaut"
+                            x-model="period"
+                        />
+                    </x-filter-field>
+                @endif
 
                 <x-slot:status>
                     <noscript>
@@ -103,7 +106,7 @@
             </dl>
         </section>
 
-        @if ($dashboard === null)
+        @if (! $has_operations)
             <x-card>
                 <x-slot:title>Pas encore de vente</x-slot:title>
                 <x-slot:description>
@@ -112,6 +115,16 @@
                 </x-slot:description>
                 <x-slot:footer>
                     <x-button variant="primary" :href="route('portfolio.show', $portfolio)">Voir les comptes</x-button>
+                </x-slot:footer>
+            </x-card>
+        @elseif ($dashboard === null)
+            <x-card>
+                <x-slot:title>Aucune opération sur ces comptes</x-slot:title>
+                <x-slot:description>
+                    Les comptes choisis n'ont encore aucune opération : leurs ventes s'afficheront ici dès la première.
+                </x-slot:description>
+                <x-slot:footer>
+                    <x-button :href="route('portfolio.dashboard', $portfolio)">Effacer les filtres</x-button>
                 </x-slot:footer>
             </x-card>
         @else

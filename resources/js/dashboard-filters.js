@@ -7,7 +7,8 @@
  * when the selection changes with no popover open (the button that clears it).
  *
  * @param {object} config
- * @param {{start: string, end: string}} config.period Chosen period.
+ * @param {{start: string, end: string}|null} config.period
+ *     Chosen period, null when the chosen accounts have no operation (the bar then has no period).
  * @param {string[]} config.accounts Chosen accounts, empty for all of them.
  */
 export default function dashboardFilters({ period, accounts }) {

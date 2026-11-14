@@ -104,12 +104,19 @@ class Portfolio extends Model
      * Mois où les comptes du portfolio, archivés compris, ont au moins une opération (date
      * effective), du plus récent au plus ancien.
      *
+     * @param  list<string>  $account_ids  Comptes retenus, tous ceux du portfolio si la liste est vide.
      * @return list<string> Mois « 2026-11 ».
      */
-    public function operationMonths(): array
+    public function operationMonths(array $account_ids = []): array
     {
+        $accounts = $this->accounts()->withTrashed()->select('id');
+
+        if ($account_ids !== []) {
+            $accounts->whereKey($account_ids);
+        }
+
         return Operation::query()
-            ->whereIn('account_id', $this->accounts()->withTrashed()->select('id'))
+            ->whereIn('account_id', $accounts)
             ->selectRaw("DATE_FORMAT(delivery_at, '%Y-%m') AS month")
             ->distinct()
             ->orderByDesc('month')
