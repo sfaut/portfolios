@@ -1,9 +1,10 @@
 {{--
-    Liste des axes analytiques d'un portfolio : axes actifs, puis axes archivés dans une section repliée.
+    Liste des axes analytiques d'un portfolio, en cartes : axes actifs, suivis de la carte de création,
+    puis axes archivés dans une section repliée.
 
     @var \App\Models\Portfolio $portfolio Portfolio des axes.
-    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $analytic_axes Axes actifs, avec analytic_lines_count.
-    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $archived_analytic_axes Axes archivés, avec analytic_lines_count.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $analytic_axes Axes actifs, avec analytic_lines_count et accounts_count.
+    @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AnalyticAxis> $archived_analytic_axes Axes archivés, avec analytic_lines_count et accounts_count.
 --}}
 <x-app-layout>
     <x-slot name="header">
@@ -27,13 +28,11 @@
             </div>
         </div>
 
-        @if ($analytic_axes->isNotEmpty())
-            @include('analytic-axis.partials.table', ['analytic_axes' => $analytic_axes])
-        @else
-            <div class="rounded-md bg-white dark:bg-gray-800 p-4 text-center text-sm shadow-sm">
-                Pas encore d'axe analytique dans ce portfolio.
-            </div>
+        @if ($analytic_axes->isEmpty())
+            <p class="text-sm">Pas encore d'axe analytique dans ce portfolio.</p>
         @endif
+
+        @include('analytic-axis.partials.cards', ['analytic_axes' => $analytic_axes, 'create_in' => $portfolio])
 
         @if ($archived_analytic_axes->isNotEmpty())
             <section x-data="{ open: false }" class="flex flex-col gap-4">
@@ -52,7 +51,7 @@
                 </h3>
 
                 <div id="archived-analytic-axes" x-show="open" style="display: none" class="opacity-75">
-                    @include('analytic-axis.partials.table', ['analytic_axes' => $archived_analytic_axes])
+                    @include('analytic-axis.partials.cards', ['analytic_axes' => $archived_analytic_axes, 'create_in' => null])
                 </div>
             </section>
         @endif

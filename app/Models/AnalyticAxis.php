@@ -7,6 +7,7 @@ use App\Models\Scopes\AuthUserParentScope;
 use App\Support\AxisIcons;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -104,5 +105,15 @@ class AnalyticAxis extends Model
     public function analyticLines(): HasMany
     {
         return $this->hasMany(AnalyticLine::class);
+    }
+
+    /**
+     * Comptes dont la répartition analytique par défaut contient l'axe.
+     *
+     * @return BelongsToMany<Account, $this>
+     */
+    public function accounts(): BelongsToMany
+    {
+        return $this->belongsToMany(Account::class, 'account_analytic_axis');
     }
 }
