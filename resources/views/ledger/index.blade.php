@@ -240,12 +240,12 @@
                         <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                             <tr>
                                 <x-sortable-heading column="id" :sort="$filters->sort" :direction="$filters->direction" align="right">ID</x-sortable-heading>
-                                <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left">Compte</x-sortable-heading>
+                                <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-44">Compte</x-sortable-heading>
                                 <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Horodatage écriture</x-sortable-heading>
                                 <x-sortable-heading column="effective" :sort="$filters->sort" :direction="$filters->direction">Date effective</x-sortable-heading>
-                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-64">Libellé</x-sortable-heading>
+                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-44">Libellé</x-sortable-heading>
                                 <x-sortable-heading column="amount" :sort="$filters->sort" :direction="$filters->direction" align="right">Montant (€)</x-sortable-heading>
-                                <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-80">Axes</x-sortable-heading>
+                                <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left">Axes</x-sortable-heading>
                                 <x-sortable-heading column="ticked" :sort="$filters->sort" :direction="$filters->direction" align="center">Pointée ?</x-sortable-heading>
                                 <th scope="col" class="border px-3 py-2">Action</th>
                             </tr>
@@ -268,11 +268,11 @@
                                     <td class="border px-3 py-2">{{ $operation->label }}</td>
                                     <td class="border px-3 py-2 text-right whitespace-nowrap tabular-nums">{{ Number::amount($operation->amount) }}</td>
                                     <td class="border px-3 py-2">
-                                        {{-- Une ligne par axe, du plus lourd au plus léger : pastille, part et montant, en colonnes de largeur fixe alignées d'une opération à l'autre. --}}
+                                        {{-- Une ligne par axe, du plus lourd au plus léger : pastille (tronquée au-delà de sa colonne), part et montant, en colonnes de largeur fixe alignées d'une opération à l'autre. --}}
                                         @if ($operation->analyticLines->isNotEmpty())
-                                            <div class="grid grid-cols-[minmax(0,1fr)_3.5rem_6.5rem] items-center gap-x-3 gap-y-1">
+                                            <div class="grid grid-cols-[8rem_3.5rem_5.5rem] items-center gap-x-3 gap-y-1">
                                                 @foreach ($operation->analyticLines as $line)
-                                                    <span class="min-w-0"><x-axis-badge :axis="$line->analyticAxis"/></span>
+                                                    <span class="flex min-w-0"><x-axis-badge :axis="$line->analyticAxis" class="max-w-full"/></span>
                                                     <span class="text-right whitespace-nowrap tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
                                                     <span class="text-right whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
                                                 @endforeach

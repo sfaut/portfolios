@@ -16,7 +16,7 @@
 @else
     <span {{ $attributes->class(['inline-flex', 'items-center', 'gap-1', 'rounded-full', 'px-2', 'py-0.5', 'text-xs', 'font-semibold', 'whitespace-nowrap', $color->badgeClasses()]) }}>
         <x-dynamic-component :component="$icon" class="size-3.5 shrink-0" aria-hidden="true"/>
-        <span>{{ $name }}</span>
+        <span class="truncate">{{ $name }}</span>
         @if ($archived)
             <span class="font-normal opacity-75">(archivé)</span>
         @endif
