@@ -50,7 +50,7 @@
                     </button>
                 </h3>
 
-                <div id="archived-analytic-axes" x-show="open" style="display: none" class="opacity-75">
+                <div id="archived-analytic-axes" x-show="open" style="display: none">
                     @include('analytic-axis.partials.cards', ['analytic_axes' => $archived_analytic_axes, 'create_in' => null])
                 </div>
             </section>
