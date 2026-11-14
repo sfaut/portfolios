@@ -16,7 +16,8 @@ use Illuminate\Support\Str;
  * La période va du premier jour du mois de début au dernier jour du mois de fin, et s'arrête à la date
  * du calcul quand elle la dépasse (période en cours) : les ventes datées du futur n'y entrent pas, et la
  * période de comparaison s'arrête au même jour, un an plus tôt. Les ventes suivent la convention de
- * PortfolioSales (montant négatif, en valeur absolue, comptes archivés compris, par date effective).
+ * PortfolioSales (montant négatif, en valeur absolue, comptes archivés compris, par date effective),
+ * sur les comptes retenus : tous ceux du portfolio, ou une sélection.
  */
 final readonly class SalesDashboard
 {
@@ -36,7 +37,7 @@ final readonly class SalesDashboard
     public CarbonImmutable $until;
 
     /**
-     * Ventes du portfolio.
+     * Ventes des comptes retenus.
      */
     private PortfolioSales $sales;
 
@@ -47,14 +48,16 @@ final readonly class SalesDashboard
      * @param  string  $start  Mois de début, compris (« 2026-01 »).
      * @param  string  $end  Mois de fin, compris (« 2026-11 »), égal ou postérieur au début.
      * @param  CarbonImmutable  $today  Date du calcul.
+     * @param  list<int|string>  $accountIds  Identifiants des comptes retenus, vide pour tous.
      */
     public function __construct(
         private Portfolio $portfolio,
         public string $start,
         public string $end,
         CarbonImmutable $today,
+        array $accountIds = [],
     ) {
-        $this->sales = new PortfolioSales($portfolio);
+        $this->sales = new PortfolioSales($portfolio, $accountIds);
         $this->from = CarbonImmutable::createFromFormat('!Y-m', $start);
         $this->to = CarbonImmutable::createFromFormat('!Y-m', $end)->addMonthNoOverflow();
         $this->until = max($this->from, min($this->to, $today->startOfDay()->addDay()));

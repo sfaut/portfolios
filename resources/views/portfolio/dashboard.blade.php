@@ -1,7 +1,9 @@
 {{--
-    Tableau de bord d'un portfolio, sa page d'accueil : la barre de filtres (période), les chiffres
-    clefs à la date du jour, puis les ventes de la période (ventes par mois comparées à un an plus tôt
-    et leur cumul, répartition analytique). La page se recharge à chaque changement de période.
+    Tableau de bord d'un portfolio, sa page d'accueil : la barre de filtres (comptes, période), les
+    chiffres clefs à la date du jour, puis les ventes de la période (ventes par mois comparées à un an
+    plus tôt et leur cumul, répartition analytique). Le choix des comptes vaut pour toute la page, celui
+    de la période pour ses seules ventes. La page se recharge à chaque changement (composant Alpine
+    dashboardFilters).
 
     Une vente est une opération de montant négatif, affichée en valeur positive (App\Support\PortfolioSales).
 
@@ -15,6 +17,8 @@
     @var array{amount: float, accounts: int} $outstanding Reste à encaisser et nombre de comptes concernés.
     @var \App\Support\MonthRestriction $restriction Mois choisissables pour la période.
     @var array{start: string, end: string}|null $period Période choisie, null sans opération.
+    @var list<array{value: string, label: string, hint?: string}> $account_options Comptes proposés au filtre.
+    @var list<string> $accounts Comptes choisis, vide pour tous.
     @var \App\Support\SalesDashboard|null $dashboard Ventes de la période, null sans opération.
     @var \App\Support\SalesComparison|null $comparison Total de la période, comparé à un an plus tôt.
     @var list<array<string, mixed>> $months Ventes par mois de la période (SalesDashboard::monthly()).
@@ -32,9 +36,21 @@
                 method="get"
                 action="{{ route('portfolio.dashboard', $portfolio) }}"
                 aria-label="Filtres du tableau de bord"
-                x-data="{ period: {{ \Illuminate\Support\Js::from($period) }} }"
-                x-init="$watch('period', () => $nextTick(() => $el.requestSubmit()))"
+                x-data="dashboardFilters({{ \Illuminate\Support\Js::from(['period' => $period, 'accounts' => $accounts]) }})"
+                x-on:toggle.capture="onToggle($event)"
             >
+                <x-filter-field label="Comptes">
+                    <x-multi-select
+                        name="accounts"
+                        label="Comptes"
+                        :options="$account_options"
+                        :value="$accounts"
+                        placeholder="Tous les comptes"
+                        noun="comptes"
+                        x-model="accounts"
+                    />
+                </x-filter-field>
+
                 <x-filter-field label="Période">
                     <x-month-picker
                         name="period"
