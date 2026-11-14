@@ -16,93 +16,159 @@ beforeEach(function () {
 });
 
 /**
- * Identifiants des axes affectés au compte, dans l'ordre croissant.
+ * Répartition par défaut enregistrée pour le compte, dans l'ordre de ses positions : axe,
+ * pourcentage et position de chaque ligne.
  *
- * @return list<int>
+ * @return list<array{int, string, int}>
  */
-function assignedAxisIds(int $account_id): array
+function defaultBreakdown(int $account_id): array
 {
-    return DB::table('account_analytic_axis')->where('account_id', $account_id)->orderBy('analytic_axis_id')->pluck('analytic_axis_id')->all();
+    return DB::table('account_analytic_axis')
+        ->where('account_id', $account_id)
+        ->orderBy('position')
+        ->get()
+        ->map(fn (object $link): array => [$link->analytic_axis_id, $link->percentage, $link->position])
+        ->all();
 }
 
-test('an account is created with its analytic axes', function () {
+/**
+ * Ligne de la répartition par défaut, telle que le formulaire l'envoie.
+ *
+ * @return array{analytic_axis_id: int|string, percentage: string}
+ */
+function breakdownLine(int|string $axis_id, string $percentage): array
+{
+    return ['analytic_axis_id' => $axis_id, 'percentage' => $percentage];
+}
+
+test('an account is created with its default breakdown, in the order sent', function () {
     $this->actingAs($this->owner)->post(route('account.store', $this->portfolio), [
-        'name' => 'Livret',
+        'name' => 'Grjebine, Arthur',
         'description' => '',
-        'analytic_axes' => [$this->piano->id, $this->chess->id],
+        'analytic_axes' => [breakdownLine($this->piano->id, '80'), breakdownLine($this->chess->id, '20')],
     ])->assertSessionHasNoErrors();
 
-    $account_id = DB::table('accounts')->where('name', 'Livret')->value('id');
+    $account_id = DB::table('accounts')->where('name', 'Grjebine, Arthur')->value('id');
 
-    expect(assignedAxisIds($account_id))->toBe([$this->piano->id, $this->chess->id]);
+    expect(defaultBreakdown($account_id))->toBe([
+        [$this->piano->id, '80.00', 0],
+        [$this->chess->id, '20.00', 1],
+    ]);
 });
 
-test('an account update replaces its analytic axes, and none checked removes them all', function () {
-    $this->account->analyticAxes()->attach($this->piano);
+test('an account update replaces its default breakdown and its order, and no line removes it', function () {
+    $this->account->analyticAxes()->attach($this->piano, ['percentage' => '100', 'position' => 0]);
     $update = fn (array $data) => $this->actingAs($this->owner)->put(route('account.update', $this->account), [
         'name' => 'Compte courant',
         'description' => '',
         ...$data,
     ])->assertSessionHasNoErrors();
 
-    $update(['analytic_axes' => [$this->chess->id]]);
-    expect(assignedAxisIds($this->account->id))->toBe([$this->chess->id]);
+    $update(['analytic_axes' => [breakdownLine($this->chess->id, '33.33'), breakdownLine($this->piano->id, '66.67')]]);
+    expect(defaultBreakdown($this->account->id))->toBe([
+        [$this->chess->id, '33.33', 0],
+        [$this->piano->id, '66.67', 1],
+    ]);
 
     $update([]);
-    expect(assignedAxisIds($this->account->id))->toBe([]);
+    expect(defaultBreakdown($this->account->id))->toBe([]);
 });
 
-test('an account refuses an axis of another portfolio, an archived one it has not, a duplicate or a non integer', function (Closure $axes, string $field) {
+test('an account refuses a default breakdown whose total is not 100 %', function (array $percentages, string $current) {
     $response = $this->actingAs($this->owner)->put(route('account.update', $this->account), [
         'name' => 'Compte courant',
         'description' => '',
-        'analytic_axes' => $axes->call($this),
+        'analytic_axes' => [breakdownLine($this->piano->id, $percentages[0]), breakdownLine($this->chess->id, $percentages[1])],
+    ]);
+
+    $response->assertSessionHasErrors(['analytic_axes' => "Le total de la répartition analytique doit faire 100 % (actuellement {$current})."]);
+
+    expect(defaultBreakdown($this->account->id))->toBe([]);
+})->with([
+    'below' => [['80', '19.99'], "99,99\u{a0}%"],
+    'above' => [['80', '20.01'], "100,01\u{a0}%"],
+]);
+
+test('an account refuses an unavailable axis or an invalid percentage', function (Closure $line, string $field) {
+    $response = $this->actingAs($this->owner)->put(route('account.update', $this->account), [
+        'name' => 'Compte courant',
+        'description' => '',
+        'analytic_axes' => $line->call($this),
     ]);
 
     $response->assertSessionHasErrors($field);
 
-    expect(assignedAxisIds($this->account->id))->toBe([]);
+    expect(defaultBreakdown($this->account->id))->toBe([]);
 })->with([
-    'axis of another portfolio' => [fn () => [$this->owner->portfolios()->create(['name' => 'Autre'])->analyticAxes()->create(['name' => 'Ailleurs'])->id], 'analytic_axes.0'],
+    'axis of another portfolio' => [fn () => [breakdownLine($this->owner->portfolios()->create(['name' => 'Autre'])->analyticAxes()->create(['name' => 'Ailleurs'])->id, '100')], 'analytic_axes.0.analytic_axis_id'],
     'archived axis not assigned' => [function () {
         $this->piano->delete();
 
-        return [$this->piano->id];
-    }, 'analytic_axes.0'],
-    'duplicate' => [fn () => [$this->piano->id, $this->piano->id], 'analytic_axes.0'],
-    'not an integer' => [fn () => ['piano'], 'analytic_axes.0'],
+        return [breakdownLine($this->piano->id, '100')];
+    }, 'analytic_axes.0.analytic_axis_id'],
+    'duplicate axis' => [fn () => [breakdownLine($this->piano->id, '50'), breakdownLine($this->piano->id, '50')], 'analytic_axes.0.analytic_axis_id'],
+    'axis not an integer' => [fn () => [breakdownLine('piano', '100')], 'analytic_axes.0.analytic_axis_id'],
+    'missing axis' => [fn () => [breakdownLine('', '100')], 'analytic_axes.0.analytic_axis_id'],
+    'zero percentage' => [fn () => [breakdownLine($this->piano->id, '0'), breakdownLine($this->chess->id, '100')], 'analytic_axes.0.percentage'],
+    'percentage above 100' => [fn () => [breakdownLine($this->piano->id, '100.01')], 'analytic_axes.0.percentage'],
+    'three decimals' => [fn () => [breakdownLine($this->piano->id, '99.999'), breakdownLine($this->chess->id, '0.001')], 'analytic_axes.0.percentage'],
+    'line not a list' => [fn () => ['piano'], 'analytic_axes.0'],
     'not a list' => [fn () => 'piano', 'analytic_axes'],
 ]);
 
-test('an archived axis already assigned stays checked and kept, but is offered to no other account', function () {
-    $this->account->analyticAxes()->attach($this->piano);
+test('an archived axis of the breakdown stays offered and kept, but is offered to no other account', function () {
+    $this->account->analyticAxes()->attach($this->piano, ['percentage' => '100', 'position' => 0]);
     $this->piano->delete();
 
     $this->actingAs($this->owner)->get(route('account.edit', $this->account))
         ->assertOk()
-        ->assertSee('(archivé)');
+        ->assertSee('Piano', escape: false);
 
     $this->actingAs($this->owner)->put(route('account.update', $this->account), [
         'name' => 'Compte courant',
         'description' => '',
-        'analytic_axes' => [$this->piano->id, $this->chess->id],
+        'analytic_axes' => [breakdownLine($this->piano->id, '60'), breakdownLine($this->chess->id, '40')],
     ])->assertSessionHasNoErrors();
 
-    expect(assignedAxisIds($this->account->id))->toBe([$this->piano->id, $this->chess->id]);
+    expect(defaultBreakdown($this->account->id))->toBe([
+        [$this->piano->id, '60.00', 0],
+        [$this->chess->id, '40.00', 1],
+    ]);
 
     $this->actingAs($this->owner)->get(route('account.create', $this->portfolio))
         ->assertOk()
-        ->assertDontSee('value="'.$this->piano->id.'"', escape: false);
+        ->assertDontSee('Piano');
 });
 
-test('the account form offers the axes of the portfolio as checkboxes, the assigned ones checked', function () {
-    $this->account->analyticAxes()->attach($this->chess);
+test('the account form gives the lines of the account to its editor, in their order', function () {
+    $this->account->analyticAxes()->attach([
+        $this->piano->id => ['percentage' => '20', 'position' => 1],
+        $this->chess->id => ['percentage' => '80', 'position' => 0],
+    ]);
 
     $html = (string) $this->actingAs($this->owner)->get(route('account.edit', $this->account))->assertOk()->getContent();
 
-    expect($html)->toMatch('/name="analytic_axes\[\]" value="'.$this->chess->id.'"\s+checked/')
-        ->and($html)->not->toMatch('/name="analytic_axes\[\]" value="'.$this->piano->id.'"\s+checked/')
-        ->and($html)->toContain(AxisColor::Amber->badgeClasses());
+    expect(editorLines($html))->toBe([
+        ['analytic_axis_id' => (string) $this->chess->id, 'percentage' => '80.00'],
+        ['analytic_axis_id' => (string) $this->piano->id, 'percentage' => '20.00'],
+    ])->and($html)->toContain('x-sort="move($item, $position)"');
+});
+
+test('the account form gives back the lines sent after a refused validation', function () {
+    $this->account->analyticAxes()->attach($this->chess, ['percentage' => '100', 'position' => 0]);
+
+    $this->actingAs($this->owner)
+        ->from(route('account.edit', $this->account))
+        ->put(route('account.update', $this->account), [
+            'name' => '',
+            'description' => '',
+            'analytic_axes' => [breakdownLine($this->piano->id, '70')],
+        ])
+        ->assertSessionHasErrors('name');
+
+    $html = (string) $this->actingAs($this->owner)->get(route('account.edit', $this->account))->getContent();
+
+    expect(editorLines($html))->toBe([['analytic_axis_id' => $this->piano->id, 'percentage' => '70']]);
 });
 
 test('the account form links to the axes page when the portfolio has none', function () {
@@ -112,29 +178,18 @@ test('the account form links to the axes page when the portfolio has none', func
     $this->actingAs($this->owner)->get(route('account.create', $this->portfolio))
         ->assertOk()
         ->assertSee(route('analytic-axis.index', $this->portfolio))
-        ->assertDontSee('name="analytic_axes[]"', escape: false);
+        ->assertDontSee('x-data="analyticLines(', escape: false);
 });
 
-test('the account form keeps the checked axes after a refused validation', function () {
-    $this->account->analyticAxes()->attach($this->chess);
-
-    $this->actingAs($this->owner)
-        ->from(route('account.edit', $this->account))
-        ->put(route('account.update', $this->account), ['name' => '', 'description' => '', 'analytic_axes' => [$this->piano->id]])
-        ->assertSessionHasErrors('name');
-
-    $html = (string) $this->actingAs($this->owner)->get(route('account.edit', $this->account))->getContent();
-
-    expect($html)->toMatch('/value="'.$this->piano->id.'"\s+checked/')
-        ->and($html)->not->toMatch('/value="'.$this->chess->id.'"\s+checked/');
-});
-
-test('the icons of the axes of an account follow its name, with their name in a tooltip', function (string $route, string $model) {
-    $this->account->analyticAxes()->attach([$this->piano->id, $this->chess->id]);
+test('the icons of the axes of an account follow its name, in the order of the account', function (string $route, string $model) {
+    $this->account->analyticAxes()->attach([
+        $this->piano->id => ['percentage' => '80', 'position' => 0],
+        $this->chess->id => ['percentage' => '20', 'position' => 1],
+    ]);
 
     $this->actingAs($this->owner)->get(route($route, [$this->{$model}, 'page' => 1]))
         ->assertOk()
-        ->assertSeeInOrder(['Compte courant', AxisColor::Teal->textClasses(), 'Échecs', AxisColor::Amber->textClasses(), 'Piano'], escape: false);
+        ->assertSeeInOrder(['Compte courant', AxisColor::Amber->textClasses(), 'Piano', AxisColor::Teal->textClasses(), 'Échecs'], escape: false);
 })->with([
     'portfolio' => ['portfolio.show', 'portfolio'],
     'account' => ['account.show', 'account'],
@@ -142,7 +197,7 @@ test('the icons of the axes of an account follow its name, with their name in a 
 
 test('the account list loads the axes of all its accounts at once', function () {
     foreach (range(1, 5) as $index) {
-        $this->portfolio->accounts()->create(['name' => "Compte {$index}"])->analyticAxes()->attach($this->piano);
+        $this->portfolio->accounts()->create(['name' => "Compte {$index}"])->analyticAxes()->attach($this->piano, ['percentage' => '100', 'position' => 0]);
     }
 
     DB::enableQueryLog();

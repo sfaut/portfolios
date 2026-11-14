@@ -144,8 +144,13 @@ class OperationController extends Controller
 
     /**
      * Données de la répartition analytique du formulaire (resources/js/analytic-lines.js) : axes
-     * proposés, avec leur icône colorée rendue en SVG, et lignes initiales. Après une validation échouée, les lignes envoyées reviennent,
-     * même aucune ; sinon, celles de l'opération.
+     * proposés, avec leur icône colorée rendue en SVG, et lignes initiales.
+     *
+     * Après une validation échouée, les lignes envoyées reviennent, même aucune. Sinon, en
+     * modification, celles de l'opération, dans l'ordre d'affichage ; en création, la répartition
+     * par défaut du compte, sans ses axes archivés, que l'opération refuserait (le total montre
+     * alors le reste), dans le même ordre : de la plus lourde à la plus légère, puis selon l'ordre
+     * des axes du compte.
      *
      * @param  Account  $account  Compte de l'opération.
      * @param  Operation|null  $operation  Opération modifiée, null en création.
@@ -156,26 +161,32 @@ class OperationController extends Controller
      */
     private function analyticForm(Account $account, ?Operation $operation = null): array
     {
-        $lines = session()->hasOldInput()
-            ? array_values((array) old('analytic_lines', []))
-            : $operation?->analyticLines
-                ->map(fn (AnalyticLine $line): array => [
-                    'analytic_axis_id' => (string) $line->analytic_axis_id,
-                    'percentage' => $line->percentage,
-                ])
-                ->all() ?? [];
-
         return [
             'axes' => $this->selectableAnalyticAxes($account, $operation)
-                ->map(fn (AnalyticAxis $axis): array => [
-                    'id' => $axis->id,
-                    'name' => $axis->name,
-                    'archived' => $axis->trashed(),
-                    'icon' => svg("lucide-{$axis->icon}", "size-4 {$axis->color->textClasses()}", ['aria-hidden' => 'true'])->toHtml(),
-                ])
+                ->map(fn (AnalyticAxis $axis): array => $axis->formOption())
                 ->values()
                 ->all(),
-            'lines' => $lines,
+            'lines' => match (true) {
+                session()->hasOldInput() => array_values((array) old('analytic_lines', [])),
+                $operation !== null => $operation->analyticLines()->inDisplayOrder()->get()
+                    ->map(fn (AnalyticLine $line): array => [
+                        'analytic_axis_id' => (string) $line->analytic_axis_id,
+                        'percentage' => $line->percentage,
+                    ])
+                    ->all(),
+                default => $account->analyticAxes
+                    ->reject(fn (AnalyticAxis $axis): bool => $axis->trashed())
+                    ->sortBy([
+                        fn (AnalyticAxis $a, AnalyticAxis $b): int => (float) $b->pivot->percentage <=> (float) $a->pivot->percentage,
+                        fn (AnalyticAxis $a, AnalyticAxis $b): int => $a->pivot->position <=> $b->pivot->position,
+                    ])
+                    ->map(fn (AnalyticAxis $axis): array => [
+                        'analytic_axis_id' => (string) $axis->id,
+                        'percentage' => $axis->pivot->percentage,
+                    ])
+                    ->values()
+                    ->all(),
+            },
         ];
     }
 

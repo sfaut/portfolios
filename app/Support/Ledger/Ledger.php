@@ -10,6 +10,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
@@ -23,7 +25,8 @@ use Illuminate\Support\LazyCollection;
  *
  * Tri : chaque colonne se départage par l'identifiant de l'opération, dans le même sens, pour un
  * ordre stable d'une page à l'autre. Le compte se trie par son nom, les axes par le nom du premier
- * axe de l'opération dans l'ordre alphabétique, les opérations non réparties en dernier.
+ * axe affiché de l'opération (AnalyticLine::inDisplayOrder()), les opérations non réparties en
+ * dernier.
  */
 class Ledger
 {
@@ -270,7 +273,10 @@ class Ledger
      */
     private function sorted(LedgerFilters $filters): Builder
     {
-        $query = $this->filtered($filters)->with('analyticLines.analyticAxis');
+        $query = $this->filtered($filters)->with([
+            'analyticLines' => fn (HasMany $lines) => $lines->inDisplayOrder(),
+            'analyticLines.analyticAxis',
+        ]);
         $direction = $filters->direction;
 
         match ($filters->sort) {
@@ -291,8 +297,10 @@ class Ledger
     }
 
     /**
-     * Trie par le nom du premier axe de chaque opération, dans l'ordre alphabétique, les opérations
-     * non réparties en dernier quel que soit le sens.
+     * Trie par le nom du premier axe affiché de chaque opération, celui de sa ligne la plus lourde,
+     * à égalité le premier dans l'ordre des axes du compte, puis par nom (même ordre
+     * qu'AnalyticLine::inDisplayOrder()), les opérations non réparties en dernier quel que soit le
+     * sens.
      *
      * @param  Builder<Operation>  $query  Requête à trier.
      * @param  string  $direction  Sens du tri : asc ou desc.
@@ -301,8 +309,17 @@ class Ledger
     {
         $first_axis = fn () => DB::table('analytic_lines')
             ->join('analytic_axes', 'analytic_axes.id', '=', 'analytic_lines.analytic_axis_id')
+            ->leftJoin('account_analytic_axis', fn (JoinClause $join) => $join
+                ->on('account_analytic_axis.analytic_axis_id', '=', 'analytic_lines.analytic_axis_id')
+                ->on('account_analytic_axis.account_id', '=', 'operations.account_id'))
             ->whereColumn('analytic_lines.operation_id', 'operations.id')
-            ->selectRaw('MIN(analytic_axes.name)');
+            ->select('analytic_axes.name')
+            ->orderByDesc('analytic_lines.percentage')
+            ->orderByRaw('account_analytic_axis.position IS NULL')
+            ->orderBy('account_analytic_axis.position')
+            ->orderBy('analytic_axes.name')
+            ->orderBy('analytic_lines.id')
+            ->limit(1);
 
         $query->orderByRaw("({$first_axis()->toSql()}) IS NULL")->orderBy($first_axis(), $direction);
     }

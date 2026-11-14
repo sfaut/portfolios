@@ -224,10 +224,10 @@ test('an account cannot receive the analytic axis of another user', function (st
     $response = $this->actingAs($this->owner)->{$method}(route($route, $this->{$model}), [
         'name' => 'Compte saisi',
         'description' => '',
-        'analytic_axes' => [$stranger_axis->id],
+        'analytic_axes' => [['analytic_axis_id' => $stranger_axis->id, 'percentage' => '100']],
     ]);
 
-    $response->assertSessionHasErrors('analytic_axes.0');
+    $response->assertSessionHasErrors('analytic_axes.0.analytic_axis_id');
 
     expect(DB::table('account_analytic_axis')->where('analytic_axis_id', $stranger_axis->id)->exists())->toBeFalse();
 })->with([
