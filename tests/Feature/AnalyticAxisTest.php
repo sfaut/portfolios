@@ -20,7 +20,7 @@ test('the analytic axes of a portfolio are listed, archived ones in their own se
     $response = $this->actingAs($this->owner)->get(route('analytic-axis.index', $this->portfolio));
 
     $response->assertOk()
-        ->assertSeeInOrder(['<header', '1 axe enregistré', 'href="'.route('analytic-axis.create', $this->portfolio).'"', '</header>'], escape: false)
+        ->assertSeeInOrder(['<header', "Les axes répartissent le montant d'une opération", 'href="'.route('analytic-axis.create', $this->portfolio).'"', '</header>'], escape: false)
         ->assertSeeInOrder(['Cours piano', 'Axes archivés', '>1</span>', 'Cours échecs'], escape: false);
 });
 

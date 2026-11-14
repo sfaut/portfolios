@@ -13,7 +13,7 @@
     <x-slot name="header">
         <x-page-header>
             État du serveur
-            <x-slot:status>Relevé du {{ $taken_at }}</x-slot:status>
+            <x-slot:description>État de la machine et de l'application, relevé le {{ $taken_at }}.</x-slot:description>
             <x-slot:actions>
                 <x-button :href="route('admin.server')" icon="refresh-cw">Actualiser</x-button>
             </x-slot:actions>

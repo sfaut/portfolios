@@ -9,7 +9,7 @@
     <x-slot name="header">
         <x-page-header>
             Portfolios
-            <x-slot:status>{{ trans_choice('{0,1} :count portfolio enregistré|[2,*] :count portfolios enregistrés', count($portfolios), ['count' => Number::format(count($portfolios), locale: 'fr')]) }}</x-slot:status>
+            <x-slot:description>{{ trans_choice("{0} Un portfolio regroupe des comptes et leurs opérations.|{1} Votre portfolio regroupe ses comptes et leurs opérations.|[2,*] Vos :count portfolios regroupent chacun des comptes et leurs opérations.", count($portfolios), ['count' => Number::format(count($portfolios), locale: 'fr')]) }}</x-slot:description>
         </x-page-header>
     </x-slot>
 

@@ -28,7 +28,7 @@
     <x-slot name="header">
         <x-page-header>
             Tableau de bord
-            <x-slot:status>Au {{ $today->translatedFormat('j F Y') }}</x-slot:status>
+            <x-slot:description>Les ventes du portfolio, arrêtées au {{ $today->translatedFormat('j F Y') }}.</x-slot:description>
         </x-page-header>
     </x-slot>
 
