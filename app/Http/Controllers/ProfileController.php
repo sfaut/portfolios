@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -96,9 +97,15 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        Validator::make(
+            data: $request->all(),
+            rules: [
+                'password' => ['required', 'current_password'],
+            ],
+            attributes: [
+                'password' => 'Mot de passe',
+            ],
+        )->validateWithBag('userDeletion');
 
         $user = $request->user();
 
