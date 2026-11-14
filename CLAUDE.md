@@ -250,6 +250,18 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
   parent qui l'accueille ; `edit`, `update` et `restore` portent `->withTrashed()`, comme pour les
   comptes. La page d'accueil après connexion est `portfolio.index` : le projet n'a pas la route
   `dashboard` du code Breeze d'origine.
+- Structure d'une page, à respecter par toute page nouvelle ou modifiée, de haut en bas (détails
+  dans les paragraphes qui suivent) :
+  1. la barre du haut, commune : logo, sélecteur de portfolio et `<x-portfolio-nav>` dans un
+     portfolio, menu de l'utilisateur ;
+  2. le bandeau, `<x-page-header>`, en trois rangs à gauche : le fil d'Ariane, présent sur toute
+     page et parti de « Portfolios », puis le titre, qui nomme la page, puis la description, une
+     phrase générale sur le rôle de la page, sans chiffre ni date ; à droite, les actions sur toute
+     la page, le principal au bord droit ;
+  3. le corps, dans le conteneur unique de la page (`flex flex-col gap-6`) : la barre de filtres
+     (`<x-filter-bar>`) s'il y en a une, puis les chiffres (`<x-summary>`, qui suivent les
+     filtres, avec à droite dans `tools` les outils du jeu de données : export, « Tout »,
+     pagination), puis les données (tableau, cartes, formulaire).
 - Navigation : la barre du haut (`layouts/navigation.blade.php`) dit où l'on est, le bandeau de la page
   ce qu'est la page. La barre porte le logo, qui mène à la liste des portfolios, et le menu de
   l'utilisateur. Dans un portfolio, elle porte aussi le sélecteur de portfolio, de largeur fixe (ses
