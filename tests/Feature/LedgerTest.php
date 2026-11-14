@@ -137,6 +137,18 @@ test('the ledger filters its operations', function (array $query, array $labels)
     'several filters' => [['flow' => 'sales', 'effective' => ['start' => '2026-01-01', 'end' => '2026-12-31'], 'amount' => ['max' => '200']], ['Facture Alpha']],
 ]);
 
+test('the ledger chooses the flow and the tick in single choice menus, the current one checked', function () {
+    $html = (string) ledger(['flow' => 'sales'])->assertOk()->getContent();
+
+    expect($html)->toContain('popovertarget="multi-select-flow"')
+        ->and($html)->toContain('popovertarget="multi-select-ticked"')
+        ->and($html)->toContain('aria-label="Sens des montants : Ventes"')
+        ->and($html)->toContain('aria-label="Pointage des opérations : Toutes"')
+        ->and($html)->toMatch('/name="flow"\s+value="sales"[^>]*\s+checked/')
+        ->and($html)->toMatch('/name="ticked"\s+value=""[^>]*\s+checked/')
+        ->and($html)->not->toContain('name="flow[]"');
+});
+
 test('the ledger filters and sorts its operations on their tick', function () {
     $this->alpha->forceFill(['is_ticked' => true])->save();
     $this->deposit->forceFill(['is_ticked' => true])->save();

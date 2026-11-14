@@ -98,3 +98,44 @@ test('an option of the multiple selection can show a colored icon before its lab
 
     expect(substr_count((string) $view, 'text-amber-600'))->toBe(1);
 });
+
+test('the single choice keeps at most one option, and accepts a value alone', function (mixed $value, array $selection, string $chosen, string $label) {
+    $select = new MultiSelect(name: 'account', label: 'Compte', options: multiSelectOptions(), value: $value, multiple: false);
+
+    expect($select->selection)->toBe($selection)
+        ->and($select->triggerLabel)->toBe($label)
+        ->and($select->config['value'])->toBe($chosen)
+        ->and($select->config['multiple'])->toBeFalse();
+})->with([
+    'nothing' => ['', [], '', ''],
+    'a value alone' => ['7', ['7'], '7', 'Épargne'],
+    'a number alone' => [9, ['9'], '9', 'Ancien compte'],
+    'unknown value' => ['8', [], '', ''],
+    'a list, its first known value' => [['8', '9', '3'], ['9'], '9', 'Ancien compte'],
+    'nested value' => [[['3']], [], '', ''],
+]);
+
+test('the single choice sends its option as native radios, after the radio of its placeholder', function (mixed $value, string $checked) {
+    $view = $this->blade(
+        '<x-multi-select name="account" label="Compte" :options="$options" :value="$value" placeholder="Tous" :multiple="false" x-model="account"/>',
+        ['options' => multiSelectOptions(), 'value' => $value],
+    );
+
+    $view->assertSeeInOrder([
+        'x-model="account"',
+        'type="radio"', 'name="account"', 'value=""',
+        'Tous',
+        'type="radio"', 'name="account"', 'value="3"',
+        'Compte courant',
+        'type="radio"', 'name="account"', 'value="7"',
+        'Épargne',
+    ], escape: false)
+        ->assertDontSee('name="account[]"', escape: false)
+        ->assertDontSee('type="checkbox"', escape: false);
+
+    expect(substr_count((string) $view, ' checked'))->toBe(1)
+        ->and((string) $view)->toMatch('/value="'.$checked.'"\s+x-model="value"[^>]*\s+checked/');
+})->with([
+    'nothing chosen' => ['', ''],
+    'an option chosen' => ['7', '7'],
+]);
