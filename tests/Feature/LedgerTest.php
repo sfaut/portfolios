@@ -6,6 +6,7 @@ use App\Models\AnalyticAxis;
 use App\Models\Operation;
 use App\Models\User;
 use App\Support\Ledger\Ledger;
+use App\View\Components\AppLayout;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Testing\TestResponse;
 
@@ -95,6 +96,28 @@ test('the ledger lists the operations of every account, the last written first',
 
     $response->assertSeeInOrder(['Caisse', '01/03/2026 23:59:59', '01/03/2026', 'Acompte 100%', '30,00'], escape: false)
         ->assertSeeInOrder(['Facture Bêta', '−250,50', 'Formation', 'Études'], escape: false);
+});
+
+test('the ledger writes each analytic line of an operation in its row, without tooltip', function () {
+    $response = ledger();
+
+    $response->assertSeeInOrder([
+        'Facture Bêta', '−250,50',
+        'Formation', "60\u{a0}%", "−150,30\u{a0}€",
+        'Études', "40\u{a0}%", "−100,20\u{a0}€",
+        'Règlement Alpha',
+    ], escape: false);
+
+    // Facture Alpha, on a single axis, shows its name alone: its share is the whole amount.
+    expect($response->getContent())->not->toContain('role="tooltip"')
+        ->and($response->getContent())->not->toContain("100\u{a0}%");
+});
+
+test('the ledger is a wide page, its bar and its header at the width of its content', function () {
+    $html = (string) ledger()->assertOk()->getContent();
+
+    expect(substr_count($html, AppLayout::WIDE_CONTAINER))->toBe(3)
+        ->and(substr_count((string) $this->get(route('portfolio.dashboard', $this->portfolio))->getContent(), AppLayout::WIDE_CONTAINER))->toBe(0);
 });
 
 test('the ledger shows the identifier of each operation', function () {

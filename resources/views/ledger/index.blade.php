@@ -19,12 +19,12 @@
     @var \App\Support\DateRestriction $written_restriction Jours d'écriture admis.
     @var \App\Support\DateRestriction $effective_restriction Dates effectives admises.
 --}}
-<x-app-layout>
+<x-app-layout wide>
     <x-slot name="header">
         <h2 class="text-xl font-semibold">Grand livre</h2>
     </x-slot>
 
-    <div x-data="ledger(@js($filters->state()))" class="max-w-7xl mx-auto flex flex-col gap-6">
+    <div x-data="ledger(@js($filters->state()))" @class([\App\View\Components\AppLayout::WIDE_CONTAINER, 'flex flex-col gap-6'])>
 
         <form
             id="ledger-filters"
@@ -240,10 +240,10 @@
                         <thead class="bg-gray-100 dark:bg-gray-700 text-xs font-semibold uppercase tracking-wide">
                             <tr>
                                 <x-sortable-heading column="id" :sort="$filters->sort" :direction="$filters->direction" align="right">ID</x-sortable-heading>
-                                <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left">Compte</x-sortable-heading>
+                                <x-sortable-heading column="account" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-44">Compte</x-sortable-heading>
                                 <x-sortable-heading column="written" :sort="$filters->sort" :direction="$filters->direction">Horodatage écriture</x-sortable-heading>
                                 <x-sortable-heading column="effective" :sort="$filters->sort" :direction="$filters->direction">Date effective</x-sortable-heading>
-                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left">Libellé</x-sortable-heading>
+                                <x-sortable-heading column="label" :sort="$filters->sort" :direction="$filters->direction" align="left" class="min-w-44">Libellé</x-sortable-heading>
                                 <x-sortable-heading column="amount" :sort="$filters->sort" :direction="$filters->direction" align="right">Montant (€)</x-sortable-heading>
                                 <x-sortable-heading column="axes" :sort="$filters->sort" :direction="$filters->direction" align="left">Axes</x-sortable-heading>
                                 <x-sortable-heading column="ticked" :sort="$filters->sort" :direction="$filters->direction" align="center">Pointée ?</x-sortable-heading>
@@ -268,24 +268,27 @@
                                     <td class="border px-3 py-2">{{ $operation->label }}</td>
                                     <td class="border px-3 py-2 text-right whitespace-nowrap tabular-nums">{{ Number::amount($operation->amount) }}</td>
                                     <td class="border px-3 py-2">
+                                        {{--
+                                            Une ligne par axe, du plus lourd au plus léger, comme l'infobulle de la liste d'un
+                                            compte : icône colorée et nom, part, montant en gris, alignés dans la cellule. Un axe
+                                            seul porte tout le montant, déjà écrit : son nom suffit.
+                                        --}}
                                         @if ($operation->analyticLines->isNotEmpty())
-                                            <x-tooltip>
-                                                <span class="flex flex-wrap gap-1">
-                                                    @foreach ($operation->analyticLines as $line)
-                                                        <x-axis-badge :axis="$line->analyticAxis"/>
-                                                    @endforeach
-                                                </span>
-
-                                                <x-slot:content>
-                                                    <span class="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1">
-                                                        @foreach ($operation->analyticLines as $line)
-                                                            <span class="inline-flex items-center gap-1.5"><x-axis-badge :axis="$line->analyticAxis" icon-only on-dark class="size-3.5"/>{{ $line->analyticAxis->name }}</span>
-                                                            <span class="text-right tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
-                                                            <span class="text-right tabular-nums text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
-                                                        @endforeach
+                                            <div class="inline-grid grid-cols-[auto_auto_auto] items-center gap-x-3 gap-y-0.5">
+                                                @foreach ($operation->analyticLines as $line)
+                                                    <span @class(['flex items-center gap-1.5', 'col-span-3' => $operation->analyticLines->count() === 1])>
+                                                        <x-axis-badge :axis="$line->analyticAxis" icon-only/>
+                                                        <span class="max-w-48 shrink-0 truncate">{{ $line->analyticAxis->name }}</span>
+                                                        @if ($line->analyticAxis->trashed())
+                                                            <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">(archivé)</span>
+                                                        @endif
                                                     </span>
-                                                </x-slot:content>
-                                            </x-tooltip>
+                                                    @if ($operation->analyticLines->count() > 1)
+                                                        <span class="text-right whitespace-nowrap tabular-nums">{{ Number::percentage($line->percentage, maxPrecision: 2, locale: 'fr') }}</span>
+                                                        <span class="text-right whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">{{ Number::amount($line->amountShare($operation->amount), currency: 'EUR') }}</span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         @endif
                                     </td>
                                     <td class="relative border px-3 py-2 text-center">
