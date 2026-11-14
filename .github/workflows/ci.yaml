@@ -71,6 +71,8 @@ jobs:
       # tube…) ne bloquent pas.
       - name: Scripts shell (ShellCheck)
         run: shellcheck --severity=warning bin/*.sh
+      - name: Classes Tailwind (forme canonique)
+        run: npm run lint:css
       - name: Build du front (Vite)
         run: npm run build
       - name: Tests JavaScript (node:test)

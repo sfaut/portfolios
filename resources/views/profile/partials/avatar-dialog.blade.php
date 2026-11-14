@@ -39,7 +39,7 @@
                 <template x-if="countdown > 0">
                     <div aria-hidden="true" class="pointer-events-none absolute inset-5 flex items-center justify-center">
                         <svg viewBox="0 0 100 100" class="absolute inset-0 size-full -rotate-90">
-                            <circle cx="50" cy="50" r="49" pathLength="100" fill="none" stroke-dasharray="100" class="animate-countdown stroke-indigo-400 stroke-[2] motion-reduce:animate-none"/>
+                            <circle cx="50" cy="50" r="49" pathLength="100" fill="none" stroke-dasharray="100" class="animate-countdown stroke-indigo-400 stroke-2 motion-reduce:animate-none"/>
                         </svg>
                         <span x-text="countdown" class="text-7xl font-semibold text-white tabular-nums drop-shadow-[0_1px_8px_rgb(3_7_18/0.85)]"></span>
                     </div>
