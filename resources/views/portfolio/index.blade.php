@@ -7,16 +7,14 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h2 class="text-xl font-semibold">
-                Portfolios
-            </h2>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
+        <x-page-header>
+            Portfolios
+            <x-slot:status>
                 {{ count($portfolios) }}
                 {{ Str::of('portfolio')->plural(count($portfolios)) }}
                 {{ Str::of('enregistré')->plural(count($portfolios)) }}
-            </div>
-        </div>
+            </x-slot:status>
+        </x-page-header>
     </x-slot>
 
     <div class="flex flex-col gap-6">

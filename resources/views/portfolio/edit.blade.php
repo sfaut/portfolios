@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Modification du portfolio</h2>
+        <x-page-header>Modification du portfolio</x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

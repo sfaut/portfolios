@@ -10,16 +10,13 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div class="flex flex-col gap-1">
-                <h2 class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xl font-semibold">
-                    <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
-                    <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
-                </h2>
-                <x-breadcrumb :links="[route('portfolio.show', $account->portfolio) => 'Comptes']"/>
-            </div>
-            <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
-        </div>
+        <x-page-header :breadcrumb="[route('portfolio.show', $account->portfolio) => 'Comptes']" class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>Compte <span class="text-indigo-700 dark:text-indigo-400">{{ $account->name }}</span></span>
+            <x-axis-icons :axes="$account->analyticAxes" focusable icon-class="size-5!" class="gap-1.5"/>
+            <x-slot:actions>
+                <x-button :href="route('account.edit', $account)" icon="pencil">Modifier le compte</x-button>
+            </x-slot:actions>
+        </x-page-header>
     </x-slot>
 
     <div class="flex flex-col gap-6">

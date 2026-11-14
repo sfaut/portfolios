@@ -5,10 +5,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-1">
-            <h2 class="text-xl font-semibold">Création d'un axe analytique</h2>
-            <x-breadcrumb :links="[route('analytic-axis.index', $portfolio) => 'Axes analytiques']"/>
-        </div>
+        <x-page-header :breadcrumb="[route('analytic-axis.index', $portfolio) => 'Axes analytiques']">Création d'un axe analytique</x-page-header>
     </x-slot>
 
     <div class="max-w-2xl mx-auto flex flex-col gap-6">

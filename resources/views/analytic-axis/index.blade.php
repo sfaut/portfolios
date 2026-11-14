@@ -8,7 +8,7 @@
 --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Axes analytiques</h2>
+        <x-page-header>Axes analytiques</x-page-header>
     </x-slot>
 
     <div class="flex flex-col gap-6">

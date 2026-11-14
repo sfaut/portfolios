@@ -3,7 +3,7 @@
 ])
 
 {{--
-    Fil d'Ariane d'une page, sous son titre : les pages qui mènent à elle dans la section du portfolio
+    Fil d'Ariane d'une page, au-dessus de son titre (<x-page-header>) : les pages qui mènent à elle dans la section du portfolio
     (« Comptes › Compte courant »), la page elle-même exclue, puisque le titre la nomme. Les liens sont
     séparés par un chevron, masqué aux lecteurs d'écran, qui annoncent une liste.
 

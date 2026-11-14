@@ -21,7 +21,7 @@
 --}}
 <x-app-layout wide>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Grand livre</h2>
+        <x-page-header>Grand livre</x-page-header>
     </x-slot>
 
     <div x-data="ledger(@js($filters->state()))" class="flex flex-col gap-6">
