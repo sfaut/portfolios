@@ -346,9 +346,9 @@ devant un positif (solde des opérations), `currency: 'EUR'` la devise.
 - Grand livre (`ledger.index`, `LedgerController`, `App\Support\Ledger`) : toutes les opérations d'un
   portfolio, comptes archivés compris, avec identifiant, compte, horodatage d'écriture (`created_at`), date
   effective, libellé, montant, axes et pointage. C'est une page large (`<x-app-layout wide>`), et la
-  colonne des axes écrit chaque ligne analytique, sans infobulle : pastille (tronquée au-delà de
-  8rem), part et montant (`AnalyticLine::amountShare()`), en colonnes de largeur fixe alignées d'une
-  opération à l'autre. Compte et libellé ont une largeur minimale ; sur un écran étroit, le tableau
+  colonne des axes écrit chaque ligne analytique, sans infobulle, comme l'infobulle de la liste d'un
+  compte : icône colorée et nom, part, montant en gris (`AnalyticLine::amountShare()`), alignés dans
+  la cellule ; un axe seul ne montre que son nom, le montant étant déjà écrit. Compte et libellé ont une largeur minimale ; sur un écran étroit, le tableau
   défile. `LedgerFilters` lit les paramètres GET en filtre tolérant (une
   valeur refusée est ignorée) : `accounts[]`, `axes[]` (au moins un des axes, `none` pour les
   opérations non réparties), `written` et `effective` (plages `[start]` / `[end]`, bornées aux dates
