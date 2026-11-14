@@ -48,8 +48,8 @@ class Button extends Component
             'dark:focus-visible:ring-indigo-300',
         ],
         'secondary' => [
-            'border-gray-300', 'bg-white', 'text-gray-700', 'shadow-xs',
-            'hover:bg-gray-50', 'active:bg-gray-100', 'focus-visible:ring-indigo-500',
+            'border-gray-300', 'bg-gray-100', 'text-gray-700', 'shadow-xs',
+            'hover:bg-gray-200', 'active:bg-gray-300', 'focus-visible:ring-indigo-500',
             'dark:border-gray-600', 'dark:bg-gray-700', 'dark:text-gray-200', 'dark:hover:bg-gray-600',
             'dark:focus-visible:ring-indigo-300',
         ],

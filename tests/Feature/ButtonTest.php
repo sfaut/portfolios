@@ -22,7 +22,7 @@ test('each variant has its own colors', function (string $variant, string $color
         ->assertSee($color, escape: false);
 })->with([
     'primary' => ['primary', 'bg-indigo-600'],
-    'secondary' => ['secondary', 'bg-white'],
+    'secondary' => ['secondary', 'bg-gray-100'],
     'danger' => ['danger', 'bg-red-600'],
 ]);
 
