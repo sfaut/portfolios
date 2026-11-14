@@ -238,6 +238,20 @@ test('the ledger sorts its operations on each column, both ways', function (stri
     'axes, reversed, operations without axis still last' => ['axes', 'desc', ['Facture Bêta', 'Facture Alpha', 'Acompte 100%', 'Vente estivale', 'Règlement Alpha']],
 ]);
 
+test('the ledger sorts the axes on the first axis shown: the heaviest, then the first of the account', function () {
+    ledgerOperation($this->cash, 'Facture Gamma', '-10.00', '2026-03-02', '2026-03-02 08:00:00', [[$this->studies, '100.00']]);
+    ledgerOperation($this->bank, 'Facture Delta', '-10.00', '2026-03-03', '2026-03-03 08:00:00', [[$this->consulting, '50.00'], [$this->training, '50.00']]);
+    $this->bank->analyticAxes()->attach([
+        $this->training->id => ['percentage' => '50', 'position' => 0],
+        $this->consulting->id => ['percentage' => '50', 'position' => 1],
+    ]);
+
+    // Bêta shows Formation (60 %) first, Delta Formation (first of its account), Gamma Études.
+    assertLedgerLists(ledger(['sort' => 'axes', 'dir' => 'asc']), ['Facture Alpha', 'Facture Gamma', 'Facture Bêta', 'Facture Delta', 'Règlement Alpha', 'Vente estivale', 'Acompte 100%']);
+
+    ledger(['sort' => 'id', 'dir' => 'desc'])->assertSeeInOrder(['Facture Delta', 'Formation', 'Conseil', 'Facture Gamma'], escape: false);
+});
+
 test('the sort headings keep the filters and reverse the current sort', function () {
     $response = ledger(['flow' => 'sales', 'sort' => 'amount', 'dir' => 'asc', 'page' => 1]);
 

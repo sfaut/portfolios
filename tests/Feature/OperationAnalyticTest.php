@@ -214,7 +214,7 @@ test('the operations of an account show whether they are split between analytic 
         ->assertSee('Analytique')
         ->assertSeeInOrder([
             'Cours réparti', '2 axes',
-            'role="tooltip"', 'Cours piano', '50', "15,00\u{a0}€", 'Cours échecs', '50', "15,00\u{a0}€",
+            'role="tooltip"', 'Cours échecs', '50', "15,00\u{a0}€", 'Cours piano', '50', "15,00\u{a0}€",
             'Cours non réparti',
         ], escape: false);
 
@@ -231,7 +231,7 @@ test('the analytic tooltip rounds the part of the amount half away from zero', f
 
     $response = $this->actingAs($this->owner)->get(route('account.show', [$this->account, 'page' => 1]));
 
-    $response->assertOk()->assertSeeInOrder(['Cours piano', "−0,03\u{a0}€", 'Cours échecs', "−0,03\u{a0}€"]);
+    $response->assertOk()->assertSeeInOrder(['Cours échecs', "−0,03\u{a0}€", 'Cours piano', "−0,03\u{a0}€"]);
 });
 
 test('a new operation starts from the default breakdown of its account, without its archived axes', function () {
@@ -262,3 +262,27 @@ test('an operation edited keeps its own lines, whatever the breakdown of its acc
     expect($edit($operation))->toBe([['analytic_axis_id' => (string) $this->chess->id, 'percentage' => '100.00']])
         ->and($edit($unsplit))->toBe([]);
 });
+
+test('the lines of an operation show from the heaviest, then in the order of the account, then by name', function (string $route, string $model) {
+    $singing = $this->portfolio->analyticAxes()->create(['name' => 'Cours chant']);
+    $drawing = $this->portfolio->analyticAxes()->create(['name' => 'Cours dessin']);
+    $this->account->analyticAxes()->attach([
+        $this->piano->id => ['percentage' => '50', 'position' => 0],
+        $this->chess->id => ['percentage' => '50', 'position' => 1],
+    ]);
+    $operation = $this->account->operations()->create([...lessonOperation([]), 'label' => 'Cours collectif']);
+    $operation->analyticLines()->createMany([
+        ['analytic_axis_id' => $drawing->id, 'percentage' => '10'],
+        ['analytic_axis_id' => $this->chess->id, 'percentage' => '20'],
+        ['analytic_axis_id' => $singing->id, 'percentage' => '30'],
+        ['analytic_axis_id' => $this->piano->id, 'percentage' => '20'],
+        ['analytic_axis_id' => $this->portfolio->analyticAxes()->create(['name' => 'Cours violon'])->id, 'percentage' => '20'],
+    ]);
+
+    $this->actingAs($this->owner)->get(route($route, [$this->{$model}, 'page' => 1]))
+        ->assertOk()
+        ->assertSeeInOrder(['Cours collectif', 'role="tooltip"', 'Cours chant', 'Cours piano', 'Cours échecs', 'Cours violon', 'Cours dessin'], escape: false);
+})->with([
+    'account' => ['account.show', 'account'],
+    'ledger' => ['ledger.index', 'portfolio'],
+]);

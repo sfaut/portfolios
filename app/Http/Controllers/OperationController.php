@@ -147,9 +147,10 @@ class OperationController extends Controller
      * proposés, avec leur icône colorée rendue en SVG, et lignes initiales.
      *
      * Après une validation échouée, les lignes envoyées reviennent, même aucune. Sinon, en
-     * modification, celles de l'opération ; en création, la répartition par défaut du compte, sans
-     * ses axes archivés, que l'opération refuserait (le total montre alors le reste), de la plus
-     * lourde à la plus légère, puis selon l'ordre des axes du compte.
+     * modification, celles de l'opération, dans l'ordre d'affichage ; en création, la répartition
+     * par défaut du compte, sans ses axes archivés, que l'opération refuserait (le total montre
+     * alors le reste), dans le même ordre : de la plus lourde à la plus légère, puis selon l'ordre
+     * des axes du compte.
      *
      * @param  Account  $account  Compte de l'opération.
      * @param  Operation|null  $operation  Opération modifiée, null en création.
@@ -167,7 +168,7 @@ class OperationController extends Controller
                 ->all(),
             'lines' => match (true) {
                 session()->hasOldInput() => array_values((array) old('analytic_lines', [])),
-                $operation !== null => $operation->analyticLines
+                $operation !== null => $operation->analyticLines()->inDisplayOrder()->get()
                     ->map(fn (AnalyticLine $line): array => [
                         'analytic_axis_id' => (string) $line->analytic_axis_id,
                         'percentage' => $line->percentage,

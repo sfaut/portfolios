@@ -4,8 +4,12 @@ namespace App\Models;
 
 use App\Http\Requests\OperationRequest;
 use App\Models\Scopes\AuthUserParentScope;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Ligne analytique : part (en pourcentage) du montant d'une opération attribuée à un axe.
@@ -47,6 +51,39 @@ class AnalyticLine extends Model
         return [
             'percentage' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Range les lignes dans l'ordre d'affichage : de la plus lourde à la plus légère (pourcentage
+     * décroissant), à égalité dans l'ordre des axes de la répartition par défaut du compte de
+     * l'opération, un axe hors de cette répartition venant après, puis par nom de l'axe.
+     *
+     * Les sous-requêtes lisent les tables sans les portées des modèles : elles ne font que trier des
+     * lignes déjà filtrées. La portée reste hors de la relation Operation::analyticLines(), qui sert
+     * aussi aux suppressions, où MySQL appliquerait le tri.
+     *
+     * @param  Builder<self>  $query  Requête des lignes.
+     */
+    #[Scope]
+    protected function inDisplayOrder(Builder $query): void
+    {
+        $position = fn (): QueryBuilder => DB::table('account_analytic_axis')
+            ->select('account_analytic_axis.position')
+            ->whereColumn('account_analytic_axis.analytic_axis_id', 'analytic_lines.analytic_axis_id')
+            ->where('account_analytic_axis.account_id', fn (QueryBuilder $account) => $account
+                ->select('operations.account_id')
+                ->from('operations')
+                ->whereColumn('operations.id', 'analytic_lines.operation_id'));
+
+        $axis_name = DB::table('analytic_axes')
+            ->select('analytic_axes.name')
+            ->whereColumn('analytic_axes.id', 'analytic_lines.analytic_axis_id');
+
+        $query->orderByDesc('analytic_lines.percentage')
+            ->orderByRaw("({$position()->toSql()}) IS NULL", $position()->getBindings())
+            ->orderBy($position())
+            ->orderBy($axis_name)
+            ->orderBy('analytic_lines.id');
     }
 
     /**

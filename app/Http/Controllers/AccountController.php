@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\AnalyticAxis;
 use App\Models\Portfolio;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,7 +75,10 @@ class AccountController extends Controller
         }
 
         $show_all = $request->session()->get(self::SHOW_ALL_OPERATIONS, false) === true;
-        $query = $account->operationsReport()->with('analyticLines.analyticAxis');
+        $query = $account->operationsReport()->with([
+            'analyticLines' => fn (HasMany $lines) => $lines->inDisplayOrder(),
+            'analyticLines.analyticAxis',
+        ]);
 
         if ($show_all) {
             return view('account.show', [
