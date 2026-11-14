@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import sort from "@alpinejs/sort";
 import accountSearch from "./account-search";
 import analyticLines from "./analytic-lines";
 import avatarEditor from "./avatar-editor";
@@ -13,6 +14,8 @@ import theme from "./theme";
 import toasts from "./toasts";
 
 window.Alpine = Alpine;
+
+Alpine.plugin(sort);
 
 Alpine.store("theme", theme);
 Alpine.store("toasts", toasts);
