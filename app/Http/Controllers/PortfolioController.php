@@ -53,6 +53,8 @@ class PortfolioController extends Controller
      * opérations ; une période hors de ces bornes, incomplète ou mal formée est ignorée, sans erreur,
      * comme il convient à un filtre. Par défaut, elle va de M − 13 à M, M étant le mois en cours, ou
      * celui de la dernière opération s'il est antérieur (sans remonter avant la première opération).
+     * Les filtres sont actifs dès que des comptes sont choisis ou que la période n'est pas celle par
+     * défaut ; la vue propose alors de les effacer.
      *
      * @param  Request  $request  Requête, avec la période et les comptes éventuels.
      * @param  Portfolio  $portfolio  Portfolio affiché.
@@ -65,6 +67,7 @@ class PortfolioController extends Controller
         $months = $portfolio->operationMonths($accounts);
         $restriction = new MonthRestriction(min: $months === [] ? '' : end($months), max: $months[0] ?? '');
         $period = $this->dashboardPeriod($request->query('period'), $months, $restriction, $today);
+        $default_period = $this->dashboardPeriod(null, $months, $restriction, $today);
         $figures = new SalesFigures($portfolio, $today, $accounts);
         $dashboard = $period === null ? null : new SalesDashboard($portfolio, $period['start'], $period['end'], $today, $accounts);
 
@@ -72,6 +75,7 @@ class PortfolioController extends Controller
             'portfolio' => $portfolio,
             'today' => $today,
             'has_operations' => $accounts === [] ? $months !== [] : $portfolio->operationMonths() !== [],
+            'filtered' => $accounts !== [] || $period !== $default_period,
             'active_accounts' => $figures->activeAccountCount(),
             'archived_accounts' => $figures->archivedAccountCount(),
             'current_month' => $figures->currentMonth(),

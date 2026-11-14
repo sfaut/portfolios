@@ -333,8 +333,31 @@ test('the dashboard of chosen accounts without operations keeps the account filt
         ->assertSee('name="accounts[]"', escape: false)
         ->assertDontSee('name="period[start]"', escape: false)
         ->assertSeeText('Aucune opération sur ces comptes')
-        ->assertSeeInOrder(['href="'.route('portfolio.dashboard', $this->portfolio).'"', 'Effacer les filtres'], escape: false);
+        ->assertSeeInOrder(['Effacer les filtres', 'href="'.route('portfolio.dashboard', $this->portfolio).'"', 'Effacer les filtres'], escape: false);
 });
+
+test('the dashboard offers to clear its filters once accounts or another period are chosen', function (array $query, bool $choose_account, bool $filtered) {
+    operations($this->account, [['2025-06-01', '-1.00'], ['2026-10-15', '-1.00']]);
+
+    if ($choose_account) {
+        $query['accounts'] = [(string) $this->account->id];
+    }
+
+    $response = $this->get(route('portfolio.dashboard', [$this->portfolio, ...$query]));
+
+    $response->assertOk()->assertViewHas('filtered', $filtered);
+
+    if ($filtered) {
+        $response->assertSeeText('Effacer les filtres');
+    } else {
+        $response->assertDontSeeText('Effacer les filtres');
+    }
+})->with([
+    'no filter' => [[], false, false],
+    'the default period' => [['period' => ['start' => '2025-09', 'end' => '2026-10']], false, false],
+    'another period' => [['period' => ['start' => '2025-07', 'end' => '2025-12']], false, true],
+    'chosen accounts' => [[], true, true],
+]);
 
 test('the dashboard shows the figures and the sales of the period', function () {
     operations($this->account, [['2026-03-01', '-10.00'], ['2026-05-31', '-25.00']]);

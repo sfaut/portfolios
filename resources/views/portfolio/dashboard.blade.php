@@ -10,6 +10,7 @@
     @var \App\Models\Portfolio $portfolio Portfolio affiché.
     @var \Carbon\CarbonImmutable $today Date du tableau de bord, dans la description du bandeau.
     @var bool $has_operations Si le portfolio a au moins une opération, sur l'un de ses comptes.
+    @var bool $filtered Si des comptes sont choisis ou si la période n'est pas celle par défaut.
     @var int $active_accounts Nombre de comptes actifs.
     @var int $archived_accounts Nombre de comptes archivés.
     @var \App\Support\SalesComparison $current_month Ventes du mois en cours, à date.
@@ -73,6 +74,9 @@
                     <noscript>
                         <x-button variant="primary" type="submit">Afficher</x-button>
                     </noscript>
+                    @if ($filtered)
+                        <a href="{{ route('portfolio.dashboard', $portfolio) }}" class="text-indigo-700 dark:text-indigo-400 underline hover:no-underline">Effacer les filtres</a>
+                    @endif
                 </x-slot:status>
             </x-filter-bar>
         @endif
