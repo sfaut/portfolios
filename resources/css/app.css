@@ -122,6 +122,65 @@
   */
   --animate-toast-time: toast-time linear forwards;
 
+  /*
+    Balance line of the guest pages (components/balance-steps.blade.php), in a
+    5 second loop. The line, drawn with pathLength="1" and
+    stroke-dasharray="1 1", traces itself in 2 seconds, stays, then leaves by
+    its start: both ends of the loop (offsets 1 and -1) show no line, so the
+    restart does not jump. The area under the line and the end dot fade in and
+    out around it.
+  */
+  --animate-balance-line: balance-line 5s infinite;
+  --animate-balance-area: balance-area 5s infinite;
+  --animate-balance-dot: balance-dot 5s infinite;
+
+  @keyframes balance-line {
+    0% {
+      stroke-dashoffset: 1;
+      animation-timing-function: cubic-bezier(0.65, 0, 0.25, 1);
+    }
+    40% {
+      stroke-dashoffset: 0;
+    }
+    80% {
+      stroke-dashoffset: 0;
+      animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    100% {
+      stroke-dashoffset: -1;
+    }
+  }
+
+  @keyframes balance-area {
+    0%,
+    20% {
+      opacity: 0;
+    }
+    40%,
+    78% {
+      opacity: 1;
+    }
+    96%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes balance-dot {
+    0%,
+    38% {
+      opacity: 0;
+    }
+    44%,
+    78% {
+      opacity: 1;
+    }
+    84%,
+    100% {
+      opacity: 0;
+    }
+  }
+
   @keyframes toast-time {
     from {
       transform: scaleX(1);

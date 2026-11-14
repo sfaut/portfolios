@@ -4,11 +4,10 @@
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
 <x-guest-layout>
-    <div class="text-sm text-gray-600 dark:text-gray-400">
-        Cette partie de l'application est protégée : confirmez votre mot de passe pour continuer.
-    </div>
+    <x-slot:title>Confirmer le mot de passe</x-slot:title>
+    <x-slot:description>Cette partie de l'application est protégée&nbsp;: confirmez votre mot de passe pour continuer.</x-slot:description>
 
-    <form method="post" action="{{ route('password.confirm') }}" class="flex flex-col gap-4">
+    <form method="post" action="{{ route('password.confirm') }}" class="flex flex-col gap-5">
         @csrf
 
         <div class="flex flex-col gap-1">
@@ -23,8 +22,6 @@
             <x-input-error :messages="$errors->get('password')"/>
         </div>
 
-        <div class="flex justify-end">
-            <x-primary-button>Confirmer</x-primary-button>
-        </div>
+        <x-primary-button class="w-full justify-center">Confirmer</x-primary-button>
     </form>
 </x-guest-layout>

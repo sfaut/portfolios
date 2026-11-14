@@ -1,20 +1,16 @@
 {{--
     Demande d'un lien de réinitialisation du mot de passe. Le message de retour est le même que
-    l'adresse ait un compte ou non (PasswordResetLinkController).
+    l'adresse ait un compte ou non (PasswordResetLinkController). En pied, le retour à la connexion.
 
     @var \Illuminate\Support\ViewErrorBag $errors Erreurs de validation.
 --}}
 <x-guest-layout>
-
-    <div class="text-sm text-gray-500 dark:text-gray-400">
-        Vous avez oublié votre mot de passe ? Pas de problème.
-        Renseignez votre adresse e-mail et nous vous transmettrons par e-mail un lien
-        de réinitialisation qui vous permettra d'en choisir un nouveau.
-    </div>
+    <x-slot:title>Mot de passe oublié</x-slot:title>
+    <x-slot:description>Indiquez votre adresse e-mail&nbsp;: vous recevrez un lien pour choisir un nouveau mot de passe.</x-slot:description>
 
     <x-auth-session-status :status="session('status')"/>
 
-    <form method="post" action="{{ route('password.email') }}" class="flex flex-col gap-4">
+    <form method="post" action="{{ route('password.email') }}" class="flex flex-col gap-5">
         @csrf
 
         <div class="flex flex-col gap-1">
@@ -30,9 +26,13 @@
             <x-input-error :messages="$errors->get('email')"/>
         </div>
 
-        <div class="flex items-center justify-end">
-            <x-primary-button>Réinitialiser mon mot de passe</x-primary-button>
-        </div>
+        <x-primary-button class="w-full justify-center">Envoyer le lien</x-primary-button>
     </form>
 
+    <x-slot:footer>
+        <a
+            href="{{ route('login') }}"
+            class="font-medium text-indigo-700 dark:text-indigo-400 underline hover:no-underline rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+        >Retour à la connexion</a>
+    </x-slot:footer>
 </x-guest-layout>
