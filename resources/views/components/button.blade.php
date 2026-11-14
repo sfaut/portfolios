@@ -1,54 +1,16 @@
-@props([
-    'size' => 'normal',
-])
-<button
-    type="button"
+{{--
+    Bouton, ou lien à l'allure de bouton (App\View\Components\Button) : un lien avec href, un bouton
+    sinon, l'icône devant le texte.
 
-    {{
-        $attributes->class([
-            'rounded-md',
-            'leading-none',
-            'bg-indigo-800', 'dark:bg-indigo-600', 'text-white', 'font-medium', 'uppercase',
-            'tracking-wider',
-
-            'px-2' => ($size === 'tiny'),
-            'py-1.5' => ($size === 'tiny'),
-            'text-xs' => ($size === 'tiny'),
-
-            'px-3' => ($size === 'small'),
-            'py-2' => ($size === 'small'),
-            'text-sm' => ($size === 'small'),
-
-            'px-3.5' => ($size === 'normal'),
-            'py-2.5' => ($size === 'normal'),
-            'text-base' => ($size === 'normal'),
-
-            'px-4' => ($size === 'large'),
-            'py-3' => ($size === 'large'),
-            'text-lg' => ($size === 'large'),
-        ])
-    }}
->
-    {{ $slot }}
-</button>
-<!--
-<button type="button" class="px-3 py-2 text-xs">Extra small</button>
-<button type="button" class="px-3 py-2 text-sm">Small</button>
-<button type="button" class="px-5 py-2.5 text-sm">Base</button>
-<button type="button" class="px-5 py-3 text-base">Large</button>
-<button type="button" class="px-6 py-3.5 text-base">Extra large</button>
-
-Attributs communs :
-text-white
-text-center
-font-medium
-bg-blue-700
-hover:bg-blue-800
-dark:bg-blue-600
-dark:hover:bg-blue-700
-rounded-lg
-focus:ring-4
-focus:outline-hidden
-focus:ring-blue-300
-dark:focus:ring-blue-800
--->
+    @var string|null $href Adresse du lien, null pour un bouton.
+    @var string $type Type du bouton (button, submit, reset).
+    @var string|null $icon Nom de l'icône Lucide placée devant le texte, null sans icône.
+    @var list<string> $classes Classes de la variante.
+    @var \Illuminate\View\ComponentSlot $slot Texte du bouton.
+    @var \Illuminate\View\ComponentAttributeBag $attributes Attributs de l'appelant.
+--}}
+@if ($href !== null)
+<a href="{{ $href }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-dynamic-component :component="'lucide-'.$icon" class="size-4 shrink-0" aria-hidden="true"/>@endif{{ $slot }}</a>
+@else
+<button type="{{ $type }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-dynamic-component :component="'lucide-'.$icon" class="size-4 shrink-0" aria-hidden="true"/>@endif{{ $slot }}</button>
+@endif
