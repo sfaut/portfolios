@@ -85,11 +85,15 @@ test('the portfolio selector lists the portfolios of the user only, with the act
         ->assertDontSee('Portfolio du voisin');
 });
 
-test('the breadcrumb leads from the section to the parent page', function () {
+test('the breadcrumb leads from the portfolio list, through the portfolio and its section, to the parent page', function () {
     $response = $this->get(route('operation.edit', $this->operation));
 
     $response->assertSeeInOrder([
         '<nav aria-label="Fil d&#039;Ariane"',
+        'href="'.route('portfolio.index').'"',
+        'Portfolios',
+        'href="'.route('portfolio.dashboard', $this->portfolio).'"',
+        'Famille',
         'href="'.route('portfolio.show', $this->portfolio).'"',
         'Comptes',
         'href="'.route('account.show', $this->account).'"',
